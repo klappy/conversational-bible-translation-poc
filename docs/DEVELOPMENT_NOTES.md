@@ -153,6 +153,22 @@ Requires `.env` file with:
 
 ## Recent Updates
 
+### v0.3.0 - October 17, 2025
+
+#### Multi-Agent Architecture Implementation
+- **Complete Redesign**: Shifted from single LLM to multi-agent team
+- **Specialized Agents**: 
+  - Orchestrator: Manages conversation flow and agent coordination
+  - Primary Translator: Handles FIA methodology and user interaction
+  - State Manager: Extracts and persists canvas state changes
+  - Validator: Quality control and consistency checking
+  - Resource Agent: Biblical resources and commentary
+- **Server-Side State**: Canvas state now managed on server (canvas-state.js)
+- **Visual Identity System**: Each agent has unique icon, color, and role
+- **Agent Status Panel**: Real-time display of active agents
+- **Antifragile Design**: Agents can be added/removed without affecting others
+- **Polling Mechanism**: Client syncs with server state every 2 seconds
+
 ### v0.2.0 - October 17, 2025
 
 #### Connected Conversation to Canvas Artifacts

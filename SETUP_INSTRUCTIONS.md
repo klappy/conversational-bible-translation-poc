@@ -1,5 +1,7 @@
 # Setup Instructions for Bible Translation PoC
 
+> **Version 0.3.0 Update**: This version includes a multi-agent architecture with specialized AI agents working together. The system will automatically fall back to single-agent mode if the multi-agent system encounters issues.
+
 ## Quick Start
 
 ### 1. Environment Setup

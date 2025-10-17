@@ -6,18 +6,24 @@ An AI-powered conversational Bible translation tool implementing the FIA (Famili
 
 ## Features
 
+- 🤖 **Multi-Agent System**: Team of specialized AI agents working together
 - 🎯 **Conversational Interface**: Natural chat-based translation workflow
 - 📱 **Responsive Design**: Swipeable cards on mobile, sidebar on desktop
 - 📖 **FIA Methodology**: Phrase-by-phrase understanding before drafting
 - 🔍 **Smart Checking**: Automated validation with unfoldingWord resources
 - 💬 **Community Feedback**: Simulated peer review system
 - 🎤 **Mock Audio Support**: Prepared for voice input/output
+- 🎭 **Visual Agent Identity**: Each agent has unique icon and color
+- 📊 **Server-Side State**: Reliable state management with polling
 
 ## Tech Stack
 
 - **Frontend**: React with Vite
 - **Backend**: Netlify Functions (serverless)
-- **AI**: OpenAI GPT-4o-mini
+- **AI**: Multi-Agent System
+  - GPT-4o-mini (Primary Translator, Orchestrator)
+  - GPT-3.5-turbo (State Manager, Validator, Resources)
+- **State Management**: Server-side with polling
 - **Styling**: Custom CSS with mobile-first approach
 - **PWA**: Installable web app with offline capability
 
@@ -64,23 +70,43 @@ An AI-powered conversational Bible translation tool implementing the FIA (Famili
 ```
 /
 ├── src/
-│   ├── components/        # React components
-│   │   ├── ChatInterface  # Main chat UI
-│   │   ├── ScriptureCanvas # Desktop sidebar
-│   │   └── MobileSwipeView # Mobile swipe cards
-│   ├── contexts/          # React contexts
-│   ├── services/          # Business logic
-│   └── styles/            # CSS files
+│   ├── components/              # React components
+│   │   ├── AgentMessage         # Agent-attributed messages
+│   │   ├── AgentStatus          # Active agent panel
+│   │   ├── ChatInterfaceMultiAgent # Multi-agent chat UI
+│   │   ├── ScriptureCanvas      # Desktop sidebar
+│   │   └── MobileSwipeView      # Mobile swipe cards
+│   ├── contexts/                # React contexts
+│   ├── services/                # Business logic
+│   └── styles/                  # CSS files
 ├── netlify/
-│   └── functions/         # Serverless functions
-│       ├── chat.js        # OpenAI integration
-│       └── resources.js   # Bible/FIA data
+│   └── functions/               # Serverless functions
+│       ├── agents/
+│       │   └── registry.js      # Agent definitions
+│       ├── canvas-state.js      # State management
+│       ├── conversation.js      # Multi-agent orchestration
+│       ├── chat.js              # Original chat (fallback)
+│       └── resources.js         # Bible/FIA data
 ├── public/
-│   └── data/             # Static resources
-│       └── ruth/         # Ruth chapter data
-└── docs/                 # Documentation
+│   └── data/                   # Static resources
+│       └── ruth/               # Ruth chapter data
+└── docs/                       # Documentation
+    ├── MULTI_AGENT_ARCHITECTURE.md
+    ├── DEVELOPMENT_NOTES.md
+    ├── CONVERSATION_SUMMARY.md
+    └── COMMIT_PROCESS.md
 
 ```
+
+## Documentation
+
+- [Multi-Agent Architecture](./docs/MULTI_AGENT_ARCHITECTURE.md) - Detailed agent system documentation
+- [Development Notes](./docs/DEVELOPMENT_NOTES.md) - Technical implementation details  
+- [Conversation Summary](./docs/CONVERSATION_SUMMARY.md) - Development history
+- [Setup Instructions](./SETUP_INSTRUCTIONS.md) - Detailed setup guide
+- [PRD](./docs/PRD.md) - Product requirements document
+- [Commit Process](./docs/COMMIT_PROCESS.md) - Version management guidelines
+- [Changelog](./CHANGELOG.md) - Version history and changes
 
 ## Workshop Demo Paths
 
