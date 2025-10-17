@@ -1,0 +1,63 @@
+{
+  "terms": {
+    "LORD": {
+      "definition": "The personal name of God (YHWH/Yahweh)",
+      "notes": "Often rendered in small capitals in English translations",
+      "category": "divine"
+    },
+    "famine": {
+      "definition": "A severe shortage of food resulting in hunger",
+      "notes": "Often seen as divine judgment or testing in biblical narratives",
+      "category": "event"
+    },
+    "judges": {
+      "definition": "Leaders who governed Israel before the monarchy",
+      "notes": "Period characterized by cycles of sin, oppression, and deliverance",
+      "category": "historical"
+    },
+    "Moab": {
+      "definition": "A nation east of the Dead Sea, often hostile to Israel",
+      "notes": "Descendants of Lot through his elder daughter",
+      "category": "place"
+    },
+    "Bethlehem": {
+      "definition": "City in Judah, means 'house of bread'",
+      "notes": "Birthplace of King David and later Jesus",
+      "category": "place"
+    },
+    "kindness": {
+      "definition": "Hebrew 'chesed' - loyal love, faithfulness, covenant loyalty",
+      "notes": "A key theme in Ruth, describing both human and divine loyalty",
+      "category": "concept"
+    },
+    "daughters-in-law": {
+      "definition": "Women married to one's sons",
+      "notes": "Important family relationship in ancient Near Eastern culture",
+      "category": "relationship"
+    },
+    "Ephrathites": {
+      "definition": "People from the region of Ephrath, another name for Bethlehem",
+      "notes": "Indicates their specific clan or regional identity",
+      "category": "identity"
+    },
+    "rest": {
+      "definition": "Security and provision, especially through marriage",
+      "notes": "In Ruth's context, refers to finding a secure home",
+      "category": "concept"
+    },
+    "redeem": {
+      "definition": "To buy back or restore through payment",
+      "notes": "Central to the kinsman-redeemer concept in Ruth",
+      "category": "concept"
+    }
+  },
+  "categories": {
+    "divine": "Terms related to God",
+    "event": "Historical or narrative events",
+    "historical": "Historical periods or roles",
+    "place": "Geographic locations",
+    "concept": "Theological or cultural concepts",
+    "relationship": "Family or social relationships",
+    "identity": "Ethnic or cultural identity markers"
+  }
+}

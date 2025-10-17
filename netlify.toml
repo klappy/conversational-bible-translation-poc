@@ -1,0 +1,26 @@
+[build]
+  publish = "dist"
+  functions = "netlify/functions"
+  command = "npm run build"
+
+[dev]
+  command = "npm run dev"
+  port = 5173
+  functionsPort = 9999
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+
+[[headers]]
+  for = "/manifest.json"
+  [headers.values]
+    Content-Type = "application/manifest+json"
+
+[[headers]]
+  for = "/service-worker.js"
+  [headers.values]
+    Cache-Control = "no-cache"
