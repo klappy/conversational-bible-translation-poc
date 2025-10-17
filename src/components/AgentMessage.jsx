@@ -43,13 +43,21 @@ const agentProfiles = {
 };
 
 const AgentMessage = ({ message, agent, timestamp }) => {
-  const profile = agent ? agentProfiles[agent.id || agent] : agentProfiles.user;
-  
   // Determine if this is a user message
   const isUser = message.role === "user";
   
-  // Get the actual profile based on whether it's a user or agent
-  const displayProfile = isUser ? agentProfiles.user : (profile || agentProfiles.primary);
+  // Get the profile - for assistant messages without agent, default to primary
+  let profile;
+  if (isUser) {
+    profile = agentProfiles.user;
+  } else if (agent) {
+    profile = agentProfiles[agent.id || agent] || agentProfiles.primary;
+  } else {
+    // Assistant message without agent info defaults to primary
+    profile = agentProfiles.primary;
+  }
+  
+  const displayProfile = profile;
   
   return (
     <div 

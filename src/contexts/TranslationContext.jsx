@@ -49,16 +49,8 @@ export const TranslationProvider = ({ children }) => {
     totalPhrases: 0,
   });
 
-  // Chat history
-  const [messages, setMessages] = useState([
-    {
-      id: 1,
-      role: "assistant",
-      content:
-        "Welcome! I'll guide you through translating Ruth chapter 1 using the FIA methodology.\n\nLet's start by setting up your translation preferences. I'll use these defaults unless you'd like to change them:\n\n• **Language**: English → English\n• **Reading Level**: Grade 1\n• **Style**: Narrator, engaging tone\n• **Approach**: Meaning-based\n\nWould you like to:\n1. Use these settings and begin\n2. Adjust any of these settings first\n\nJust type 1 or 2, or tell me what you'd like to change!",
-      timestamp: new Date(),
-    },
-  ]);
+  // Chat history - starts empty, will be populated after loading server state
+  const [messages, setMessages] = useState([]);
 
   // Update style guide
   const updateStyleGuide = useCallback((updates) => {
@@ -175,6 +167,28 @@ export const TranslationProvider = ({ children }) => {
       },
     ]);
   }, []);
+  
+  // Generate initial message based on server state
+  const generateInitialMessage = useCallback((serverState) => {
+    const styleGuide = serverState?.styleGuide || project.styleGuide;
+    const readingLevel = styleGuide.readingLevel || "Grade 1";
+    const languagePair = styleGuide.languagePair || "English → English";
+    const tone = styleGuide.tone || "Narrator, engaging tone";
+    const philosophy = styleGuide.philosophy || "Meaning-based";
+    
+    return {
+      id: 1,
+      role: "assistant",
+      agent: { 
+        id: 'primary', 
+        icon: '📖', 
+        color: '#3B82F6',
+        name: 'Translation Assistant'
+      },
+      content: `Welcome! I'll guide you through translating Ruth chapter 1 using the FIA methodology.\n\nLet's start by setting up your translation preferences. I'll use these defaults unless you'd like to change them:\n\n• **Language**: ${languagePair}\n• **Reading Level**: ${readingLevel}\n• **Style**: ${tone}\n• **Approach**: ${philosophy}\n\nWould you like to:\n1. Use these settings and begin\n2. Adjust any of these settings first\n\nJust type 1 or 2, or tell me what you'd like to change!`,
+      timestamp: new Date(),
+    };
+  }, [project.styleGuide]);
 
   // Update local state from server state
   const updateFromServerState = useCallback((serverState) => {
@@ -232,6 +246,7 @@ export const TranslationProvider = ({ children }) => {
     isVerseUnderstandingComplete,
     addMessage,
     setMessages,
+    generateInitialMessage,
     updateFromServerState,
     WORKFLOW_PHASES,
   };

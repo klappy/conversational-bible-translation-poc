@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.3] - 2025-10-17
+
+### Fixed
+- Initial message now loads persistent server state first before displaying
+- Initial message shows correct reading level from persistent state (e.g., Grade 3 instead of hardcoded Grade 1)
+- Initial message attribution fixed - now correctly shows as "Translation Assistant" agent instead of "You"
+- Added proper agent metadata (icon, color, name) to initial message
+
+### Changed
+- TranslationContext starts with empty messages array, populated after server state loads
+- Added `generateInitialMessage` function that creates welcome message based on actual server state
+- ChatInterfaceMultiAgent generates initial message only once after first successful state load
+- AgentMessage component now correctly identifies assistant messages without agent metadata
+
 ## [0.3.2] - 2025-10-17
 
 ### Fixed

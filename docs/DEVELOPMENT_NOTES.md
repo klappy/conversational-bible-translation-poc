@@ -1,5 +1,25 @@
 # Development Notes - Bible Translation Assistant PoC
 
+## Recent Updates (v0.3.3 - October 17, 2025)
+
+### Initial Message Synchronization Fix
+Fixed critical issues with initial conversation message:
+
+1. **State Synchronization**:
+   - Initial message now waits for server state to load
+   - Displays actual persistent values (e.g., Grade 3) instead of hardcoded defaults
+   - Uses `generateInitialMessage` function that reads from server state
+
+2. **Agent Attribution**:
+   - Fixed initial message showing as "You" instead of "Translation Assistant"
+   - Added proper agent metadata (icon, color, name) to initial message
+   - Updated AgentMessage component to handle assistant messages without agent info
+
+3. **Implementation Details**:
+   - TranslationContext starts with empty messages array
+   - ChatInterfaceMultiAgent generates initial message after first state load
+   - Uses ref to ensure initial message is only generated once
+
 ## Project Overview
 
 This project was built as a Proof of Concept for the ETEN Summit 2025, demonstrating an AI-powered conversational Bible translation assistant using the FIA (Familiarization, Internalization, Articulation) methodology.

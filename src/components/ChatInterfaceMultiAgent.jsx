@@ -19,9 +19,13 @@ const ChatInterfaceMultiAgent = () => {
     messages, 
     addMessage,
     setMessages,
+    generateInitialMessage,
     updateFromServerState
   } = useTranslation();
 
+  // Track if initial message has been generated
+  const initialMessageGenerated = useRef(false);
+  
   // Poll for canvas state updates
   useEffect(() => {
     const pollCanvasState = async () => {
@@ -37,6 +41,13 @@ const ChatInterfaceMultiAgent = () => {
           // Update local state from server state
           if (updateFromServerState) {
             updateFromServerState(state);
+          }
+          
+          // Generate initial message only once, when state is loaded and no messages exist
+          if (!initialMessageGenerated.current && messages.length === 0 && generateInitialMessage) {
+            const initialMsg = generateInitialMessage(state);
+            addMessage(initialMsg);
+            initialMessageGenerated.current = true;
           }
         }
       } catch (error) {
@@ -55,7 +66,7 @@ const ChatInterfaceMultiAgent = () => {
         clearInterval(pollingInterval.current);
       }
     };
-  }, [updateFromServerState]);
+  }, [updateFromServerState, messages.length, generateInitialMessage, addMessage]);
 
   useEffect(() => {
     scrollToBottom();
