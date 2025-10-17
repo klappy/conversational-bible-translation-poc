@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.4] - 2025-10-17
+
+### Added
+- Multi-view mode for Translation Team panel (collapsed/compact/expanded)
+- View mode persistence using localStorage
+- Auto-expand feature when agents are thinking
+- Toggle button to cycle through view modes
+- Horizontal layout for compact agent display
+
+### Fixed
+- Translation Team panel consuming excessive vertical screen space
+- Agent panel now defaults to compact mode (60px vs 250-300px previously)
+- Improved UI balance with 80% reduction in agent panel height
+
+### Changed
+- Agent panel now has three display modes:
+  - Collapsed: Minimal 40px bar showing active agent count
+  - Compact: 60px horizontal layout with agent icons (default)
+  - Expanded: Original vertical layout (available on-demand)
+- Added responsive design adjustments for mobile screens
+- Enhanced visual feedback with pulsing indicators for thinking agents
+
 ## [0.3.3] - 2025-10-17
 
 ### Fixed

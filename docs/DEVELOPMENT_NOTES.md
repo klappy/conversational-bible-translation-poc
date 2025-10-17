@@ -1,6 +1,27 @@
 # Development Notes - Bible Translation Assistant PoC
 
-## Recent Updates (v0.3.3 - October 17, 2025)
+## Recent Updates (v0.3.4 - October 17, 2025)
+
+### Translation Team Panel UI Optimization
+Fixed the Translation Team panel consuming excessive screen real estate:
+
+1. **Multi-View Modes**:
+   - **Collapsed Mode** (40px): Minimal bar showing active agent count
+   - **Compact Mode** (60px): Horizontal layout with agent icons (now default)
+   - **Expanded Mode**: Original vertical layout (available on-demand)
+
+2. **Smart Features**:
+   - View mode persists in localStorage
+   - Auto-expands from collapsed when agents start thinking
+   - Toggle button cycles through all three modes
+   - Responsive adjustments for mobile screens
+
+3. **Space Efficiency**:
+   - Reduced vertical space usage by ~80% (from 250-300px to 60px)
+   - Maintains full agent visibility without obstruction
+   - Improved overall UI balance for better conversation flow
+
+## Previous Updates (v0.3.3 - October 17, 2025)
 
 ### Initial Message Synchronization Fix
 Fixed critical issues with initial conversation message:
