@@ -156,12 +156,13 @@ Requires `.env` file with:
 ### v0.2.0 - October 17, 2025
 
 #### Connected Conversation to Canvas Artifacts
+
 - **Added ResponseProcessor**: Service that parses AI responses and updates canvas components
 - **Fixed State Disconnect**: Canvas panels now update automatically based on conversation
 - **User Articulation Capture**: System now captures and stores user translations during Understanding
 - **Structured Updates**: Backend sends metadata alongside responses for reliable state updates
 
-### v0.1.0 - October 17, 2025  
+### v0.1.0 - October 17, 2025
 
 #### Fixed FIA Workflow Issues
 

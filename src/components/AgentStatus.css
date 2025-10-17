@@ -1,0 +1,190 @@
+.agent-status-panel {
+  background: white;
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 16px;
+}
+
+.agent-status-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #F3F4F6;
+}
+
+.agent-status-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #1F2937;
+}
+
+.agent-count {
+  font-size: 12px;
+  color: #6B7280;
+  background: #F3F4F6;
+  padding: 4px 8px;
+  border-radius: 12px;
+}
+
+.agent-status-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.agent-status-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  opacity: 1;
+}
+
+.agent-status-item.inactive {
+  opacity: 0.5;
+}
+
+.agent-status-item:hover {
+  background: #F9FAFB;
+}
+
+.status-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.agent-status-item.active .status-indicator {
+  box-shadow: 0 0 8px currentColor;
+}
+
+.thinking-pulse {
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  border-radius: 50%;
+  background: inherit;
+  animation: pulse 1.5s ease-in-out infinite;
+  opacity: 0.5;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+}
+
+.agent-icon {
+  font-size: 20px;
+  width: 24px;
+  text-align: center;
+}
+
+.agent-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.agent-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1F2937;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.agent-task {
+  font-size: 11px;
+  color: #9CA3AF;
+  font-style: italic;
+}
+
+.agent-status-item.active .agent-task {
+  color: #059669;
+}
+
+.agent-status-item.thinking .agent-task {
+  color: #F59E0B;
+  animation: blink 1s ease-in-out infinite;
+}
+
+@keyframes blink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+.agent-status-footer {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #F3F4F6;
+}
+
+.agent-description {
+  margin: 0;
+  font-size: 11px;
+  color: #9CA3AF;
+  text-align: center;
+}
+
+/* Collapsed state */
+.agent-status-panel.collapsed .agent-status-list,
+.agent-status-panel.collapsed .agent-status-footer {
+  display: none;
+}
+
+.agent-status-panel.collapsed .agent-status-header {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .agent-status-panel {
+    padding: 12px;
+    margin-bottom: 12px;
+  }
+  
+  .agent-status-header h3 {
+    font-size: 14px;
+  }
+  
+  .agent-status-item {
+    padding: 6px;
+  }
+  
+  .agent-icon {
+    font-size: 18px;
+  }
+  
+  .agent-name {
+    font-size: 13px;
+  }
+}

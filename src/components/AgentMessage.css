@@ -1,0 +1,162 @@
+.agent-message {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  border-left: 3px solid;
+  margin-bottom: 16px;
+  transition: background-color 0.2s ease;
+}
+
+.agent-message.user {
+  flex-direction: row-reverse;
+  border-left: none;
+  border-right: 3px solid #6B7280;
+}
+
+.agent-message:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.agent-avatar {
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  border-radius: 50%;
+  border: 2px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.agent-icon {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.message-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.agent-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.agent-name {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.agent-role {
+  font-size: 12px;
+  color: #6B7280;
+  font-style: italic;
+}
+
+.timestamp {
+  font-size: 11px;
+  color: #9CA3AF;
+  margin-left: auto;
+}
+
+.message-text {
+  color: #1F2937;
+  line-height: 1.6;
+}
+
+.message-text p {
+  margin: 0 0 12px 0;
+}
+
+.message-text p:last-child {
+  margin-bottom: 0;
+}
+
+.message-text ul,
+.message-text ol {
+  margin: 8px 0;
+  padding-left: 24px;
+}
+
+.message-text li {
+  margin: 4px 0;
+}
+
+.message-text code {
+  background: #F3F4F6;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+.message-text pre {
+  background: #1F2937;
+  color: #F9FAFB;
+  padding: 12px;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 12px 0;
+}
+
+.message-text blockquote {
+  border-left: 3px solid #D1D5DB;
+  padding-left: 16px;
+  margin: 12px 0;
+  color: #6B7280;
+  font-style: italic;
+}
+
+/* Agent-specific styling */
+.agent-message.validator {
+  background-color: rgba(249, 115, 22, 0.05);
+}
+
+.agent-message.resource {
+  background-color: rgba(99, 102, 241, 0.05);
+}
+
+.agent-message.state {
+  background-color: rgba(16, 185, 129, 0.05);
+}
+
+/* Warning messages */
+.message-warning {
+  background: #FEF3C7;
+  border: 1px solid #FBBF24;
+  border-radius: 6px;
+  padding: 8px 12px;
+  margin-top: 8px;
+  font-size: 14px;
+  color: #92400E;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .agent-message {
+    padding: 12px;
+  }
+  
+  .agent-avatar {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+  }
+  
+  .agent-icon {
+    font-size: 20px;
+  }
+  
+  .agent-header {
+    font-size: 12px;
+  }
+  
+  .timestamp {
+    display: none;
+  }
+}

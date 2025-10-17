@@ -176,6 +176,48 @@ export const TranslationProvider = ({ children }) => {
     ]);
   }, []);
 
+  // Update local state from server state
+  const updateFromServerState = useCallback((serverState) => {
+    if (!serverState) return;
+    
+    // Update project state
+    if (serverState.styleGuide) {
+      setProject(prev => ({
+        ...prev,
+        styleGuide: { ...prev.styleGuide, ...serverState.styleGuide }
+      }));
+    }
+    
+    if (serverState.glossary) {
+      setProject(prev => ({
+        ...prev,
+        glossary: serverState.glossary
+      }));
+    }
+    
+    if (serverState.scriptureCanvas) {
+      setProject(prev => ({
+        ...prev,
+        scriptureCanvas: serverState.scriptureCanvas
+      }));
+    }
+    
+    if (serverState.feedback) {
+      setProject(prev => ({
+        ...prev,
+        feedback: serverState.feedback
+      }));
+    }
+    
+    // Update workflow state
+    if (serverState.workflow) {
+      setWorkflow(prev => ({
+        ...prev,
+        ...serverState.workflow
+      }));
+    }
+  }, []);
+
   const value = {
     project,
     workflow,
@@ -190,6 +232,7 @@ export const TranslationProvider = ({ children }) => {
     isVerseUnderstandingComplete,
     addMessage,
     setMessages,
+    updateFromServerState,
     WORKFLOW_PHASES,
   };
 

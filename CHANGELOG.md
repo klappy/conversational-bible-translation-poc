@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2025-10-17
+
+### Added
+- **Multi-Agent Architecture**: Complete redesign with specialized AI agents
+  - Orchestrator Agent: Manages conversation flow
+  - Primary Translator: Handles translation conversation
+  - State Manager: Extracts and updates canvas state
+  - Validator Agent: Checks quality and consistency
+  - Resource Agent: Provides biblical resources
+- **Server-Side State Management**: Canvas state now managed on server
+- **Agent Visual Identity**: Each agent has unique icon, color, and avatar
+- **Agent Status Panel**: Shows active agents and their current status
+- **Polling Mechanism**: Client polls server for state updates every 2 seconds
+- **AgentMessage Component**: Displays messages with agent attribution
+- **Fallback Support**: Falls back to original chat if multi-agent fails
+
+### Changed
+- **Architecture Shift**: From client-side parsing to server-side state management
+- **Chat Interface**: Now uses multi-agent system with visual differentiation
+- **State Updates**: Canvas artifacts update from server state, not client parsing
+- **Message Display**: Messages show which agent is speaking
+
+### Fixed
+- **State Synchronization**: Canvas and conversation now properly synchronized
+- **Antifragility**: System more resilient with multiple specialized agents
+- **Scalability**: Easy to add new agents without modifying existing ones
+
 ## [0.2.0] - 2025-10-17
 
 ### Added

@@ -282,3 +282,28 @@
   color: #856404;
   text-align: center;
 }
+
+/* Thinking indicator */
+.thinking-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px;
+  color: #6B7280;
+}
+
+.thinking-text {
+  font-size: 14px;
+  font-style: italic;
+  animation: fade 1.5s ease-in-out infinite;
+}
+
+@keyframes fade {
+  0%, 100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}

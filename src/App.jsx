@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import ChatInterface from "./components/ChatInterface";
+import ChatInterfaceMultiAgent from "./components/ChatInterfaceMultiAgent";
 import ScriptureCanvas from "./components/ScriptureCanvas";
 import MobileSwipeView from "./components/MobileSwipeView";
 import { TranslationProvider } from "./contexts/TranslationContext";
@@ -27,7 +27,7 @@ function App() {
         ) : (
           <div className='desktop-layout'>
             <div className='chat-container'>
-              <ChatInterface />
+              <ChatInterfaceMultiAgent />
             </div>
             <div className={`sidebar-container ${sidebarCollapsed ? "collapsed" : ""}`}>
               <button
