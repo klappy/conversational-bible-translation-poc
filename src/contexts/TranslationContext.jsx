@@ -201,7 +201,7 @@ export const TranslationProvider = ({ children }) => {
         color: '#3B82F6',
         name: 'Translation Assistant'
       },
-      content: `Welcome! I'll guide you through translating Ruth chapter 1 using the FIA methodology.\n\nLet's start by setting up your translation preferences. I'll use these defaults unless you'd like to change them:\n\n• **Language**: ${languagePair}\n• **Reading Level**: ${readingLevel}\n• **Style**: ${tone}\n• **Approach**: ${philosophy}\n\nOnce we begin, I'll first show you Ruth 1:1-5 for context (this is called a pericope - a complete story unit). Then we'll work through each verse phrase by phrase, understanding each small piece before moving on.\n\nWould you like to:\n1. Use these settings and begin with the story overview\n2. Adjust any of these settings first\n\nJust type 1 or 2, or tell me what you'd like to change!`,
+      content: `Welcome! Let's translate Ruth chapter 1 together.\n\nI'll use simple English (${readingLevel}) unless you'd like something different.\n\nReady to start? Just type "yes" or let me know if you want to adjust the reading level.`,
       timestamp: new Date(),
     };
   }, [project.styleGuide]);
