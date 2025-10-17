@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import "./AgentStatus.css";
 
 const agentProfiles = {
@@ -29,7 +29,24 @@ const agentProfiles = {
   }
 };
 
-const AgentStatus = ({ activeAgents = [], thinking = [] }) => {
+const AgentStatus = ({ activeAgents = [], thinking = [], defaultViewMode = 'compact' }) => {
+  const [viewMode, setViewMode] = useState(() => {
+    // Load saved preference from localStorage
+    return localStorage.getItem('agentPanelView') || defaultViewMode;
+  });
+  
+  // Auto-expand when agents are thinking
+  useEffect(() => {
+    if (thinking.length > 0 && viewMode === 'collapsed') {
+      setViewMode('compact');
+    }
+  }, [thinking, viewMode]);
+  
+  // Save view preference
+  useEffect(() => {
+    localStorage.setItem('agentPanelView', viewMode);
+  }, [viewMode]);
+  
   // Get all agents and mark which are active
   const allAgents = Object.keys(agentProfiles).map(id => ({
     id,
@@ -37,14 +54,89 @@ const AgentStatus = ({ activeAgents = [], thinking = [] }) => {
     active: activeAgents.includes(id),
     isThinking: thinking.includes(id)
   }));
+  
+  const handleViewToggle = () => {
+    const modes = ['collapsed', 'compact', 'expanded'];
+    const currentIndex = modes.indexOf(viewMode);
+    const nextIndex = (currentIndex + 1) % modes.length;
+    setViewMode(modes[nextIndex]);
+  };
 
+  // Collapsed view - just a thin bar
+  if (viewMode === 'collapsed') {
+    return (
+      <div className="agent-status-panel collapsed">
+        <div className="agent-status-collapsed-bar" onClick={handleViewToggle}>
+          <div className="collapsed-content">
+            <span className="collapsed-icon">👥</span>
+            <span className="collapsed-text">
+              {activeAgents.length} agent{activeAgents.length !== 1 ? 's' : ''} active
+            </span>
+            {thinking.length > 0 && (
+              <span className="thinking-indicator-dot" />
+            )}
+          </div>
+          <button className="expand-button" aria-label="Expand agent panel">
+            ▼
+          </button>
+        </div>
+      </div>
+    );
+  }
+  
+  // Compact view - horizontal layout
+  if (viewMode === 'compact') {
+    return (
+      <div className="agent-status-panel compact">
+        <div className="agent-status-header compact-header">
+          <div className="compact-agents">
+            {allAgents.map(agent => (
+              <div
+                key={agent.id}
+                className={`agent-compact-item ${agent.active ? 'active' : 'inactive'} ${agent.isThinking ? 'thinking' : ''}`}
+                title={`${agent.name}: ${agent.isThinking ? 'Thinking...' : agent.active ? 'Ready' : 'Inactive'}`}
+              >
+                <span className="agent-icon">{agent.icon}</span>
+                <span
+                  className="compact-status-dot"
+                  style={{
+                    backgroundColor: agent.active ? agent.color : '#CBD5E1'
+                  }}
+                >
+                  {agent.isThinking && <span className="thinking-pulse" />}
+                </span>
+              </div>
+            ))}
+          </div>
+          <button
+            className="view-toggle-button"
+            onClick={handleViewToggle}
+            title="Toggle view mode"
+          >
+            {viewMode === 'compact' ? '⊞' : '⊟'}
+          </button>
+        </div>
+      </div>
+    );
+  }
+  
+  // Expanded view - original vertical layout
   return (
-    <div className="agent-status-panel">
+    <div className="agent-status-panel expanded">
       <div className="agent-status-header">
         <h3>Translation Team</h3>
-        <span className="agent-count">
-          {activeAgents.length} active
-        </span>
+        <div className="header-controls">
+          <span className="agent-count">
+            {activeAgents.length} active
+          </span>
+          <button
+            className="view-toggle-button"
+            onClick={handleViewToggle}
+            title="Collapse panel"
+          >
+            ⊟
+          </button>
+        </div>
       </div>
       
       <div className="agent-status-list">
