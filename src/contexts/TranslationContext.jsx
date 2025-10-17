@@ -201,7 +201,7 @@ export const TranslationProvider = ({ children }) => {
         color: '#3B82F6',
         name: 'Translation Assistant'
       },
-      content: `Welcome! Let's translate Ruth chapter 1 together.\n\nI'll use simple English (${readingLevel}) unless you'd like something different.\n\nReady to start? Just type "yes" or let me know if you want to adjust the reading level.`,
+      content: `Welcome! Let's translate Ruth together. What languages are we working with?`,
       timestamp: new Date(),
     };
   }, [project.styleGuide]);

@@ -164,17 +164,32 @@ async function processConversation(userMessage, conversationHistory) {
 
     // Parse and apply state updates
     try {
-      const stateUpdates = JSON.parse(stateResult.response);
-      if (stateUpdates.updates && Object.keys(stateUpdates.updates).length > 0) {
-        await updateCanvasState(stateUpdates.updates, "state");
+      // Canvas Scribe now provides conversational text + JSON
+      // Extract JSON from the response (it comes after the conversational part)
+      const responseText = stateResult.response;
+      const jsonMatch = responseText.match(/\{[\s\S]*\}$/);
+      
+      if (jsonMatch) {
+        const stateUpdates = JSON.parse(jsonMatch[0]);
+        if (stateUpdates.updates && Object.keys(stateUpdates.updates).length > 0) {
+          await updateCanvasState(stateUpdates.updates, "state");
+        }
+        
+        // Extract the conversational part (before the JSON)
+        const conversationalPart = responseText.substring(0, responseText.indexOf(jsonMatch[0])).trim();
+        
+        // Store both the conversational response and the updates
         responses.state = {
           ...stateResult,
+          response: conversationalPart, // The text the scribe says
           updates: stateUpdates.updates,
           summary: stateUpdates.summary,
         };
       }
     } catch (e) {
       console.error("Error parsing state updates:", e);
+      // If parsing fails, treat it as a regular response
+      responses.state = stateResult;
     }
   }
 
@@ -239,6 +254,15 @@ function mergeAgentResponses(responses) {
       role: "assistant",
       content: responses.primary.response,
       agent: responses.primary.agent,
+    });
+  }
+
+  // Include Canvas Scribe's conversational response if present
+  if (responses.state && !responses.state.error && responses.state.response) {
+    messages.push({
+      role: "assistant",
+      content: responses.state.response,
+      agent: responses.state.agent,
     });
   }
 
