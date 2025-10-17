@@ -13,7 +13,6 @@ const ChatInterfaceMultiAgent = () => {
   const [canvasState, setCanvasState] = useState(null);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
-  const pollingInterval = useRef(null);
 
   const { messages, addMessage, setMessages, generateInitialMessage, updateFromServerState } =
     useTranslation();
@@ -37,13 +36,6 @@ const ChatInterfaceMultiAgent = () => {
           if (updateFromServerState) {
             updateFromServerState(state);
           }
-
-          // Generate initial message only once, when state is loaded and no messages exist
-          if (!initialMessageGenerated.current && messages.length === 0 && generateInitialMessage) {
-            const initialMsg = generateInitialMessage(state);
-            addMessage(initialMsg);
-            initialMessageGenerated.current = true;
-          }
         }
       } catch (error) {
         // Silently fail - server might not be running yet
@@ -54,14 +46,21 @@ const ChatInterfaceMultiAgent = () => {
     pollCanvasState();
 
     // Set up polling interval (every 2 seconds)
-    pollingInterval.current = setInterval(pollCanvasState, 2000);
+    const intervalId = setInterval(pollCanvasState, 2000);
 
     return () => {
-      if (pollingInterval.current) {
-        clearInterval(pollingInterval.current);
-      }
+      clearInterval(intervalId);
     };
-  }, [updateFromServerState, messages.length, generateInitialMessage, addMessage]);
+  }, []); // Empty dependency array - only set up once
+
+  // Separate effect for initial message generation
+  useEffect(() => {
+    if (!initialMessageGenerated.current && messages.length === 0 && generateInitialMessage && canvasState) {
+      const initialMsg = generateInitialMessage(canvasState);
+      addMessage(initialMsg);
+      initialMessageGenerated.current = true;
+    }
+  }, [messages.length, generateInitialMessage, addMessage, canvasState]);
 
   useEffect(() => {
     scrollToBottom();
