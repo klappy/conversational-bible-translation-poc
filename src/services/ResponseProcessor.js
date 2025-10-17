@@ -13,12 +13,27 @@ export class ResponseProcessor {
     const content = message.content.toLowerCase();
     const updates = [];
 
+    // Check for pericope presentation (Ruth 1:1-5 overview)
+    if (message.content.includes("Ruth 1:1-5") && 
+        (content.includes("overview") ||
+         content.includes("pericope") ||
+         content.includes("context") ||
+         content.includes("story"))) {
+      updates.push({
+        type: 'workflow',
+        action: 'markPericopeRead',
+        params: []
+      });
+    }
+
     // Check for phase transitions
     if (content.includes("let's move to understanding") || 
         content.includes("now let's understand") ||
         content.includes("understanding phase") ||
         content.includes("let's begin understanding") ||
-        content.includes("now, let's look at the verse")) {
+        content.includes("now, let's look at the verse") ||
+        content.includes("let's focus on verse") ||
+        content.includes("let's work through verse")) {
       updates.push({
         type: 'workflow',
         action: 'progressWorkflow',
@@ -39,6 +54,16 @@ export class ResponseProcessor {
             params: [verseRef, verseTextMatch[1], 'original']
           });
         }
+      }
+      
+      // Check if we're immediately going to phrase work
+      const phraseMatch = message.content.match(/(?:first|starting with|let's look at).*phrase[:\s]*["']([^"']+)["']/i);
+      if (phraseMatch) {
+        updates.push({
+          type: 'workflow',
+          action: 'setCurrentPhrase',
+          params: [0]  // Start with first phrase
+        });
       }
     } else if (content.includes("let's start drafting") ||
                content.includes("drafting phase") ||

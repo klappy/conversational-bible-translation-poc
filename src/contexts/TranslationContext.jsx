@@ -148,6 +148,22 @@ export const TranslationProvider = ({ children }) => {
     }));
   }, []);
 
+  // Set current phrase directly
+  const setCurrentPhrase = useCallback((phraseIndex) => {
+    setWorkflow((prev) => ({
+      ...prev,
+      currentPhrase: phraseIndex,
+    }));
+  }, []);
+
+  // Mark pericope as read
+  const markPericopeRead = useCallback(() => {
+    setWorkflow((prev) => ({
+      ...prev,
+      pericopeRead: true,
+    }));
+  }, []);
+
   // Check if all phrases are complete for current verse
   const isVerseUnderstandingComplete = useCallback(() => {
     const completedCount = Object.keys(workflow.phrasesCompleted).filter((key) =>
@@ -185,7 +201,7 @@ export const TranslationProvider = ({ children }) => {
         color: '#3B82F6',
         name: 'Translation Assistant'
       },
-      content: `Welcome! I'll guide you through translating Ruth chapter 1 using the FIA methodology.\n\nLet's start by setting up your translation preferences. I'll use these defaults unless you'd like to change them:\n\n• **Language**: ${languagePair}\n• **Reading Level**: ${readingLevel}\n• **Style**: ${tone}\n• **Approach**: ${philosophy}\n\nWould you like to:\n1. Use these settings and begin\n2. Adjust any of these settings first\n\nJust type 1 or 2, or tell me what you'd like to change!`,
+      content: `Welcome! I'll guide you through translating Ruth chapter 1 using the FIA methodology.\n\nLet's start by setting up your translation preferences. I'll use these defaults unless you'd like to change them:\n\n• **Language**: ${languagePair}\n• **Reading Level**: ${readingLevel}\n• **Style**: ${tone}\n• **Approach**: ${philosophy}\n\nOnce we begin, I'll first show you Ruth 1:1-5 for context (this is called a pericope - a complete story unit). Then we'll work through each verse phrase by phrase, understanding each small piece before moving on.\n\nWould you like to:\n1. Use these settings and begin with the story overview\n2. Adjust any of these settings first\n\nJust type 1 or 2, or tell me what you'd like to change!`,
       timestamp: new Date(),
     };
   }, [project.styleGuide]);
@@ -243,6 +259,8 @@ export const TranslationProvider = ({ children }) => {
     progressWorkflow,
     completePhraseUnderstanding,
     nextPhrase,
+    setCurrentPhrase,
+    markPericopeRead,
     isVerseUnderstandingComplete,
     addMessage,
     setMessages,

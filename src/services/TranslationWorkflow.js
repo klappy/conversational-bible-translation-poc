@@ -15,6 +15,8 @@ export class TranslationWorkflow {
     this.currentPhraseIndex = 0;
     this.verseData = null;
     this.phrasesCompleted = {};
+    this.pericopeRead = false; // Track if pericope overview was presented
+    this.currentPericope = "Ruth 1:1-5"; // Current story unit
   }
 
   async loadVerseData(verseRef) {
@@ -84,6 +86,42 @@ export class TranslationWorkflow {
     return true;
   }
 
+  // Pericope handling methods
+  async loadPericope() {
+    try {
+      const response = await fetch("/data/ruth/bsb-ruth-1.json");
+      const data = await response.json();
+      
+      // Extract verses 1-5 for the pericope
+      const pericopeVerses = data.verses.filter(v => v.verse >= 1 && v.verse <= 5);
+      
+      return {
+        reference: this.currentPericope,
+        verses: pericopeVerses,
+        text: pericopeVerses.map(v => v.text).join(" "),
+      };
+    } catch (error) {
+      console.error("Failed to load pericope:", error);
+      return null;
+    }
+  }
+
+  markPericopeRead() {
+    this.pericopeRead = true;
+  }
+
+  isPericopeRead() {
+    return this.pericopeRead;
+  }
+
+  getCurrentPericope() {
+    return this.currentPericope;
+  }
+
+  setCurrentPericope(pericopeRef) {
+    this.currentPericope = pericopeRef;
+  }
+
   canProgressPhase(fromPhase, toPhase) {
     const phaseOrder = [
       this.phases.PLANNING,
@@ -110,26 +148,20 @@ export class TranslationWorkflow {
   }
 
   // Generate questions for Understanding phase (FIA methodology)
-  generateUnderstandingQuestions(phrase) {
+  generateUnderstandingQuestions(phrase, isFirstPhrase = false) {
     const questions = [];
 
-    // Start with basic comprehension - what's happening?
-    questions.push({
-      type: "comprehension",
-      question: `What is happening in this phrase? Can you retell it in your own words?`,
-      focus: "action",
-    });
-
-    // Check for key terms that need understanding
+    // For phrases, skip broad comprehension and focus on specific elements
+    
+    // Check for key terms that need understanding FIRST
     const keyTerms = this.extractKeyTerms(phrase);
-
     if (keyTerms.length > 0) {
       // Focus on one key term at a time
       const term = keyTerms[0]; // Work through terms one by one
       questions.push({
         type: "term",
         term: term,
-        question: `What do you think "${term}" means in this context? How would you explain it to someone?`,
+        question: `In the phrase "${phrase}", what do you think "${term}" means? How would you explain it?`,
       });
     }
 
@@ -137,7 +169,7 @@ export class TranslationWorkflow {
     if (this.hasProperNoun(phrase)) {
       questions.push({
         type: "identification",
-        question: `Who or what place is being mentioned here? What do you know about them?`,
+        question: `Who or what place is "${phrase}" talking about? What do you know about them?`,
       });
     }
 
@@ -145,14 +177,14 @@ export class TranslationWorkflow {
     if (this.hasCulturalElement(phrase)) {
       questions.push({
         type: "cultural",
-        question: `Is there something from that time period or culture we need to understand? What might be unfamiliar to readers today?`,
+        question: `In "${phrase}", is there something from that time period we need to understand?`,
       });
     }
 
-    // Finally, ask for their phrasing (but NOT a translation)
+    // Always end with asking for their articulation of the specific phrase
     questions.push({
       type: "articulation",
-      question: `If you were telling this part of the story to a friend, what words would you use?`,
+      question: `How would you express "${phrase}" in your own words?`,
     });
 
     return questions;
