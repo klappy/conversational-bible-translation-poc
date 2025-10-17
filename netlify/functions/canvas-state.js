@@ -4,8 +4,14 @@
  * This is the single source of truth for the application state
  */
 
-// In-memory state store (will be replaced with persistent storage later)
-let globalState = {
+import { promises as fs } from 'fs';
+import { join } from 'path';
+
+// State file path (in temp directory for local dev)
+const STATE_FILE = join('/tmp', 'canvas-state.json');
+
+// Default state
+const DEFAULT_STATE = {
   styleGuide: {
     languagePair: "English → English",
     readingLevel: "Grade 1",
@@ -34,14 +40,37 @@ let globalState = {
   }
 };
 
-// State update history (for debugging and potential rollback)
-let stateHistory = [];
-const MAX_HISTORY = 50;
+/**
+ * Load state from file or return default
+ */
+async function loadState() {
+  try {
+    const data = await fs.readFile(STATE_FILE, 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    // File doesn't exist or is invalid, return default
+    return { ...DEFAULT_STATE };
+  }
+}
+
+/**
+ * Save state to file
+ */
+async function saveState(state) {
+  try {
+    await fs.writeFile(STATE_FILE, JSON.stringify(state, null, 2));
+    return true;
+  } catch (error) {
+    console.error('Error saving state:', error);
+    return false;
+  }
+}
 
 /**
  * Get the current state
  */
-function getState() {
+async function getState() {
+  const globalState = await loadState();
   return {
     ...globalState,
     metadata: {
@@ -54,36 +83,29 @@ function getState() {
 /**
  * Update the state with validation
  */
-function updateState(updates, agentId = 'user') {
+async function updateState(updates, agentId = 'user') {
   try {
     // Validate updates
     if (!updates || typeof updates !== 'object') {
       throw new Error('Invalid updates provided');
     }
 
-    // Store previous state in history
-    stateHistory.push({
-      timestamp: new Date().toISOString(),
-      agentId,
-      previousState: JSON.parse(JSON.stringify(globalState)),
-      updates
-    });
-
-    // Trim history if needed
-    if (stateHistory.length > MAX_HISTORY) {
-      stateHistory = stateHistory.slice(-MAX_HISTORY);
-    }
+    // Load current state
+    let globalState = await loadState();
 
     // Apply updates (deep merge)
     globalState = deepMerge(globalState, updates);
     
     // Update metadata
     globalState.metadata.lastUpdated = new Date().toISOString();
-    globalState.metadata.version++;
+    globalState.metadata.version = (globalState.metadata.version || 1) + 1;
+
+    // Save to file
+    await saveState(globalState);
 
     return {
       success: true,
-      state: getState()
+      state: await getState()
     };
   } catch (error) {
     return {
@@ -96,8 +118,8 @@ function updateState(updates, agentId = 'user') {
 /**
  * Reset state to initial values
  */
-function resetState() {
-  globalState = {
+async function resetState() {
+  const globalState = {
     styleGuide: {
       languagePair: "English → English",
       readingLevel: "Grade 1",
@@ -125,7 +147,7 @@ function resetState() {
       version: 1
     }
   };
-  stateHistory = [];
+  await saveState(globalState);
   return getState();
 }
 
@@ -177,31 +199,33 @@ const handler = async (req, context) => {
     const url = new URL(req.url);
     const path = url.pathname.replace('/.netlify/functions/canvas-state', '');
 
-    // GET /state - Get current state
-    if (req.method === "GET" && (path === "" || path === "/")) {
-      return new Response(JSON.stringify(getState()), { 
-        status: 200, 
-        headers 
-      });
-    }
+  // GET /state - Get current state
+  if (req.method === "GET" && (path === "" || path === "/")) {
+    const state = await getState();
+    return new Response(JSON.stringify(state), { 
+      status: 200, 
+      headers 
+    });
+  }
 
-    // GET /history - Get state history
-    if (req.method === "GET" && path === "/history") {
-      return new Response(JSON.stringify({ 
-        history: stateHistory,
-        currentState: getState()
-      }), { 
-        status: 200, 
-        headers 
-      });
-    }
+  // GET /history - Get state history (deprecated for file-based storage)
+  if (req.method === "GET" && path === "/history") {
+    const state = await getState();
+    return new Response(JSON.stringify({ 
+      history: [],  // No longer storing history with file-based approach
+      currentState: state
+    }), { 
+      status: 200, 
+      headers 
+    });
+  }
 
     // POST /update - Update state
     if (req.method === "POST" && path === "/update") {
       const body = await req.json();
       const { updates, agentId } = body;
       
-      const result = updateState(updates, agentId);
+      const result = await updateState(updates, agentId);
       
       return new Response(JSON.stringify(result), {
         status: result.success ? 200 : 400,
@@ -211,7 +235,7 @@ const handler = async (req, context) => {
 
     // POST /reset - Reset state
     if (req.method === "POST" && path === "/reset") {
-      const state = resetState();
+      const state = await resetState();
       
       return new Response(JSON.stringify({
         success: true,
