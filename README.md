@@ -1,5 +1,7 @@
 # Bible Translation Assistant (PoC)
 
+**Version 0.1.0** | [Changelog](./CHANGELOG.md)
+
 An AI-powered conversational Bible translation tool implementing the FIA (Familiarization, Internalization, Articulation) methodology for church-based Bible translation.
 
 ## Features

@@ -206,5 +206,29 @@ The app provides a solid foundation for church-based Bible translation, making t
 
 ---
 
-_Development completed: October 17, 2025_
-_Ready for: GitHub commit and Netlify deployment_
+## Recent Updates (October 17, 2025)
+
+### v0.1.0 - Fixed FIA Workflow Issues
+
+The user identified that the translation workflow was not following proper FIA methodology:
+- Was asking about themes/meaning before showing verse text
+- Questions were thematic instead of comprehension-based
+- Missing phrase-by-phrase progression
+
+**Fixes Implemented:**
+1. Updated system prompt with comprehensive FIA methodology
+2. Enhanced workflow to present verse text BEFORE questions
+3. Changed question generation to focus on comprehension
+4. Added proper phrase-by-phrase tracking through verses
+5. Improved context passing to AI with current phrase and progress
+
+The application now correctly follows the FIA pattern:
+- **Planning**: Confirm settings
+- **Understanding**: Show verse → Ask comprehension → Collect user phrasing
+- **Drafting**: Synthesize user input into translation
+
+---
+
+_Last Updated: October 17, 2025_
+_Version: 0.1.0_
+_Status: Fixed workflow issues, ready for testing_

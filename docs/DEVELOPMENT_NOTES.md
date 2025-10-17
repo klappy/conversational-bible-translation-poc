@@ -151,6 +151,20 @@ Requires `.env` file with:
 - Desktop and mobile responsive testing
 - API integration testing with mock data
 
+## Recent Updates (v0.1.0 - October 17, 2025)
+
+### Fixed FIA Workflow Issues
+- **Verse Presentation**: System now shows actual Bible verse text BEFORE asking questions
+- **Question Types**: Replaced thematic questions with proper comprehension-based questions
+- **Phrase Tracking**: Implemented proper phrase-by-phrase progression through verses
+- **System Prompt**: Updated with comprehensive FIA methodology including all six phases
+
+### Enhanced Features
+- Automatic verse data loading during Understanding phase
+- Proper workflow state tracking with phrase completion
+- Better context passing to AI including current phrase and progress
+- Improved initial welcome message with clear defaults
+
 ## Known Limitations (PoC Scope)
 
 1. **Audio Features**: Mock implementation only

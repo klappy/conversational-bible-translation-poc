@@ -109,38 +109,74 @@ export class TranslationWorkflow {
     return false;
   }
 
-  // Generate questions for Understanding phase
+  // Generate questions for Understanding phase (FIA methodology)
   generateUnderstandingQuestions(phrase) {
     const questions = [];
 
-    // Check for key terms that need explanation
+    // Start with basic comprehension - what's happening?
+    questions.push({
+      type: "comprehension",
+      question: `What is happening in this phrase? Can you retell it in your own words?`,
+      focus: "action",
+    });
+
+    // Check for key terms that need understanding
     const keyTerms = this.extractKeyTerms(phrase);
 
     if (keyTerms.length > 0) {
-      keyTerms.forEach((term) => {
-        questions.push({
-          type: "concept",
-          term: term,
-          question: `The term "${term}" appears in this phrase. How would your audience understand this concept? What words or expressions would they use?`,
-        });
+      // Focus on one key term at a time
+      const term = keyTerms[0]; // Work through terms one by one
+      questions.push({
+        type: "term",
+        term: term,
+        question: `What do you think "${term}" means in this context? How would you explain it to someone?`,
       });
     }
 
-    // Add general comprehension question
-    questions.push({
-      type: "comprehension",
-      question: `Looking at "${phrase}", what is the main action or idea being communicated? How would you naturally express this in your target language?`,
-    });
+    // Check for people/places
+    if (this.hasProperNoun(phrase)) {
+      questions.push({
+        type: "identification",
+        question: `Who or what place is being mentioned here? What do you know about them?`,
+      });
+    }
 
-    // Check for cultural elements
+    // Check for cultural/historical elements
     if (this.hasCulturalElement(phrase)) {
       questions.push({
         type: "cultural",
-        question: `This phrase contains cultural or historical context. How would you help your audience understand this in their context?`,
+        question: `Is there something from that time period or culture we need to understand? What might be unfamiliar to readers today?`,
       });
     }
 
+    // Finally, ask for their phrasing (but NOT a translation)
+    questions.push({
+      type: "articulation",
+      question: `If you were telling this part of the story to a friend, what words would you use?`,
+    });
+
     return questions;
+  }
+
+  hasProperNoun(phrase) {
+    const properNouns = [
+      "Bethlehem",
+      "Judah",
+      "Moab",
+      "Elimelech",
+      "Naomi",
+      "Mahlon",
+      "Chilion",
+      "Orpah",
+      "Ruth",
+      "Ephrathites",
+      "LORD",
+    ];
+
+    const phraseWords = phrase.split(/\s+/);
+    return phraseWords.some((word) =>
+      properNouns.some((noun) => word.toLowerCase().includes(noun.toLowerCase()))
+    );
   }
 
   extractKeyTerms(phrase) {

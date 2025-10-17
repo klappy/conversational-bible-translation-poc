@@ -35,7 +35,35 @@ const ChatInterface = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch("/.netlify/functions/chat", {
+      // Load verse data if in understanding phase
+      let verseData = null;
+      if (workflow.currentPhase === "understanding") {
+        try {
+          const response = await fetch("/data/ruth/bsb-ruth-1.json");
+          const data = await response.json();
+
+          // Parse current verse reference (e.g., "Ruth 1:1")
+          const verseNum = parseInt(workflow.currentVerse.split(":")[1]);
+          const verse = data.verses.find((v) => v.verse === verseNum);
+
+          if (verse) {
+            verseData = {
+              reference: workflow.currentVerse,
+              text: verse.text,
+              phrases: verse.phrases,
+            };
+          }
+        } catch (error) {
+          console.error("Failed to load verse data:", error);
+        }
+      }
+
+      // Use different URL for development vs production
+      const apiUrl = import.meta.env.DEV
+        ? "http://localhost:9999/.netlify/functions/chat"
+        : "/.netlify/functions/chat";
+
+      const response = await fetch(apiUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -47,6 +75,7 @@ const ChatInterface = () => {
           })),
           workflow,
           project,
+          verseData,
         }),
       });
 

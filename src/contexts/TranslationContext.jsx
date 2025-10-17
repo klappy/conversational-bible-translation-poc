@@ -45,6 +45,8 @@ export const TranslationProvider = ({ children }) => {
     currentVerse: "Ruth 1:1",
     currentPhrase: 0,
     verseProgress: {},
+    phrasesCompleted: {}, // Track completed phrases with user's articulation
+    totalPhrases: 0,
   });
 
   // Chat history
@@ -53,7 +55,7 @@ export const TranslationProvider = ({ children }) => {
       id: 1,
       role: "assistant",
       content:
-        "Welcome! Let's start your Bible translation project. I'll guide you through each step.\n\nFirst, let me ask you a few questions to set up your translation:\n\n1. What language pair are you working with?\n2. What reading level are you targeting?\n3. Would you prefer a more literal or meaning-based approach?",
+        "Welcome! I'll guide you through translating Ruth chapter 1 using the FIA methodology.\n\nLet's start by setting up your translation preferences. I'll use these defaults unless you'd like to change them:\n\n• **Language**: English → English\n• **Reading Level**: Grade 1\n• **Style**: Narrator, engaging tone\n• **Approach**: Meaning-based\n\nWould you like to:\n1. Use these settings and begin\n2. Adjust any of these settings first\n\nJust type 1 or 2, or tell me what you'd like to change!",
       timestamp: new Date(),
     },
   ]);
@@ -129,6 +131,39 @@ export const TranslationProvider = ({ children }) => {
     }));
   }, []);
 
+  // Track phrase completion during Understanding phase
+  const completePhraseUnderstanding = useCallback((phraseIndex, userArticulation) => {
+    setWorkflow((prev) => {
+      const key = `${prev.currentVerse}-${phraseIndex}`;
+      return {
+        ...prev,
+        phrasesCompleted: {
+          ...prev.phrasesCompleted,
+          [key]: {
+            articulation: userArticulation,
+            timestamp: new Date(),
+          },
+        },
+      };
+    });
+  }, []);
+
+  // Move to next phrase
+  const nextPhrase = useCallback(() => {
+    setWorkflow((prev) => ({
+      ...prev,
+      currentPhrase: Math.min(prev.currentPhrase + 1, prev.totalPhrases - 1),
+    }));
+  }, []);
+
+  // Check if all phrases are complete for current verse
+  const isVerseUnderstandingComplete = useCallback(() => {
+    const completedCount = Object.keys(workflow.phrasesCompleted).filter((key) =>
+      key.startsWith(workflow.currentVerse)
+    ).length;
+    return completedCount === workflow.totalPhrases && workflow.totalPhrases > 0;
+  }, [workflow]);
+
   // Add message to chat
   const addMessage = useCallback((message) => {
     setMessages((prev) => [
@@ -150,6 +185,9 @@ export const TranslationProvider = ({ children }) => {
     updateVerse,
     addFeedback,
     progressWorkflow,
+    completePhraseUnderstanding,
+    nextPhrase,
+    isVerseUnderstandingComplete,
     addMessage,
     setMessages,
     WORKFLOW_PHASES,
