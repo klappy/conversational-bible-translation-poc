@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useTranslation } from "../contexts/TranslationContext";
+import { createResponseProcessor } from "../services/ResponseProcessor";
 import "./ChatInterface.css";
 
 const ChatInterface = () => {
@@ -10,8 +11,32 @@ const ChatInterface = () => {
   const [showAudioRecord, setShowAudioRecord] = useState(false);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
+  const responseProcessorRef = useRef(null);
 
-  const { messages, addMessage, workflow, project } = useTranslation();
+  const { 
+    messages, 
+    addMessage, 
+    workflow, 
+    project,
+    updateStyleGuide,
+    addGlossaryTerm,
+    updateVerse,
+    progressWorkflow,
+    completePhraseUnderstanding,
+    nextPhrase
+  } = useTranslation();
+
+  // Initialize response processor
+  useEffect(() => {
+    responseProcessorRef.current = createResponseProcessor({
+      updateStyleGuide,
+      addGlossaryTerm,
+      updateVerse,
+      progressWorkflow,
+      completePhraseUnderstanding,
+      nextPhrase
+    });
+  }, [updateStyleGuide, addGlossaryTerm, updateVerse, progressWorkflow, completePhraseUnderstanding, nextPhrase]);
 
   useEffect(() => {
     scrollToBottom();
@@ -33,6 +58,17 @@ const ChatInterface = () => {
     addMessage(userMessage);
     setInput("");
     setIsLoading(true);
+
+    // Process user input for potential updates (like capturing articulations)
+    if (responseProcessorRef.current && workflow.currentPhase === 'understanding') {
+      const userUpdates = responseProcessorRef.current.processUserInput(userMessage, workflow);
+      // Apply user updates if any
+      for (const update of userUpdates) {
+        if (update.action === 'completePhraseUnderstanding') {
+          completePhraseUnderstanding(...update.params);
+        }
+      }
+    }
 
     try {
       // Load verse data if in understanding phase
@@ -104,6 +140,18 @@ const ChatInterface = () => {
                 assistantMessage += parsed.content;
                 // Update the message in real-time (you could optimize this)
               }
+              // Handle structured updates from backend
+              if (parsed.updates && responseProcessorRef.current) {
+                parsed.updates.forEach(update => {
+                  if (update.type === 'phase') {
+                    progressWorkflow(update.value);
+                  } else if (update.type === 'settings_confirmed') {
+                    // Settings are already in project state
+                  } else if (update.type === 'phrase_complete') {
+                    nextPhrase();
+                  }
+                });
+              }
             } catch (e) {
               // Skip invalid JSON
             }
@@ -111,10 +159,17 @@ const ChatInterface = () => {
         }
       }
 
-      addMessage({
+      const assistantMsg = {
         role: "assistant",
         content: assistantMessage,
-      });
+      };
+      
+      addMessage(assistantMsg);
+      
+      // Process the response for canvas updates
+      if (responseProcessorRef.current) {
+        await responseProcessorRef.current.processResponse(assistantMsg, workflow);
+      }
     } catch (error) {
       console.error("Chat error:", error);
       addMessage({

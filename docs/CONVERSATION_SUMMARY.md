@@ -229,6 +229,27 @@ The application now correctly follows the FIA pattern:
 
 ---
 
+### v0.2.0 - Canvas Integration Fixed
+
+The user identified that canvas artifacts weren't updating during conversation:
+- Conversation was happening but nothing saved to Style Guide, Glossary, or Scripture Canvas
+- Complete disconnect between chat and artifact panels
+
+**Solution Implemented:**
+1. Created ResponseProcessor service to parse AI responses
+2. Added automatic state updates when AI mentions changes
+3. Implemented user articulation capture during Understanding phase
+4. Added structured updates from backend for reliable state sync
+5. Connected all canvas components to properly reflect conversation state
+
+The application now properly synchronizes:
+- Style Guide updates when settings are confirmed
+- Glossary populates with terms discussed
+- Scripture Canvas shows original text and drafts
+- User articulations are captured and stored
+
+---
+
 _Last Updated: October 17, 2025_
-_Version: 0.1.0_
-_Status: Fixed workflow issues, ready for testing_
+_Version: 0.2.0_
+_Status: Canvas integration fixed, conversation and artifacts now synchronized_

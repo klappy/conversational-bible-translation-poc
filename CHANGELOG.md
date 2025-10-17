@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2025-10-17
+
+### Added
+- **ResponseProcessor service**: Parses AI responses and updates canvas artifacts automatically
+- Automatic state updates when AI mentions changes to style guide, glossary, or drafts
+- User articulation capture during Understanding phase
+- Structured updates from backend alongside streaming responses
+- Process user inputs to capture phrase articulations
+
+### Fixed
+- **Critical**: Fixed disconnect between conversation and canvas artifacts
+- Canvas components now properly update when state changes
+- Style Guide, Glossary, Scripture Canvas, and Feedback panels now reflect conversation progress
+- Phase transitions are properly tracked and update workflow state
+
+### Changed
+- Enhanced ChatInterface to process AI responses for actionable updates
+- Backend now sends structured updates along with text responses
+- Improved response parsing to detect and apply canvas updates
+
 ## [0.1.0] - 2025-10-17
 
 ### Fixed

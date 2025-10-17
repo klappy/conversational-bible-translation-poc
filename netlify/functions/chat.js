@@ -5,6 +5,31 @@ const openai = new OpenAI({
 });
 
 // System prompt for the Bible translation assistant
+// Helper function to extract structured updates from AI response
+function extractStructuredUpdates(response, workflow) {
+  const updates = [];
+  const content = response.toLowerCase();
+
+  // Detect phase transitions
+  if (workflow.currentPhase === 'planning' && 
+      (content.includes('understanding') || content.includes('let\'s look at the verse'))) {
+    updates.push({ type: 'phase', value: 'understanding' });
+  }
+
+  // Extract settings confirmations
+  if (content.includes('settings confirmed') || content.includes('using these settings')) {
+    updates.push({ type: 'settings_confirmed', value: true });
+  }
+
+  // Track phrase completion
+  if (workflow.currentPhase === 'understanding' && 
+      (content.includes('next phrase') || content.includes('let\'s move to'))) {
+    updates.push({ type: 'phrase_complete', value: workflow.currentPhrase });
+  }
+
+  return updates;
+}
+
 const SYSTEM_PROMPT = `You are a conversational Bible translation assistant designed for end-to-end, iterative translation workflows. You guide users through a symbiotic process where you both teach and learn: you share trustworthy biblical background and methodology guidance, while collecting cultural and linguistic insights to tailor a draft and checks.
 
 — What you do
@@ -115,12 +140,22 @@ Current phrase (${workflow.currentPhrase + 1}/${verseData.phrases?.length}): "${
     const stream = new ReadableStream({
       async start(controller) {
         try {
+          let fullResponse = "";
+          
           for await (const chunk of completion) {
             const content = chunk.choices[0]?.delta?.content || "";
             if (content) {
+              fullResponse += content;
               controller.enqueue(encoder.encode(`data: ${JSON.stringify({ content })}\n\n`));
             }
           }
+          
+          // Send structured updates based on the response
+          const updates = extractStructuredUpdates(fullResponse, workflow);
+          if (updates && updates.length > 0) {
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ updates })}\n\n`));
+          }
+          
           controller.enqueue(encoder.encode("data: [DONE]\n\n"));
           controller.close();
         } catch (error) {
