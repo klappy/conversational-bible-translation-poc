@@ -7,6 +7,7 @@ The user presented a Product Requirements Document (PRD) for an AI-Augmented Bib
 ## Key Decisions Made
 
 ### 1. Technology Choices
+
 - **LLM**: GPT-4o-mini (cost-effective, sufficient for PoC)
 - **Frontend**: React (over Svelte due to better chat UI resources)
 - **Backend**: Netlify Functions (serverless, user's preference)
@@ -14,12 +15,14 @@ The user presented a Product Requirements Document (PRD) for an AI-Augmented Bib
 - **Mobile UI**: Swipeable cards for mobile, sidebar for desktop
 
 ### 2. Scope Decisions
+
 - Start with Ruth 1:1-5 for demo, expandable to full chapter
 - Mock audio features for initial PoC
 - Use local JSON files for Bible and resource data
 - Implement all 6 FIA workflow phases
 
 ### 3. Design Approach
+
 - Mobile-first with responsive breakpoint at 768px
 - Swipeable cards on mobile (like Tinder for Bible verses)
 - Collapsible sidebar on desktop (70/30 split)
@@ -28,12 +31,14 @@ The user presented a Product Requirements Document (PRD) for an AI-Augmented Bib
 ## Implementation Process
 
 ### Phase 1: Project Setup
+
 1. Initialized React app with Vite (faster than Create React App)
 2. Set up Netlify Functions structure
 3. Configured PWA manifest for installability
 4. Created environment variable templates
 
 ### Phase 2: Core Components Built
+
 1. **ChatInterface**: Main conversational UI with streaming
 2. **ScriptureCanvas**: Desktop sidebar with 4 tabbed sections
 3. **MobileSwipeView**: Swipeable card interface for mobile
@@ -41,12 +46,14 @@ The user presented a Product Requirements Document (PRD) for an AI-Augmented Bib
 5. **TranslationWorkflow**: FIA methodology engine
 
 ### Phase 3: Backend Implementation
+
 1. **chat.js**: OpenAI integration with streaming responses
 2. **resources.js**: Serve Bible text and FIA resources
 3. System prompt injection for guided conversation
 4. CORS configuration for API access
 
 ### Phase 4: Data Structure
+
 1. BSB Ruth Chapter 1 with phrase breakdown
 2. Default glossary of biblical terms
 3. Mock structure for FIA resources
@@ -55,6 +62,7 @@ The user presented a Product Requirements Document (PRD) for an AI-Augmented Bib
 ## Features Implemented
 
 ### Working Features
+
 - ✅ Conversational chat with AI assistant
 - ✅ Responsive design (mobile/desktop)
 - ✅ Swipeable cards on mobile
@@ -67,6 +75,7 @@ The user presented a Product Requirements Document (PRD) for an AI-Augmented Bib
 - ✅ Phrase-by-phrase verse processing
 
 ### Mocked/Placeholder Features
+
 - 🔄 Audio recording (prompts for transcript)
 - 🔄 FIA images and maps (structure ready)
 - 🔄 Community feedback (simulated)
@@ -90,12 +99,14 @@ conversational-bible-translation-poc/
 ## Unique Design Elements
 
 ### Mobile Experience
+
 - Swipe horizontally between cards (Chat, Style Guide, Glossary, Scripture, Feedback)
 - Swipe up to dismiss temporary resource cards
 - Instagram-style dots for navigation indication
 - Touch-optimized interface
 
 ### Desktop Experience
+
 - Traditional sidebar layout
 - Tabbed navigation for artifacts
 - Resizable panels
@@ -112,6 +123,7 @@ conversational-bible-translation-poc/
 ## Testing Approach
 
 The app was built iteratively with:
+
 - Build verification (`npm run build`)
 - Linting checks passed
 - Manual testing of responsive breakpoints
@@ -120,6 +132,7 @@ The app was built iteratively with:
 ## Deployment Readiness
 
 ### What's Ready
+
 - Complete React application
 - Netlify Functions configured
 - Build process verified
@@ -128,6 +141,7 @@ The app was built iteratively with:
 - Documentation
 
 ### What's Needed for Deployment
+
 1. Create `.env` file with OpenAI API key
 2. Push to GitHub repository
 3. Connect to Netlify
@@ -137,16 +151,19 @@ The app was built iteratively with:
 ## Workshop Demo Paths
 
 ### Path 1: Quick Demo (10 min)
+
 - Single verse (Ruth 1:1)
 - Show planning and understanding phases
 - Demonstrate mobile swipe interface
 
-### Path 2: Standard Demo (30 min)  
+### Path 2: Standard Demo (30 min)
+
 - Multiple verses (Ruth 1:1-5)
 - Complete workflow demonstration
 - Desktop and mobile views
 
 ### Path 3: Extended Demo (45 min)
+
 - Full chapter capability
 - All features demonstration
 - Q&A session
@@ -154,12 +171,14 @@ The app was built iteratively with:
 ## Next Steps Identified
 
 ### Immediate
+
 1. Add `.env` file with API keys
 2. Commit and push to GitHub
 3. Deploy to Netlify
 4. Test with real OpenAI API
 
 ### Future Enhancements
+
 - Real audio with Whisper API
 - Actual FIA resources
 - Real unfoldingWord integration
@@ -176,6 +195,7 @@ The app was built iteratively with:
 ## Summary
 
 Successfully built a functional PoC that demonstrates:
+
 - AI-guided Bible translation workflow
 - Responsive, modern UI
 - FIA methodology implementation
@@ -186,5 +206,5 @@ The app provides a solid foundation for church-based Bible translation, making t
 
 ---
 
-*Development completed: October 17, 2025*
-*Ready for: GitHub commit and Netlify deployment*
+_Development completed: October 17, 2025_
+_Ready for: GitHub commit and Netlify deployment_

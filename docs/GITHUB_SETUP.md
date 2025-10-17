@@ -1,6 +1,7 @@
 # GitHub Setup Instructions
 
 ## Prerequisites
+
 - GitHub account (create one at https://github.com if needed)
 - Git configured with your credentials
 
@@ -70,6 +71,7 @@ In Netlify dashboard → Site settings → Environment variables:
 
 1. Click "Add a variable"
 2. Add these variables:
+
    - Key: `OPENAI_API_KEY`
    - Value: Your actual OpenAI API key
    - Scope: Production (and Preview if desired)
@@ -93,6 +95,7 @@ In Netlify dashboard → Site settings → Environment variables:
 ## Continuous Deployment
 
 Once connected, every push to `main` branch will:
+
 1. Trigger automatic build on Netlify
 2. Run tests (if configured)
 3. Deploy to production
@@ -104,8 +107,8 @@ Once connected, every push to `main` branch will:
 
 1. **About section**: Add description and topics
    - Topics: `bible-translation`, `ai`, `react`, `netlify`, `fia-methodology`
-   
 2. **README badges**: Add to README.md
+
    ```markdown
    [![Netlify Status](https://api.netlify.com/api/v1/badges/YOUR-BADGE-ID/deploy-status)](https://app.netlify.com/sites/YOUR-SITE-NAME/deploys)
    ```
@@ -127,6 +130,7 @@ Once connected, every push to `main` branch will:
 ### Branch Protection (Optional)
 
 For production safety:
+
 1. Settings → Branches
 2. Add rule for `main`
 3. Enable:
@@ -171,6 +175,7 @@ npm run dev:netlify
 ### Push Rejected
 
 If push is rejected:
+
 ```bash
 git pull origin main --rebase
 git push origin main
@@ -179,11 +184,13 @@ git push origin main
 ### Authentication Issues
 
 For HTTPS:
+
 ```bash
 git config --global credential.helper cache
 ```
 
 For SSH (more secure):
+
 ```bash
 # Generate SSH key
 ssh-keygen -t ed25519 -C "your_email@example.com"
@@ -207,4 +214,4 @@ git remote set-url origin git@github.com:YOUR_USERNAME/conversational-bible-tran
 
 ---
 
-*Remember to never commit sensitive data like API keys to GitHub!*
+_Remember to never commit sensitive data like API keys to GitHub!_

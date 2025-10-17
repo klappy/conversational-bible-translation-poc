@@ -9,28 +9,33 @@ This project was built as a Proof of Concept for the ETEN Summit 2025, demonstra
 ### Core Features Implemented
 
 1. **Conversational Chat Interface**
+
    - React-based chat UI with streaming responses
    - Markdown support for rich formatting
    - Mock audio recording functionality (prompts for transcript)
    - Message history and timestamps
 
 2. **Responsive Design**
+
    - **Desktop**: 70/30 split with collapsible sidebar
    - **Mobile**: Swipeable card interface using Swiper.js
    - Breakpoint at 768px for responsive switching
 
 3. **Scripture Canvas (4 Artifacts)**
+
    - Style Guide: Translation parameters and settings
    - Glossary: Key terms and definitions
    - Scripture Canvas: Draft translations with verse navigation
    - Feedback: Community review comments (simulated)
 
 4. **Backend Infrastructure**
+
    - Netlify Functions for serverless API
    - OpenAI GPT-4o-mini integration for chat
    - Resource serving for Bible text and FIA materials
 
 5. **FIA Workflow Engine**
+
    - Six-phase translation process (Planning → Understanding → Drafting → Checking → Sharing → Publishing)
    - Phrase-by-phrase progression through verses
    - Question generation for understanding phase
@@ -56,22 +61,26 @@ This project was built as a Proof of Concept for the ETEN Summit 2025, demonstra
 ## Key Design Decisions
 
 ### 1. Why React over Svelte?
+
 - Better ecosystem for chat UI components
 - More resources and examples available
 - Easier integration with OpenAI streaming
 
 ### 2. Why Netlify Functions?
+
 - Serverless architecture (no server maintenance)
 - Built-in CI/CD with GitHub
 - Easy environment variable management
 - Good free tier for PoC
 
 ### 3. Why BSB over NET Bible?
+
 - Completely open license (CC BY-SA 4.0)
 - No usage restrictions for PoC
 - Modern, readable translation
 
 ### 4. Mobile-First Swipeable Cards
+
 - Natural gesture-based navigation
 - Familiar UX pattern (like dating apps)
 - Efficient use of mobile screen space
@@ -80,19 +89,25 @@ This project was built as a Proof of Concept for the ETEN Summit 2025, demonstra
 ## Architecture Decisions
 
 ### State Management
+
 Used React Context for global state instead of Redux/Zustand because:
+
 - Simpler setup for PoC
 - Adequate for current scale
 - No complex async state requirements
 
 ### Streaming Responses
+
 Implemented SSE (Server-Sent Events) for chat streaming:
+
 - Better UX than waiting for complete responses
 - Shows AI "thinking" in real-time
 - Standard pattern with OpenAI API
 
 ### Mock Audio
+
 Audio recording is mocked (prompts for transcript) because:
+
 - Reduces complexity for PoC
 - Avoids browser permission issues in demo
 - Easy to add real Whisper API later
@@ -117,17 +132,21 @@ Audio recording is mocked (prompts for transcript) because:
 ## Development Workflow
 
 ### Local Development
+
 ```bash
 npm run dev              # Frontend only
 npm run dev:netlify      # With functions
 ```
 
 ### Environment Setup
+
 Requires `.env` file with:
+
 - `OPENAI_API_KEY` - OpenAI API key
 - `OPENAI_MODEL` - Model selection (gpt-4o-mini)
 
 ### Testing Approach
+
 - Manual testing for PoC scope
 - Desktop and mobile responsive testing
 - API integration testing with mock data
@@ -145,18 +164,21 @@ Requires `.env` file with:
 ## Future Enhancements
 
 ### Phase 1 (Post-PoC)
+
 - Real audio recording with Whisper API
 - Actual FIA resources integration
 - Real unfoldingWord API integration
 - User authentication
 
 ### Phase 2
+
 - Multi-language support
 - Real-time collaboration
 - Cloud storage for projects
 - Export formats (USFM, PDF, etc.)
 
 ### Phase 3
+
 - WhatsApp integration
 - Offline-first PWA
 - Advanced checking algorithms
@@ -165,6 +187,7 @@ Requires `.env` file with:
 ## Deployment Notes
 
 ### Netlify Deployment
+
 1. Connect GitHub repository
 2. Set build command: `npm run build`
 3. Set publish directory: `dist`
@@ -172,24 +195,28 @@ Requires `.env` file with:
 5. Deploy
 
 ### Required Environment Variables
+
 - `OPENAI_API_KEY` - Required for chat functionality
 - `OPENAI_MODEL` - Optional (defaults to gpt-4o-mini)
 
 ## Workshop Demo Scenarios
 
 ### 10-Minute Quick Demo
+
 - Show conversational planning phase
 - Demonstrate one verse understanding
 - Quick draft generation
 - Mobile swipe navigation
 
 ### 30-Minute Standard Demo
+
 - Complete Ruth 1:1-5 translation
 - Show all workflow phases
 - Desktop and mobile views
 - Glossary building demonstration
 
 ### 45-Minute Extended Demo
+
 - Full chapter exploration
 - Community feedback simulation
 - Style guide customization
@@ -226,5 +253,5 @@ For questions about this PoC, please refer to the README.md or SETUP_INSTRUCTION
 
 ---
 
-*Last Updated: October 2025*
-*Version: 1.0.0 (Initial PoC)*
+_Last Updated: October 2025_
+_Version: 1.0.0 (Initial PoC)_
