@@ -7,9 +7,9 @@
 You need to create a `.env` file in the root directory with your OpenAI API key:
 
 ```bash
-# Create .env file
-echo "OPENAI_API_KEY=your_actual_openai_api_key_here" > .env
-echo "OPENAI_MODEL=gpt-4o-mini" >> .env
+# Copy the example file and edit it
+cp env.example .env
+# Then edit .env and add your actual OpenAI API key
 ```
 
 ### 2. Install & Run

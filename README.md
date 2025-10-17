@@ -35,11 +35,11 @@ An AI-powered conversational Bible translation tool implementing the FIA (Famili
    ```
 
 3. **Configure environment variables**
-   Create a `.env` file in the root directory:
+   Copy the example file and add your API key:
 
-   ```
-   OPENAI_API_KEY=your_openai_api_key_here
-   OPENAI_MODEL=gpt-4o-mini
+   ```bash
+   cp env.example .env
+   # Edit .env and add your actual OpenAI API key
    ```
 
 4. **Run development server**
