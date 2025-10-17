@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.1] - 2025-10-17
+
+### Fixed
+- **CRITICAL**: Fixed serverless function exports that were preventing canvas state from working
+  - canvas-state.js and conversation.js now export handlers correctly
+  - State management actually works now
+  - Canvas panels will finally update!
+
 ## [0.3.0] - 2025-10-17
 
 ### Added

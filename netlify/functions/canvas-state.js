@@ -159,7 +159,7 @@ function isObject(item) {
 /**
  * Netlify Function Handler
  */
-export default async function handler(req, context) {
+const handler = async (req, context) => {
   // Enable CORS
   const headers = {
     "Access-Control-Allow-Origin": "*",
@@ -243,4 +243,6 @@ export default async function handler(req, context) {
       }
     });
   }
-}
+};
+
+export default handler;

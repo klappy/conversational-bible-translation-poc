@@ -1,6 +1,6 @@
 # Bible Translation Assistant (PoC)
 
-**Version 0.3.0** | [Changelog](./CHANGELOG.md)
+**Version 0.3.1** | [Changelog](./CHANGELOG.md)
 
 An AI-powered conversational Bible translation tool implementing the FIA (Familiarization, Internalization, Articulation) methodology for church-based Bible translation.
 
@@ -101,7 +101,7 @@ An AI-powered conversational Bible translation tool implementing the FIA (Famili
 ## Documentation
 
 - [Multi-Agent Architecture](./docs/MULTI_AGENT_ARCHITECTURE.md) - Detailed agent system documentation
-- [Development Notes](./docs/DEVELOPMENT_NOTES.md) - Technical implementation details  
+- [Development Notes](./docs/DEVELOPMENT_NOTES.md) - Technical implementation details
 - [Conversation Summary](./docs/CONVERSATION_SUMMARY.md) - Development history
 - [Setup Instructions](./SETUP_INSTRUCTIONS.md) - Detailed setup guide
 - [PRD](./docs/PRD.md) - Product requirements document

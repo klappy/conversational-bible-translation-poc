@@ -3,24 +3,28 @@
 ## Quick Test Checklist
 
 ### 1. Agent Visibility
+
 - [ ] Open http://localhost:5173
 - [ ] Check that Agent Status panel appears
 - [ ] Verify agents show as "Ready" or "Inactive"
 - [ ] Start a conversation - agents should show "Thinking..."
 
 ### 2. Basic Conversation Flow
+
 - [ ] Type "1" or "Use these settings and begin"
 - [ ] Observe multiple agents responding
 - [ ] Check that messages show agent attribution (icon + name)
 - [ ] Verify Primary Translator (📖 Blue) is main responder
 
 ### 3. State Management
+
 - [ ] Watch the Canvas panels (Style Guide, Glossary, Scripture)
 - [ ] When you confirm settings, Style Guide should update
 - [ ] As terms are discussed, Glossary should populate
 - [ ] Scripture Canvas should show verses when discussed
 
 ### 4. Phase Transitions
+
 - [ ] Planning Phase: Confirm translation settings
 - [ ] Understanding Phase: Should show verse text first
 - [ ] Check that phase indicator updates in header
@@ -28,6 +32,7 @@
 ## Test Scenarios
 
 ### Scenario 1: Basic Translation Setup
+
 ```
 1. Start fresh conversation
 2. Type: "1" (use default settings)
@@ -38,6 +43,7 @@
 ```
 
 ### Scenario 2: Understanding Phase
+
 ```
 1. After setup, conversation moves to Understanding
 2. Expected:
@@ -48,6 +54,7 @@
 ```
 
 ### Scenario 3: Glossary Population
+
 ```
 1. During Understanding, discuss "judges"
 2. Expected:
@@ -57,6 +64,7 @@
 ```
 
 ### Scenario 4: Multi-Agent Response
+
 ```
 1. Ask: "What does the Hebrew word mean?"
 2. Expected:
@@ -68,18 +76,21 @@
 ## Debugging
 
 ### If agents aren't responding:
+
 1. Check browser console for errors
 2. Verify OPENAI_API_KEY is set
 3. Check network tab for API calls
 4. Look for fallback to single-agent mode
 
 ### If state isn't updating:
+
 1. Check polling is happening (every 2 seconds)
 2. Verify canvas-state endpoint is accessible
 3. Look for state updates in network requests
 4. Check browser console for polling errors
 
 ### If visual attribution is missing:
+
 1. Verify AgentMessage component is rendering
 2. Check that agent data is in response
 3. Look for CSS loading issues
@@ -88,6 +99,7 @@
 ## API Endpoints to Test
 
 ### Canvas State
+
 ```bash
 # Get current state
 curl http://localhost:9999/.netlify/functions/canvas-state
@@ -97,6 +109,7 @@ curl http://localhost:9999/.netlify/functions/canvas-state/history
 ```
 
 ### Conversation
+
 ```bash
 # Test multi-agent conversation
 curl -X POST http://localhost:9999/.netlify/functions/conversation \
@@ -130,5 +143,5 @@ curl -X POST http://localhost:9999/.netlify/functions/conversation \
 
 ---
 
-*Testing v0.3.0 Multi-Agent Architecture*
-*Last Updated: October 17, 2025*
+_Testing v0.3.0 Multi-Agent Architecture_
+_Last Updated: October 17, 2025_

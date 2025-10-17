@@ -211,11 +211,13 @@ The app provides a solid foundation for church-based Bible translation, making t
 ### v0.1.0 - Fixed FIA Workflow Issues
 
 The user identified that the translation workflow was not following proper FIA methodology:
+
 - Was asking about themes/meaning before showing verse text
 - Questions were thematic instead of comprehension-based
 - Missing phrase-by-phrase progression
 
 **Fixes Implemented:**
+
 1. Updated system prompt with comprehensive FIA methodology
 2. Enhanced workflow to present verse text BEFORE questions
 3. Changed question generation to focus on comprehension
@@ -223,6 +225,7 @@ The user identified that the translation workflow was not following proper FIA m
 5. Improved context passing to AI with current phrase and progress
 
 The application now correctly follows the FIA pattern:
+
 - **Planning**: Confirm settings
 - **Understanding**: Show verse → Ask comprehension → Collect user phrasing
 - **Drafting**: Synthesize user input into translation
@@ -232,10 +235,12 @@ The application now correctly follows the FIA pattern:
 ### v0.2.0 - Canvas Integration Fixed
 
 The user identified that canvas artifacts weren't updating during conversation:
+
 - Conversation was happening but nothing saved to Style Guide, Glossary, or Scripture Canvas
 - Complete disconnect between chat and artifact panels
 
 **Solution Implemented:**
+
 1. Created ResponseProcessor service to parse AI responses
 2. Added automatic state updates when AI mentions changes
 3. Implemented user articulation capture during Understanding phase
@@ -243,6 +248,7 @@ The user identified that canvas artifacts weren't updating during conversation:
 5. Connected all canvas components to properly reflect conversation state
 
 The application now properly synchronizes:
+
 - Style Guide updates when settings are confirmed
 - Glossary populates with terms discussed
 - Scripture Canvas shows original text and drafts
@@ -253,6 +259,7 @@ The application now properly synchronizes:
 The user wanted a more antifragile, scalable approach using multiple specialized agents instead of fragile client-side parsing.
 
 **Key Requirements:**
+
 - Server-side state management
 - Multiple LLMs working together
 - Visual identity for each agent
@@ -260,6 +267,7 @@ The user wanted a more antifragile, scalable approach using multiple specialized
 - Easy to add new agents without breaking existing ones
 
 **Solution Implemented:**
+
 1. Created multi-agent system with 5 specialized agents
 2. Each agent has discrete responsibilities and system prompts
 3. Server-side canvas state management (in-memory for now)
@@ -269,6 +277,7 @@ The user wanted a more antifragile, scalable approach using multiple specialized
 7. Fallback to original chat if multi-agent fails
 
 **Agent Team:**
+
 - **Orchestrator** (🎭 Purple): Manages conversation flow
 - **Primary Translator** (📖 Blue): Handles FIA methodology
 - **State Manager** (📝 Green): Extracts and saves state

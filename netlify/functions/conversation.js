@@ -260,7 +260,7 @@ function mergeAgentResponses(responses) {
 /**
  * Netlify Function Handler
  */
-export default async function handler(req, context) {
+const handler = async (req, context) => {
   // Store context for internal use
   process.env.CONTEXT = context;
   
@@ -327,4 +327,6 @@ export default async function handler(req, context) {
       }
     });
   }
-}
+};
+
+export default handler;

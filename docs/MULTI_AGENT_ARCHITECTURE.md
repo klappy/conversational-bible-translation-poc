@@ -32,6 +32,7 @@ Translator]              ↓                     ↓
 ## Agent Profiles
 
 ### 1. Orchestrator Agent 🎭
+
 - **Role**: Conversation Manager
 - **Color**: Purple (#8B5CF6)
 - **Model**: GPT-4o-mini
@@ -43,6 +44,7 @@ Translator]              ↓                     ↓
 - **Always Active**: Yes
 
 ### 2. Primary Translator 📖
+
 - **Role**: Translation Assistant
 - **Color**: Blue (#3B82F6)
 - **Model**: GPT-4o-mini
@@ -54,6 +56,7 @@ Translator]              ↓                     ↓
 - **Always Active**: Yes
 
 ### 3. State Manager 📝
+
 - **Role**: Canvas Scribe
 - **Color**: Green (#10B981)
 - **Model**: GPT-3.5-turbo (cost-optimized)
@@ -65,6 +68,7 @@ Translator]              ↓                     ↓
 - **Always Active**: Yes
 
 ### 4. Validator Agent ✅
+
 - **Role**: Quality Checker
 - **Color**: Orange (#F97316)
 - **Model**: GPT-3.5-turbo
@@ -76,6 +80,7 @@ Translator]              ↓                     ↓
 - **Conditionally Active**: During checking phase
 
 ### 5. Resource Agent 📚
+
 - **Role**: Resource Librarian
 - **Color**: Indigo (#6366F1)
 - **Model**: GPT-3.5-turbo
@@ -91,6 +96,7 @@ Translator]              ↓                     ↓
 ### Server-Side Components
 
 #### 1. Canvas State Management
+
 ```javascript
 // netlify/functions/canvas-state.js
 - GET /canvas-state - Retrieve current state
@@ -100,6 +106,7 @@ Translator]              ↓                     ↓
 ```
 
 #### 2. Agent Registry
+
 ```javascript
 // netlify/functions/agents/registry.js
 - Defines all agent configurations
@@ -109,6 +116,7 @@ Translator]              ↓                     ↓
 ```
 
 #### 3. Conversation Handler
+
 ```javascript
 // netlify/functions/conversation.js
 - Processes user messages
@@ -120,18 +128,21 @@ Translator]              ↓                     ↓
 ### Client-Side Components
 
 #### 1. ChatInterfaceMultiAgent
+
 - Handles user input
 - Displays agent messages
 - Shows agent status
 - Polls for state updates
 
 #### 2. AgentMessage Component
+
 - Visual agent attribution
 - Icon and color coding
 - Role descriptions
 - Timestamp display
 
 #### 3. AgentStatus Panel
+
 - Shows active agents
 - Displays thinking states
 - Visual team roster
@@ -152,26 +163,31 @@ Translator]              ↓                     ↓
 ## Benefits
 
 ### 1. Antifragility
+
 - Agents fail independently
 - System continues with degraded service
 - Fallback to simpler chat if needed
 
 ### 2. Scalability
+
 - Easy to add new agents
 - No modification of existing agents required
 - Plug-and-play architecture
 
 ### 3. Cost Optimization
+
 - Use expensive models only where needed
 - GPT-3.5 for utility tasks
 - GPT-4 for critical translation
 
 ### 4. Clear Responsibilities
+
 - Each agent has one job
 - Easier to debug
 - Simpler maintenance
 
 ### 5. Visual Clarity
+
 - Users see who's speaking
 - Build trust through personas
 - Reduce cognitive load
@@ -181,6 +197,7 @@ Translator]              ↓                     ↓
 To add a new agent:
 
 1. **Define in Registry**:
+
 ```javascript
 // netlify/functions/agents/registry.js
 newAgent: {
@@ -197,14 +214,16 @@ newAgent: {
 ```
 
 2. **Add Activation Logic**:
+
 ```javascript
 // In getActiveAgents function
 if (conditionForNewAgent) {
-  active.push('newAgent');
+  active.push("newAgent");
 }
 ```
 
 3. **Handle in Conversation**:
+
 ```javascript
 // In processConversation
 if (orchestration.agents?.includes('newAgent')) {
@@ -215,42 +234,48 @@ if (orchestration.agents?.includes('newAgent')) {
 ## Configuration
 
 ### Environment Variables
+
 - `OPENAI_API_KEY`: Required for all agents
 - `OPENAI_MODEL`: Default model override
 
 ### Cost Controls
+
 ```javascript
 agentConfig = {
   maxConcurrent: 3,
   timeout: 30000,
   retries: 2,
   costBudget: {
-    perConversation: 0.50,
-    perMonth: 100.00
-  }
-}
+    perConversation: 0.5,
+    perMonth: 100.0,
+  },
+};
 ```
 
 ## Future Enhancements
 
 ### Phase 1: Persistence
+
 - Move from in-memory to Redis/KV store
 - Add user sessions
 - Implement state versioning
 
 ### Phase 2: Advanced Agents
+
 - Hebrew/Greek language specialist
 - Denomination-specific validators
 - Poetry/prose style agents
 - Community feedback aggregator
 
 ### Phase 3: Intelligence
+
 - Agent learning from feedback
 - Optimal agent selection AI
 - Performance monitoring
 - Cost optimization algorithms
 
 ### Phase 4: Marketplace
+
 - Community-contributed agents
 - Agent templates
 - Custom agent builder
@@ -261,16 +286,19 @@ agentConfig = {
 ### Common Issues
 
 1. **Agents not responding**
+
    - Check OPENAI_API_KEY
    - Verify conversation.js is running
    - Check agent activation logic
 
 2. **State not updating**
+
    - Verify canvas-state.js is running
    - Check polling interval
    - Inspect server state directly
 
 3. **Wrong agent activated**
+
    - Review orchestrator logic
    - Check activation conditions
    - Verify workflow phase
@@ -283,6 +311,7 @@ agentConfig = {
 ## Testing
 
 ### Manual Testing
+
 1. Start dev server: `npm run dev:netlify`
 2. Open browser to http://localhost:5173
 3. Start conversation
@@ -291,6 +320,7 @@ agentConfig = {
 6. Verify state persistence
 
 ### Automated Testing (Future)
+
 - Unit tests for each agent
 - Integration tests for orchestration
 - State management tests
@@ -299,6 +329,7 @@ agentConfig = {
 ## Monitoring
 
 ### Metrics to Track
+
 - Agent response times
 - State update frequency
 - Error rates by agent
@@ -306,6 +337,7 @@ agentConfig = {
 - User satisfaction scores
 
 ### Debugging Tools
+
 - State history endpoint
 - Agent activity logs
 - Conversation replay
@@ -321,6 +353,6 @@ agentConfig = {
 
 ---
 
-*Last Updated: October 17, 2025*
-*Version: 0.3.0*
-*Status: Production Ready for Testing*
+_Last Updated: October 17, 2025_
+_Version: 0.3.0_
+_Status: Production Ready for Testing_

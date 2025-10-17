@@ -156,8 +156,9 @@ Requires `.env` file with:
 ### v0.3.0 - October 17, 2025
 
 #### Multi-Agent Architecture Implementation
+
 - **Complete Redesign**: Shifted from single LLM to multi-agent team
-- **Specialized Agents**: 
+- **Specialized Agents**:
   - Orchestrator: Manages conversation flow and agent coordination
   - Primary Translator: Handles FIA methodology and user interaction
   - State Manager: Extracts and persists canvas state changes
