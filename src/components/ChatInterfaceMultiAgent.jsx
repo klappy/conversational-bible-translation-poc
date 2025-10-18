@@ -74,7 +74,7 @@ const ChatInterfaceMultiAgent = () => {
         const isOpenEnded = responseProcessorRef.current.isOpenEndedQuestion(initialMsg.content);
         if (isOpenEnded) {
           // For initial message, we're always in planning phase
-          const suggestions = generateQuickSuggestions({ currentPhase: 'planning' });
+          const suggestions = generateQuickSuggestions({ currentPhase: "planning" });
           setResponseSuggestions(suggestions);
         }
       }
@@ -113,7 +113,13 @@ const ChatInterfaceMultiAgent = () => {
           setResponseOptions(multipleChoice);
           setResponseSuggestions([]);
         } else if (isOpenEnded) {
-          const suggestions = generateQuickSuggestions(canvasState?.workflow);
+          // ALWAYS use planning phase for initial questions about language
+          const isInitialQuestion = lastRelevantMessage.content.toLowerCase().includes("what language") ||
+                                   lastRelevantMessage.content.toLowerCase().includes("welcome") ||
+                                   messages.length <= 3;
+          
+          const workflow = isInitialQuestion ? { currentPhase: "planning" } : canvasState?.workflow;
+          const suggestions = generateQuickSuggestions(workflow);
           setResponseSuggestions(suggestions);
           setResponseOptions(null);
         } else {

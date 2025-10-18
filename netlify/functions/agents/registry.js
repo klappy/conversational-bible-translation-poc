@@ -5,15 +5,15 @@
 
 export const agentRegistry = {
   orchestrator: {
-    id: 'orchestrator',
-    model: 'gpt-4o-mini',
+    id: "orchestrator",
+    model: "gpt-4o-mini",
     active: true,
-    role: 'Conversation Manager',
+    role: "Conversation Manager",
     visual: {
-      icon: '🎭',
-      color: '#8B5CF6',
-      name: 'Team Coordinator',
-      avatar: '/avatars/conductor.svg'
+      icon: "🎭",
+      color: "#8B5CF6",
+      name: "Team Coordinator",
+      avatar: "/avatars/conductor.svg",
     },
     systemPrompt: `You are the orchestrator of a Bible translation team. Your role is to:
 1. Analyze each user message to determine which agents should respond
@@ -28,19 +28,19 @@ You should respond with a JSON object indicating:
 - the order of responses
 - any coordination notes
 
-Be strategic about agent activation - not every message needs every agent.`
+Be strategic about agent activation - not every message needs every agent.`,
   },
 
   primary: {
-    id: 'primary',
-    model: 'gpt-4o-mini',
+    id: "primary",
+    model: "gpt-4o-mini",
     active: true,
-    role: 'Translation Assistant',
+    role: "Translation Assistant",
     visual: {
-      icon: '📖',
-      color: '#3B82F6',
-      name: 'Translation Assistant',
-      avatar: '/avatars/translator.svg'
+      icon: "📖",
+      color: "#3B82F6",
+      name: "Translation Assistant",
+      avatar: "/avatars/translator.svg",
     },
     systemPrompt: `You are the lead Translation Assistant on a collaborative Bible translation team.
 
@@ -101,19 +101,19 @@ IMPORTANT:
 • Remember: Reading level refers to the TARGET TRANSLATION, not how you speak
 • Be professional but friendly
 • One question at a time
-• Build on what other agents contribute`
+• Build on what other agents contribute`,
   },
 
   state: {
-    id: 'state',
-    model: 'gpt-3.5-turbo',
+    id: "state",
+    model: "gpt-3.5-turbo",
     active: true,
-    role: 'Canvas Scribe',
+    role: "Canvas Scribe",
     visual: {
-      icon: '📝',
-      color: '#10B981',
-      name: 'Canvas Scribe',
-      avatar: '/avatars/scribe.svg'
+      icon: "📝",
+      color: "#10B981",
+      name: "Canvas Scribe",
+      avatar: "/avatars/scribe.svg",
     },
     systemPrompt: `You are the Canvas Scribe, the team's dedicated note-taker and record keeper.
 
@@ -204,19 +204,19 @@ Only speak when you have something concrete to record.
 • Efficient and organized
 • Supportive but not chatty
 • Use phrases like: "Noted!", "Recording that...", "I'll track that...", "Got it!"
-• When translation brief is complete, summarize it clearly`
+• When translation brief is complete, summarize it clearly`,
   },
 
   validator: {
-    id: 'validator',
-    model: 'gpt-3.5-turbo',
+    id: "validator",
+    model: "gpt-3.5-turbo",
     active: false, // Activated only during checking phase
-    role: 'Quality Checker',
+    role: "Quality Checker",
     visual: {
-      icon: '✅',
-      color: '#F97316',
-      name: 'Quality Checker',
-      avatar: '/avatars/validator.svg'
+      icon: "✅",
+      color: "#F97316",
+      name: "Quality Checker",
+      avatar: "/avatars/validator.svg",
     },
     systemPrompt: `You are the quality control specialist for Bible translation.
 
@@ -242,19 +242,19 @@ When you find issues, return a JSON object:
   "requiresResponse": true/false
 }
 
-Be constructive - offer solutions, not just problems.`
+Be constructive - offer solutions, not just problems.`,
   },
 
   resource: {
-    id: 'resource',
-    model: 'gpt-3.5-turbo',
+    id: "resource",
+    model: "gpt-3.5-turbo",
     active: false, // Activated when biblical resources are needed
-    role: 'Resource Librarian',
+    role: "Resource Librarian",
     visual: {
-      icon: '📚',
-      color: '#6366F1',
-      name: 'Resource Librarian',
-      avatar: '/avatars/librarian.svg'
+      icon: "📚",
+      color: "#6366F1",
+      name: "Resource Librarian",
+      avatar: "/avatars/librarian.svg",
     },
     systemPrompt: `You are the Resource Librarian, the team's biblical knowledge expert.
 
@@ -289,33 +289,40 @@ Share resources conversationally, then provide structured data:
 • Knowledgeable but not pedantic
 • Helpful timing - don't overwhelm
 • Use phrases like: "Interesting context here...", "This might help...", "Worth noting that..."
-• Keep contributions relevant and brief`
-  }
+• Keep contributions relevant and brief`,
+  },
 };
 
 /**
  * Get active agents based on current workflow phase and context
  */
-export function getActiveAgents(workflow, messageContent = '') {
+export function getActiveAgents(workflow, messageContent = "") {
   const active = [];
-  
+
   // Orchestrator and Primary are always active
-  active.push('orchestrator');
-  active.push('primary');
-  active.push('state'); // State manager always watches
-  
+  active.push("orchestrator");
+  active.push("primary");
+  active.push("state"); // State manager always watches
+
   // Conditionally activate other agents
-  if (workflow.currentPhase === 'checking') {
-    active.push('validator');
+  if (workflow.currentPhase === "checking") {
+    active.push("validator");
   }
-  
+
   // Activate resource agent if biblical terms are mentioned
-  const resourceTriggers = ['hebrew', 'greek', 'original', 'context', 'commentary', 'cross-reference'];
-  if (resourceTriggers.some(trigger => messageContent.toLowerCase().includes(trigger))) {
-    active.push('resource');
+  const resourceTriggers = [
+    "hebrew",
+    "greek",
+    "original",
+    "context",
+    "commentary",
+    "cross-reference",
+  ];
+  if (resourceTriggers.some((trigger) => messageContent.toLowerCase().includes(trigger))) {
+    active.push("resource");
   }
-  
-  return active.map(id => agentRegistry[id]).filter(agent => agent);
+
+  return active.map((id) => agentRegistry[id]).filter((agent) => agent);
 }
 
 /**
@@ -339,7 +346,7 @@ export function updateAgent(agentId, updates) {
   if (agentRegistry[agentId]) {
     agentRegistry[agentId] = {
       ...agentRegistry[agentId],
-      ...updates
+      ...updates,
     };
     return agentRegistry[agentId];
   }
