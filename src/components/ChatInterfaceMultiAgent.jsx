@@ -59,16 +59,67 @@ const ChatInterfaceMultiAgent = () => {
 
   // Separate effect for initial message generation
   useEffect(() => {
-    if (!initialMessageGenerated.current && messages.length === 0 && generateInitialMessage && canvasState) {
+    if (
+      !initialMessageGenerated.current &&
+      messages.length === 0 &&
+      generateInitialMessage &&
+      canvasState
+    ) {
       const initialMsg = generateInitialMessage(canvasState);
       addMessage(initialMsg);
       initialMessageGenerated.current = true;
+
+      // Check if initial message is a question and generate suggestions
+      if (initialMsg && responseProcessorRef.current) {
+        const isOpenEnded = responseProcessorRef.current.isOpenEndedQuestion(initialMsg.content);
+        if (isOpenEnded) {
+          const suggestions = generateQuickSuggestions(canvasState?.workflow);
+          setResponseSuggestions(suggestions);
+        }
+      }
     }
   }, [messages.length, generateInitialMessage, addMessage, canvasState]);
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+
+    // Check the last message whenever messages update
+    if (messages.length > 0 && responseProcessorRef.current) {
+      // Find the last message that's not from Canvas Scribe (state agent)
+      let lastRelevantMessage = null;
+      for (let i = messages.length - 1; i >= 0; i--) {
+        const msg = messages[i];
+        if (msg.role === "assistant" && 
+            msg.agent?.id !== "state" && 
+            msg.agent?.name !== "Canvas Scribe") {
+          lastRelevantMessage = msg;
+          break;
+        }
+      }
+      
+      // Only process assistant messages that aren't from Canvas Scribe
+      if (lastRelevantMessage) {
+        const isOpenEnded = responseProcessorRef.current.isOpenEndedQuestion(lastRelevantMessage.content);
+        const multipleChoice = responseProcessorRef.current.extractMultipleChoiceOptions(
+          lastRelevantMessage.content
+        );
+
+
+        if (multipleChoice) {
+          setResponseOptions(multipleChoice);
+          setResponseSuggestions([]);
+        } else if (isOpenEnded) {
+          const suggestions = generateQuickSuggestions(canvasState?.workflow);
+          setResponseSuggestions(suggestions);
+          setResponseOptions(null);
+        } else {
+          // No question detected, clear both
+          setResponseOptions(null);
+          setResponseSuggestions([]);
+        }
+      }
+    }
+  }, [messages, canvasState]);
 
   // Initialize response processor (we don't need all the context methods for just detection)
   useEffect(() => {
@@ -81,28 +132,34 @@ const ChatInterfaceMultiAgent = () => {
 
   // Generate quick suggestions based on workflow phase
   const generateQuickSuggestions = (workflow) => {
-    const phase = workflow?.currentPhase || 'planning';
-    
+    const phase = workflow?.currentPhase || "planning";
+
     switch (phase) {
-      case 'planning':
+      case "planning":
         return [
-          { text: "Use the default settings and begin", value: "1" },
-          { text: "I'd like to customize the settings", value: "Let me adjust the settings - I want Grade 3 reading level" }
+          { text: "Use the default settings and begin", value: "Use the default settings and begin" },
+          {
+            text: "I'd like to customize the settings",
+            value: "I'd like to customize the reading level and style for my context",
+          },
         ];
-      case 'understanding':
+      case "understanding":
         return [
           { text: "I understand it as...", value: "I understand this phrase to mean..." },
-          { text: "In our context, we'd say...", value: "In our culture, this would be expressed as..." }
+          {
+            text: "In our context, we'd say...",
+            value: "In our culture, this would be expressed as...",
+          },
         ];
-      case 'drafting':
+      case "drafting":
         return [
           { text: "This draft looks good", value: "I like this draft, let's continue" },
-          { text: "I'd like to revise it", value: "Let me adjust the wording..." }
+          { text: "I'd like to revise it", value: "Let me adjust the wording..." },
         ];
       default:
         return [
           { text: "Continue", value: "Yes, let's continue" },
-          { text: "Tell me more", value: "Can you explain that further?" }
+          { text: "Tell me more", value: "Can you explain that further?" },
         ];
     }
   };
@@ -116,7 +173,7 @@ const ChatInterfaceMultiAgent = () => {
     // Auto-submit after a brief delay for user to see the filled input
     setTimeout(() => {
       if (inputRef.current) {
-        const form = inputRef.current.closest('form');
+        const form = inputRef.current.closest("form");
         if (form) {
           form.requestSubmit();
         }
@@ -138,7 +195,7 @@ const ChatInterfaceMultiAgent = () => {
     addMessage(userMessage);
     setInput("");
     setIsLoading(true);
-    
+
     // Clear response options when user submits
     setResponseOptions(null);
     setResponseSuggestions([]);
@@ -196,23 +253,40 @@ const ChatInterfaceMultiAgent = () => {
             timestamp: new Date(),
           });
         });
+
+        // Check the last non-Canvas-Scribe message for question types and extract options
+        let lastRelevantMessage = null;
+        for (let i = result.messages.length - 1; i >= 0; i--) {
+          const msg = result.messages[i];
+          if (msg.agent?.id !== "state" && msg.agent?.name !== "Canvas Scribe") {
+            lastRelevantMessage = msg;
+            break;
+          }
+        }
         
-        // Check the last message for question types and extract options
-        const lastMessage = result.messages[result.messages.length - 1];
-        if (lastMessage && responseProcessorRef.current) {
-          const multipleChoiceOptions = responseProcessorRef.current.extractMultipleChoiceOptions(lastMessage.content);
+        if (lastRelevantMessage && responseProcessorRef.current) {
+          const multipleChoiceOptions = responseProcessorRef.current.extractMultipleChoiceOptions(
+            lastRelevantMessage.content
+          );
+
           if (multipleChoiceOptions) {
             setResponseOptions(multipleChoiceOptions);
             setResponseSuggestions([]); // Clear suggestions if we have multiple choice
-          } else if (responseProcessorRef.current.isOpenEndedQuestion(lastMessage.content)) {
-            // Generate simple suggestions based on workflow phase
-            const suggestions = generateQuickSuggestions(canvasState?.workflow);
-            setResponseSuggestions(suggestions);
-            setResponseOptions(null);
           } else {
-            // No question detected, clear both
-            setResponseOptions(null);
-            setResponseSuggestions([]);
+            const isOpenEnded = responseProcessorRef.current.isOpenEndedQuestion(
+              lastRelevantMessage.content
+            );
+
+            if (isOpenEnded) {
+              // Generate simple suggestions based on workflow phase
+              const suggestions = generateQuickSuggestions(canvasState?.workflow);
+              setResponseSuggestions(suggestions);
+              setResponseOptions(null);
+            } else {
+              // No question detected, clear both
+              setResponseOptions(null);
+              setResponseSuggestions([]);
+            }
           }
         }
       }
@@ -295,14 +369,18 @@ const ChatInterfaceMultiAgent = () => {
             timestamp: new Date(),
             agent: { id: "primary", icon: "📖", color: "#3B82F6" },
           });
-          
+
           // Extract options from fallback assistant message
           if (responseProcessorRef.current) {
-            const multipleChoiceOptions = responseProcessorRef.current.extractMultipleChoiceOptions(assistantMessage);
+            const multipleChoiceOptions =
+              responseProcessorRef.current.extractMultipleChoiceOptions(assistantMessage);
             if (multipleChoiceOptions) {
               setResponseOptions(multipleChoiceOptions);
               setResponseSuggestions([]); // Clear suggestions if we have multiple choice
-            } else if (!responseSuggestions.length && responseProcessorRef.current.isOpenEndedQuestion(assistantMessage)) {
+            } else if (
+              !responseSuggestions.length &&
+              responseProcessorRef.current.isOpenEndedQuestion(assistantMessage)
+            ) {
               // Generate suggestions if we don't have them from backend
               const suggestions = generateQuickSuggestions(canvasState?.workflow);
               setResponseSuggestions(suggestions);
@@ -352,16 +430,14 @@ const ChatInterfaceMultiAgent = () => {
     <div className='chat-interface'>
       <div className='chat-header'>
         <h2>Bible Translation Assistant</h2>
-        <span className='workflow-phase'>
-          {getCurrentVerse()}
-        </span>
+        <span className='workflow-phase'>{getCurrentVerse()}</span>
       </div>
 
       {/* Agent Status Panel - Compact by default */}
-      <AgentStatus 
-        activeAgents={activeAgents} 
-        thinking={thinkingAgents} 
-        defaultViewMode="compact"
+      <AgentStatus
+        activeAgents={activeAgents}
+        thinking={thinkingAgents}
+        defaultViewMode='compact'
       />
 
       <div className='messages-container'>
@@ -391,7 +467,7 @@ const ChatInterfaceMultiAgent = () => {
       {/* Response Options - Multiple Choice or Suggestions */}
       {(responseOptions || responseSuggestions.length > 0) && (
         <div className='response-options-container'>
-          {responseOptions && responseOptions.type === 'multiple-choice' && (
+          {responseOptions && responseOptions.type === "multiple-choice" && (
             <div className='multiple-choice-options'>
               <div className='options-label'>Choose your response:</div>
               <div className='options-buttons'>
@@ -410,7 +486,7 @@ const ChatInterfaceMultiAgent = () => {
               </div>
             </div>
           )}
-          
+
           {!responseOptions && responseSuggestions.length > 0 && (
             <div className='response-suggestions'>
               <div className='options-label'>Quick responses:</div>
