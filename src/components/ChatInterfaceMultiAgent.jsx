@@ -73,7 +73,8 @@ const ChatInterfaceMultiAgent = () => {
       if (initialMsg && responseProcessorRef.current) {
         const isOpenEnded = responseProcessorRef.current.isOpenEndedQuestion(initialMsg.content);
         if (isOpenEnded) {
-          const suggestions = generateQuickSuggestions(canvasState?.workflow);
+          // For initial message, we're always in planning phase
+          const suggestions = generateQuickSuggestions({ currentPhase: 'planning' });
           setResponseSuggestions(suggestions);
         }
       }
@@ -135,7 +136,8 @@ const ChatInterfaceMultiAgent = () => {
 
   // Generate quick suggestions based on workflow phase
   const generateQuickSuggestions = (workflow) => {
-    const phase = workflow?.currentPhase || "planning";
+    // If no workflow passed, check canvasState
+    const phase = workflow?.currentPhase || canvasState?.workflow?.currentPhase || "planning";
 
     switch (phase) {
       case "planning":
