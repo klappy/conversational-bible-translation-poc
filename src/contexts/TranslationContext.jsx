@@ -201,7 +201,7 @@ export const TranslationProvider = ({ children }) => {
         color: '#3B82F6',
         name: 'Translation Assistant'
       },
-      content: `Welcome! Let's translate Ruth together. What languages are we working with?`,
+      content: `Welcome! Let's translate Ruth together.\n\nFirst, what language would you like to use for our conversation? And what language are you translating the Scripture into?`,
       timestamp: new Date(),
     };
   }, [project.styleGuide]);

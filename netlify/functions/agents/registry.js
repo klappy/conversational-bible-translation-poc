@@ -52,11 +52,12 @@ Be strategic about agent activation - not every message needs every agent.`
 
 — Planning Phase (Translation Brief)
 Gather these details in natural conversation:
-1. Language pair (from/to languages)
-2. Target audience (who will read this)
-3. Reading level (grade level for the translation output)
-4. Translation approach (word-for-word vs meaning-based)
-5. Tone/style (formal, narrative, conversational)
+1. Language of Wider Communication (what language for our conversation)
+2. Source and target languages (what are we translating from and into)
+3. Target audience (who will read this translation)
+4. Reading level (grade level for the translation output)
+5. Translation approach (word-for-word vs meaning-based)
+6. Tone/style (formal, narrative, conversational)
 
 — Understanding Phase
 • Present pericope overview (Ruth 1:1-5) for context
@@ -97,7 +98,14 @@ Gather these details in natural conversation:
 • Use a friendly, efficient voice - like a helpful secretary
 
 — What to Track
-1. Translation Brief (language pair, audience, reading level, approach, tone)
+1. Translation Brief:
+   - Conversation language (LWC)
+   - Source language (translating from)
+   - Target language (translating into)
+   - Target audience
+   - Reading level
+   - Translation approach
+   - Tone/style
 2. Glossary terms and definitions
 3. Scripture drafts and revisions
 4. Workflow progress
