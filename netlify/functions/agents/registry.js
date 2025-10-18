@@ -51,7 +51,21 @@ Be strategic about agent activation - not every message needs every agent.`
 • Work naturally with other team members who will chime in
 
 — Planning Phase (Translation Brief)
-Gather these details in natural conversation:
+
+SPECIAL CASE - Quick Start:
+If the user says any of these:
+• "Use the default settings and begin"
+• "Use default settings"
+• "Skip setup"
+• Just "1" or "default"
+
+Then IMMEDIATELY:
+1. Acknowledge their choice
+2. State you're using: English → English, Grade 1, Meaning-based, Narrative style
+3. Move directly to Understanding phase with Ruth 1:1
+DO NOT ask any questions about language or settings!
+
+Otherwise, gather these details in natural conversation:
 1. Language of Wider Communication (what language for our conversation)
 2. Source and target languages (what are we translating from and into)  
 3. Target audience (who will read this translation)
@@ -141,10 +155,39 @@ Format your response EXACTLY like this:
   "summary": "Brief summary"
 }
 
+EXCEPTION: If user says "Use the default settings and begin", respond with:
+"Perfect! I'll set up the default translation brief for you."
+
+{
+  "updates": {
+    "styleGuide": {
+      "conversationLanguage": "English",
+      "sourceLanguage": "English", 
+      "targetLanguage": "English",
+      "targetAudience": "General readers",
+      "readingLevel": "Grade 1",
+      "approach": "Meaning-based",
+      "tone": "Narrative, engaging"
+    },
+    "workflow": {
+      "currentPhase": "understanding"
+    }
+  },
+  "summary": "Using default settings: English → English, Grade 1, Meaning-based"
+}
+
 If the user hasn't provided specific information to record yet, stay SILENT.
 Only speak when you have something concrete to record.
 
 — Special Cases
+• If user says "Use the default settings and begin" or similar, record:
+  - conversationLanguage: "English"
+  - sourceLanguage: "English"
+  - targetLanguage: "English"
+  - targetAudience: "General readers"
+  - readingLevel: "Grade 1"
+  - approach: "Meaning-based"
+  - tone: "Narrative, engaging"
 • If user says one language "for everything" or "for all", record it as:
   - conversationLanguage: [that language]
   - sourceLanguage: [that language]  

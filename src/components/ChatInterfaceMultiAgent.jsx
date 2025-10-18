@@ -89,21 +89,24 @@ const ChatInterfaceMultiAgent = () => {
       let lastRelevantMessage = null;
       for (let i = messages.length - 1; i >= 0; i--) {
         const msg = messages[i];
-        if (msg.role === "assistant" && 
-            msg.agent?.id !== "state" && 
-            msg.agent?.name !== "Canvas Scribe") {
+        if (
+          msg.role === "assistant" &&
+          msg.agent?.id !== "state" &&
+          msg.agent?.name !== "Canvas Scribe"
+        ) {
           lastRelevantMessage = msg;
           break;
         }
       }
-      
+
       // Only process assistant messages that aren't from Canvas Scribe
       if (lastRelevantMessage) {
-        const isOpenEnded = responseProcessorRef.current.isOpenEndedQuestion(lastRelevantMessage.content);
+        const isOpenEnded = responseProcessorRef.current.isOpenEndedQuestion(
+          lastRelevantMessage.content
+        );
         const multipleChoice = responseProcessorRef.current.extractMultipleChoiceOptions(
           lastRelevantMessage.content
         );
-
 
         if (multipleChoice) {
           setResponseOptions(multipleChoice);
@@ -137,7 +140,10 @@ const ChatInterfaceMultiAgent = () => {
     switch (phase) {
       case "planning":
         return [
-          { text: "Use the default settings and begin", value: "Use the default settings and begin" },
+          {
+            text: "Use the default settings and begin",
+            value: "Use the default settings and begin",
+          },
           {
             text: "I'd like to customize the settings",
             value: "I'd like to customize the reading level and style for my context",
@@ -263,7 +269,7 @@ const ChatInterfaceMultiAgent = () => {
             break;
           }
         }
-        
+
         if (lastRelevantMessage && responseProcessorRef.current) {
           const multipleChoiceOptions = responseProcessorRef.current.extractMultipleChoiceOptions(
             lastRelevantMessage.content
