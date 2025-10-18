@@ -13,7 +13,10 @@ const STATE_FILE = join('/tmp', 'canvas-state.json');
 // Default state
 const DEFAULT_STATE = {
   styleGuide: {
-    languagePair: "English → English",
+    conversationLanguage: "English",  // Language of Wider Communication
+    sourceLanguage: "English",        // Translating from
+    targetLanguage: "English",        // Translating into
+    languagePair: "English → English", // Legacy, kept for compatibility
     readingLevel: "Grade 1",
     tone: "Narrator, engaging tone",
     philosophy: "Meaning-based"
@@ -121,7 +124,10 @@ async function updateState(updates, agentId = 'user') {
 async function resetState() {
   const globalState = {
     styleGuide: {
-      languagePair: "English → English",
+      conversationLanguage: "English",  // Language of Wider Communication
+      sourceLanguage: "English",        // Translating from
+      targetLanguage: "English",        // Translating into
+      languagePair: "English → English", // Legacy, kept for compatibility
       readingLevel: "Grade 1",
       tone: "Narrator, engaging tone",
       philosophy: "Meaning-based"

@@ -23,7 +23,10 @@ export const TranslationProvider = ({ children }) => {
   // Project state
   const [project, setProject] = useState({
     styleGuide: {
-      languagePair: "English → English",
+      conversationLanguage: "English",  // Language of Wider Communication
+      sourceLanguage: "English",        // Translating from
+      targetLanguage: "English",        // Translating into
+      languagePair: "English → English", // Legacy, kept for compatibility
       readingLevel: "Grade 1",
       tone: "Narrator, engaging tone",
       philosophy: "Meaning-based",

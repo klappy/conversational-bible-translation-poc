@@ -18,8 +18,16 @@ const ScriptureCanvas = () => {
       <h3>Translation Settings</h3>
       <div className='style-guide-content'>
         <div className='guide-item'>
-          <label>Language Pair</label>
-          <div className='value'>{project.styleGuide.languagePair}</div>
+          <label>Conversation Language</label>
+          <div className='value'>{project.styleGuide.conversationLanguage || "English"}</div>
+        </div>
+        <div className='guide-item'>
+          <label>Source Language</label>
+          <div className='value'>{project.styleGuide.sourceLanguage || "English"}</div>
+        </div>
+        <div className='guide-item'>
+          <label>Target Language</label>
+          <div className='value'>{project.styleGuide.targetLanguage || "English"}</div>
         </div>
         <div className='guide-item'>
           <label>Reading Level</label>
