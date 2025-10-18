@@ -280,22 +280,23 @@ async function processConversation(userMessage, conversationHistory) {
 function mergeAgentResponses(responses) {
   const messages = [];
 
-  // Always include primary response
-  if (responses.primary && !responses.primary.error) {
-    messages.push({
-      role: "assistant",
-      content: responses.primary.response,
-      agent: responses.primary.agent,
-    });
-  }
-
-  // Include Canvas Scribe's conversational response if present
+  // Include Canvas Scribe's conversational response FIRST if present
+  // This way it notes things before the main response, not after
   if (responses.state && !responses.state.error && responses.state.response) {
     console.log("Adding Canvas Scribe message with agent:", responses.state.agent); // Debug
     messages.push({
       role: "assistant",
       content: responses.state.response,
       agent: responses.state.agent,
+    });
+  }
+
+  // Then include primary response
+  if (responses.primary && !responses.primary.error) {
+    messages.push({
+      role: "assistant",
+      content: responses.primary.response,
+      agent: responses.primary.agent,
     });
   }
 

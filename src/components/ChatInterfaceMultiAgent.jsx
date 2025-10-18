@@ -114,10 +114,11 @@ const ChatInterfaceMultiAgent = () => {
           setResponseSuggestions([]);
         } else if (isOpenEnded) {
           // ALWAYS use planning phase for initial questions about language
-          const isInitialQuestion = lastRelevantMessage.content.toLowerCase().includes("what language") ||
-                                   lastRelevantMessage.content.toLowerCase().includes("welcome") ||
-                                   messages.length <= 3;
-          
+          const isInitialQuestion =
+            lastRelevantMessage.content.toLowerCase().includes("what language") ||
+            lastRelevantMessage.content.toLowerCase().includes("welcome") ||
+            messages.length <= 3;
+
           const workflow = isInitialQuestion ? { currentPhase: "planning" } : canvasState?.workflow;
           const suggestions = generateQuickSuggestions(workflow);
           setResponseSuggestions(suggestions);
