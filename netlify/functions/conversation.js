@@ -156,11 +156,14 @@ async function processConversation(userMessage, conversationHistory) {
   if (!responses.primary.error) {
     const stateManager = getAgent("state");
     console.log("Calling state manager...");
+    console.log("State manager agent info:", stateManager?.visual); // Debug log
     const stateResult = await callAgent(stateManager, userMessage, {
       ...context,
       primaryResponse: responses.primary.response,
       orchestration,
     });
+    
+    console.log("State result agent info:", stateResult?.agent); // Debug log
 
     // Parse and apply state updates
     try {
@@ -168,7 +171,7 @@ async function processConversation(userMessage, conversationHistory) {
       // Extract JSON from the response (it comes after the conversational part)
       const responseText = stateResult.response;
       const jsonMatch = responseText.match(/\{[\s\S]*\}$/);
-      
+
       if (jsonMatch) {
         // Try to parse the JSON
         let stateUpdates;
@@ -178,7 +181,9 @@ async function processConversation(userMessage, conversationHistory) {
           console.error("Invalid JSON from Canvas Scribe:", jsonError);
           console.error("JSON text:", jsonMatch[0]);
           // If JSON is invalid, only show the conversational part
-          const conversationalPart = responseText.substring(0, responseText.indexOf(jsonMatch[0])).trim();
+          const conversationalPart = responseText
+            .substring(0, responseText.indexOf(jsonMatch[0]))
+            .trim();
           if (conversationalPart) {
             responses.state = {
               ...stateResult,
@@ -189,14 +194,16 @@ async function processConversation(userMessage, conversationHistory) {
           // Don't show anything if there's no conversational part
           return;
         }
-        
+
         if (stateUpdates.updates && Object.keys(stateUpdates.updates).length > 0) {
           await updateCanvasState(stateUpdates.updates, "state");
         }
-        
+
         // Extract the conversational part (before the JSON)
-        const conversationalPart = responseText.substring(0, responseText.indexOf(jsonMatch[0])).trim();
-        
+        const conversationalPart = responseText
+          .substring(0, responseText.indexOf(jsonMatch[0]))
+          .trim();
+
         // Only include state response if there's a conversational part
         if (conversationalPart) {
           responses.state = {
@@ -284,6 +291,7 @@ function mergeAgentResponses(responses) {
 
   // Include Canvas Scribe's conversational response if present
   if (responses.state && !responses.state.error && responses.state.response) {
+    console.log("Adding Canvas Scribe message with agent:", responses.state.agent); // Debug
     messages.push({
       role: "assistant",
       content: responses.state.response,
@@ -353,10 +361,14 @@ const handler = async (req, context) => {
     // Process conversation with multiple agents
     const agentResponses = await processConversation(message, history);
     console.log("Got agent responses");
+    console.log("Agent responses state info:", agentResponses.state?.agent); // Debug
 
     // Merge responses into coherent output
     const messages = mergeAgentResponses(agentResponses);
     console.log("Merged messages");
+    // Debug: Check if state message has correct agent info
+    const stateMsg = messages.find(m => m.content && m.content.includes("Got it"));
+    console.log("State message agent info:", stateMsg?.agent);
 
     // Get updated canvas state
     const canvasState = await getCanvasState();

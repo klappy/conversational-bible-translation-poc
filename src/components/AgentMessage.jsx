@@ -51,7 +51,18 @@ const AgentMessage = ({ message, agent, timestamp }) => {
   if (isUser) {
     profile = agentProfiles.user;
   } else if (agent) {
-    profile = agentProfiles[agent.id || agent] || agentProfiles.primary;
+    // If agent has the visual info directly, use it
+    if (agent.icon && agent.name && agent.color) {
+      profile = {
+        name: agent.name,
+        icon: agent.icon,
+        color: agent.color,
+        role: agent.role || "Team member"
+      };
+    } else {
+      // Try to look up by id for backward compatibility
+      profile = agentProfiles[agent.id || agent] || agentProfiles.primary;
+    }
   } else {
     // Assistant message without agent info defaults to primary
     profile = agentProfiles.primary;
