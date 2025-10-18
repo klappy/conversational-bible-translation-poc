@@ -23,9 +23,9 @@ export const TranslationProvider = ({ children }) => {
   // Project state
   const [project, setProject] = useState({
     styleGuide: {
-      conversationLanguage: "English",  // Language of Wider Communication
-      sourceLanguage: "English",        // Translating from
-      targetLanguage: "English",        // Translating into
+      conversationLanguage: "English", // Language of Wider Communication
+      sourceLanguage: "English", // Translating from
+      targetLanguage: "English", // Translating into
       languagePair: "English → English", // Legacy, kept for compatibility
       readingLevel: "Grade 1",
       tone: "Narrator, engaging tone",
@@ -186,67 +186,70 @@ export const TranslationProvider = ({ children }) => {
       },
     ]);
   }, []);
-  
+
   // Generate initial message based on server state
-  const generateInitialMessage = useCallback((serverState) => {
-    const styleGuide = serverState?.styleGuide || project.styleGuide;
-    const readingLevel = styleGuide.readingLevel || "Grade 1";
-    const languagePair = styleGuide.languagePair || "English → English";
-    const tone = styleGuide.tone || "Narrator, engaging tone";
-    const philosophy = styleGuide.philosophy || "Meaning-based";
-    
-    return {
-      id: 1,
-      role: "assistant",
-      agent: { 
-        id: 'primary', 
-        icon: '📖', 
-        color: '#3B82F6',
-        name: 'Translation Assistant'
-      },
-      content: `Welcome! Let's translate Ruth together.\n\nFirst, what language would you like to use for our conversation? And what language are you translating the Scripture into?`,
-      timestamp: new Date(),
-    };
-  }, [project.styleGuide]);
+  const generateInitialMessage = useCallback(
+    (serverState) => {
+      const styleGuide = serverState?.styleGuide || project.styleGuide;
+      const readingLevel = styleGuide.readingLevel || "Grade 1";
+      const languagePair = styleGuide.languagePair || "English → English";
+      const tone = styleGuide.tone || "Narrator, engaging tone";
+      const philosophy = styleGuide.philosophy || "Meaning-based";
+
+      return {
+        id: 1,
+        role: "assistant",
+        agent: {
+          id: "primary",
+          icon: "📖",
+          color: "#3B82F6",
+          name: "Translation Assistant",
+        },
+        content: `Welcome! Let's translate Ruth together.\n\nFirst, what language would you like to use for our conversation? And what language are you translating the Scripture into?`,
+        timestamp: new Date(),
+      };
+    },
+    [project.styleGuide]
+  );
 
   // Update local state from server state
   const updateFromServerState = useCallback((serverState) => {
     if (!serverState) return;
-    
+
     // Update project state
     if (serverState.styleGuide) {
-      setProject(prev => ({
+      setProject((prev) => ({
         ...prev,
-        styleGuide: { ...prev.styleGuide, ...serverState.styleGuide }
+        styleGuide: { ...prev.styleGuide, ...serverState.styleGuide },
       }));
     }
-    
+
     if (serverState.glossary) {
-      setProject(prev => ({
+      setProject((prev) => ({
         ...prev,
-        glossary: serverState.glossary
+        glossary: serverState.glossary,
       }));
     }
-    
+
     if (serverState.scriptureCanvas) {
-      setProject(prev => ({
+      setProject((prev) => ({
         ...prev,
-        scriptureCanvas: serverState.scriptureCanvas
+        scriptureCanvas: serverState.scriptureCanvas,
       }));
     }
-    
+
     if (serverState.feedback) {
-      setProject(prev => ({
+      setProject((prev) => ({
         ...prev,
-        feedback: serverState.feedback
+        feedback: serverState.feedback,
       }));
     }
-    
+
     // Update workflow state
     if (serverState.workflow) {
-      setWorkflow(prev => ({
+      setWorkflow((prev) => ({
         ...prev,
-        ...serverState.workflow
+        ...serverState.workflow,
       }));
     }
   }, []);

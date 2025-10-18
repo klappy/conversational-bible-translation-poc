@@ -170,7 +170,25 @@ async function processConversation(userMessage, conversationHistory) {
       const jsonMatch = responseText.match(/\{[\s\S]*\}$/);
       
       if (jsonMatch) {
-        const stateUpdates = JSON.parse(jsonMatch[0]);
+        // Try to parse the JSON
+        let stateUpdates;
+        try {
+          stateUpdates = JSON.parse(jsonMatch[0]);
+        } catch (jsonError) {
+          console.error("Invalid JSON from Canvas Scribe:", jsonError);
+          console.error("JSON text:", jsonMatch[0]);
+          // If JSON is invalid, only show the conversational part
+          const conversationalPart = responseText.substring(0, responseText.indexOf(jsonMatch[0])).trim();
+          if (conversationalPart) {
+            responses.state = {
+              ...stateResult,
+              response: conversationalPart,
+            };
+          }
+          // Don't show anything if there's no conversational part
+          return;
+        }
+        
         if (stateUpdates.updates && Object.keys(stateUpdates.updates).length > 0) {
           await updateCanvasState(stateUpdates.updates, "state");
         }
@@ -178,18 +196,23 @@ async function processConversation(userMessage, conversationHistory) {
         // Extract the conversational part (before the JSON)
         const conversationalPart = responseText.substring(0, responseText.indexOf(jsonMatch[0])).trim();
         
-        // Store both the conversational response and the updates
-        responses.state = {
-          ...stateResult,
-          response: conversationalPart, // The text the scribe says
-          updates: stateUpdates.updates,
-          summary: stateUpdates.summary,
-        };
+        // Only include state response if there's a conversational part
+        if (conversationalPart) {
+          responses.state = {
+            ...stateResult,
+            response: conversationalPart, // The text the scribe says
+            updates: stateUpdates.updates,
+            summary: stateUpdates.summary,
+          };
+        }
       }
     } catch (e) {
       console.error("Error parsing state updates:", e);
-      // If parsing fails, treat it as a regular response
-      responses.state = stateResult;
+      // Don't show raw responses with JSON to the user
+      // Only show if it's a pure conversational response (no JSON detected)
+      if (!stateResult.response.includes('{"updates"')) {
+        responses.state = stateResult;
+      }
     }
   }
 
