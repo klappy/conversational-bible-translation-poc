@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useTranslation } from "../contexts/TranslationContext";
+import { createResponseProcessor } from "../services/ResponseProcessor";
 import AgentMessage from "./AgentMessage";
 import AgentStatus from "./AgentStatus";
 import "./ChatInterface.css";
@@ -11,8 +12,11 @@ const ChatInterfaceMultiAgent = () => {
   const [activeAgents, setActiveAgents] = useState(["primary", "state"]);
   const [thinkingAgents, setThinkingAgents] = useState([]);
   const [canvasState, setCanvasState] = useState(null);
+  const [responseOptions, setResponseOptions] = useState(null); // For multiple choice options
+  const [responseSuggestions, setResponseSuggestions] = useState([]); // For AI suggestions
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
+  const responseProcessorRef = useRef(null);
 
   const { messages, addMessage, setMessages, generateInitialMessage, updateFromServerState } =
     useTranslation();
@@ -66,8 +70,58 @@ const ChatInterfaceMultiAgent = () => {
     scrollToBottom();
   }, [messages]);
 
+  // Initialize response processor (we don't need all the context methods for just detection)
+  useEffect(() => {
+    responseProcessorRef.current = createResponseProcessor({});
+  }, []);
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  // Generate quick suggestions based on workflow phase
+  const generateQuickSuggestions = (workflow) => {
+    const phase = workflow?.currentPhase || 'planning';
+    
+    switch (phase) {
+      case 'planning':
+        return [
+          { text: "Use the default settings and begin", value: "1" },
+          { text: "I'd like to customize the settings", value: "Let me adjust the settings - I want Grade 3 reading level" }
+        ];
+      case 'understanding':
+        return [
+          { text: "I understand it as...", value: "I understand this phrase to mean..." },
+          { text: "In our context, we'd say...", value: "In our culture, this would be expressed as..." }
+        ];
+      case 'drafting':
+        return [
+          { text: "This draft looks good", value: "I like this draft, let's continue" },
+          { text: "I'd like to revise it", value: "Let me adjust the wording..." }
+        ];
+      default:
+        return [
+          { text: "Continue", value: "Yes, let's continue" },
+          { text: "Tell me more", value: "Can you explain that further?" }
+        ];
+    }
+  };
+
+  const handleOptionClick = (value) => {
+    // Set the input value and submit
+    setInput(value);
+    // Clear options immediately
+    setResponseOptions(null);
+    setResponseSuggestions([]);
+    // Auto-submit after a brief delay for user to see the filled input
+    setTimeout(() => {
+      if (inputRef.current) {
+        const form = inputRef.current.closest('form');
+        if (form) {
+          form.requestSubmit();
+        }
+      }
+    }, 100);
   };
 
   const handleSubmit = async (e) => {
@@ -84,6 +138,10 @@ const ChatInterfaceMultiAgent = () => {
     addMessage(userMessage);
     setInput("");
     setIsLoading(true);
+    
+    // Clear response options when user submits
+    setResponseOptions(null);
+    setResponseSuggestions([]);
 
     // Set agents to thinking state
     setThinkingAgents(["orchestrator", "primary", "state"]);
@@ -138,6 +196,25 @@ const ChatInterfaceMultiAgent = () => {
             timestamp: new Date(),
           });
         });
+        
+        // Check the last message for question types and extract options
+        const lastMessage = result.messages[result.messages.length - 1];
+        if (lastMessage && responseProcessorRef.current) {
+          const multipleChoiceOptions = responseProcessorRef.current.extractMultipleChoiceOptions(lastMessage.content);
+          if (multipleChoiceOptions) {
+            setResponseOptions(multipleChoiceOptions);
+            setResponseSuggestions([]); // Clear suggestions if we have multiple choice
+          } else if (responseProcessorRef.current.isOpenEndedQuestion(lastMessage.content)) {
+            // Generate simple suggestions based on workflow phase
+            const suggestions = generateQuickSuggestions(canvasState?.workflow);
+            setResponseSuggestions(suggestions);
+            setResponseOptions(null);
+          } else {
+            // No question detected, clear both
+            setResponseOptions(null);
+            setResponseSuggestions([]);
+          }
+        }
       }
 
       // Update canvas state if provided
@@ -200,6 +277,10 @@ const ChatInterfaceMultiAgent = () => {
                   if (parsed.content) {
                     assistantMessage += parsed.content;
                   }
+                  // Handle response suggestions from backend
+                  if (parsed.suggestions) {
+                    setResponseSuggestions(parsed.suggestions);
+                  }
                 } catch (e) {
                   // Skip invalid JSON
                 }
@@ -214,6 +295,20 @@ const ChatInterfaceMultiAgent = () => {
             timestamp: new Date(),
             agent: { id: "primary", icon: "📖", color: "#3B82F6" },
           });
+          
+          // Extract options from fallback assistant message
+          if (responseProcessorRef.current) {
+            const multipleChoiceOptions = responseProcessorRef.current.extractMultipleChoiceOptions(assistantMessage);
+            if (multipleChoiceOptions) {
+              setResponseOptions(multipleChoiceOptions);
+              setResponseSuggestions([]); // Clear suggestions if we have multiple choice
+            } else if (!responseSuggestions.length && responseProcessorRef.current.isOpenEndedQuestion(assistantMessage)) {
+              // Generate suggestions if we don't have them from backend
+              const suggestions = generateQuickSuggestions(canvasState?.workflow);
+              setResponseSuggestions(suggestions);
+              setResponseOptions(null);
+            }
+          }
         } else {
           throw new Error("Fallback also failed");
         }
@@ -292,6 +387,51 @@ const ChatInterfaceMultiAgent = () => {
 
         <div ref={messagesEndRef} />
       </div>
+
+      {/* Response Options - Multiple Choice or Suggestions */}
+      {(responseOptions || responseSuggestions.length > 0) && (
+        <div className='response-options-container'>
+          {responseOptions && responseOptions.type === 'multiple-choice' && (
+            <div className='multiple-choice-options'>
+              <div className='options-label'>Choose your response:</div>
+              <div className='options-buttons'>
+                {responseOptions.options.map((option) => (
+                  <button
+                    key={option.letter}
+                    type='button'
+                    className='option-button'
+                    onClick={() => handleOptionClick(option.letter)}
+                    disabled={isLoading}
+                  >
+                    <span className='option-letter'>{option.letter})</span>
+                    <span className='option-text'>{option.text}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {!responseOptions && responseSuggestions.length > 0 && (
+            <div className='response-suggestions'>
+              <div className='options-label'>Quick responses:</div>
+              <div className='suggestion-cards'>
+                {responseSuggestions.map((suggestion, index) => (
+                  <button
+                    key={index}
+                    type='button'
+                    className='suggestion-card'
+                    onClick={() => handleOptionClick(suggestion.value)}
+                    disabled={isLoading}
+                  >
+                    <div className='suggestion-text'>{suggestion.text}</div>
+                    <div className='suggestion-hint'>Click to use this response</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className='input-form'>
         <div className='input-container'>
