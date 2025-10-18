@@ -9,6 +9,8 @@ const ChatInterface = () => {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showAudioRecord, setShowAudioRecord] = useState(false);
+  const [responseOptions, setResponseOptions] = useState(null); // For multiple choice options
+  const [responseSuggestions, setResponseSuggestions] = useState([]); // For AI suggestions
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
   const responseProcessorRef = useRef(null);
@@ -46,6 +48,23 @@ const ChatInterface = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  const handleOptionClick = (value) => {
+    // Set the input value and submit
+    setInput(value);
+    // Clear options immediately
+    setResponseOptions(null);
+    setResponseSuggestions([]);
+    // Auto-submit after a brief delay for user to see the filled input
+    setTimeout(() => {
+      if (inputRef.current) {
+        const form = inputRef.current.closest('form');
+        if (form) {
+          form.requestSubmit();
+        }
+      }
+    }, 100);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
@@ -58,6 +77,10 @@ const ChatInterface = () => {
     addMessage(userMessage);
     setInput("");
     setIsLoading(true);
+    
+    // Clear response options when user submits
+    setResponseOptions(null);
+    setResponseSuggestions([]);
 
     // Process user input for potential updates (like capturing articulations)
     if (responseProcessorRef.current && workflow.currentPhase === 'understanding') {
@@ -152,6 +175,10 @@ const ChatInterface = () => {
                   }
                 });
               }
+              // Handle response suggestions from backend
+              if (parsed.suggestions) {
+                setResponseSuggestions(parsed.suggestions);
+              }
             } catch (e) {
               // Skip invalid JSON
             }
@@ -169,6 +196,20 @@ const ChatInterface = () => {
       // Process the response for canvas updates
       if (responseProcessorRef.current) {
         await responseProcessorRef.current.processResponse(assistantMsg, workflow);
+        
+        // Extract multiple choice options if present
+        const multipleChoiceOptions = responseProcessorRef.current.extractMultipleChoiceOptions(assistantMessage);
+        if (multipleChoiceOptions) {
+          setResponseOptions(multipleChoiceOptions);
+          setResponseSuggestions([]); // Clear suggestions if we have multiple choice
+        } else if (responseProcessorRef.current.isOpenEndedQuestion(assistantMessage)) {
+          // Keep suggestions for open-ended questions
+          setResponseOptions(null);
+        } else {
+          // No question detected, clear both
+          setResponseOptions(null);
+          setResponseSuggestions([]);
+        }
       }
     } catch (error) {
       console.error("Chat error:", error);
@@ -252,6 +293,51 @@ const ChatInterface = () => {
         )}
         <div ref={messagesEndRef} />
       </div>
+
+      {/* Response Options - Multiple Choice or Suggestions */}
+      {(responseOptions || responseSuggestions.length > 0) && (
+        <div className='response-options-container'>
+          {responseOptions && responseOptions.type === 'multiple-choice' && (
+            <div className='multiple-choice-options'>
+              <div className='options-label'>Choose your response:</div>
+              <div className='options-buttons'>
+                {responseOptions.options.map((option) => (
+                  <button
+                    key={option.letter}
+                    type='button'
+                    className='option-button'
+                    onClick={() => handleOptionClick(option.letter)}
+                    disabled={isLoading}
+                  >
+                    <span className='option-letter'>{option.letter})</span>
+                    <span className='option-text'>{option.text}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {!responseOptions && responseSuggestions.length > 0 && (
+            <div className='response-suggestions'>
+              <div className='options-label'>Quick responses:</div>
+              <div className='suggestion-cards'>
+                {responseSuggestions.map((suggestion, index) => (
+                  <button
+                    key={index}
+                    type='button'
+                    className='suggestion-card'
+                    onClick={() => handleOptionClick(suggestion.value)}
+                    disabled={isLoading}
+                  >
+                    <div className='suggestion-text'>{suggestion.text}</div>
+                    <div className='suggestion-hint'>Click to use this response</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className='input-form'>
         <div className='input-container'>

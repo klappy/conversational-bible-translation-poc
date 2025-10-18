@@ -30,6 +30,99 @@ function extractStructuredUpdates(response, workflow) {
   return updates;
 }
 
+// Helper function to generate contextual response suggestions
+async function generateResponseSuggestions(messages, workflow, verseData) {
+  // Get the last assistant message to understand what's being asked
+  const lastMessage = messages[messages.length - 1];
+  if (!lastMessage || lastMessage.role !== 'assistant') {
+    return null;
+  }
+
+  const suggestions = [];
+  
+  // Generate context-specific suggestions based on workflow phase
+  switch (workflow.currentPhase) {
+    case 'planning':
+      // Suggest common settings choices
+      suggestions.push({
+        text: "Use the default settings and begin",
+        value: "1"
+      });
+      suggestions.push({
+        text: "I'd like to customize the reading level and style",
+        value: "Let me adjust the settings - I want Grade 3 reading level with a more dynamic style"
+      });
+      break;
+      
+    case 'understanding':
+      // Suggest phrase-based responses
+      const currentPhraseText = verseData?.phrases?.[workflow.currentPhrase];
+      if (currentPhraseText) {
+        // Simpler, more direct response
+        suggestions.push({
+          text: "It means " + generateSimpleExplanation(currentPhraseText),
+          value: "I understand it as " + generateSimpleExplanation(currentPhraseText)
+        });
+        // More detailed response
+        suggestions.push({
+          text: "In our context, we'd say it like...",
+          value: "In our culture, this would be expressed as " + generateContextualExpression(currentPhraseText)
+        });
+      }
+      break;
+      
+    case 'drafting':
+      suggestions.push({
+        text: "This draft looks good to me",
+        value: "I like this draft, let's move forward"
+      });
+      suggestions.push({
+        text: "I'd like to adjust the wording",
+        value: "Let me revise this - I think we should change..."
+      });
+      break;
+      
+    default:
+      // Generic suggestions for unknown contexts
+      suggestions.push({
+        text: "Continue with the next step",
+        value: "Yes, let's continue"
+      });
+      suggestions.push({
+        text: "I need more explanation",
+        value: "Can you explain that in more detail?"
+      });
+  }
+  
+  return suggestions;
+}
+
+// Simple helper to generate basic explanations (would be enhanced with actual LLM in production)
+function generateSimpleExplanation(phrase) {
+  // This is a placeholder - in production this would use the LLM
+  const explanations = {
+    "In the days when the judges ruled": "when leaders guided Israel",
+    "there was a famine in the land": "there was no food available",
+    "And a certain man from Bethlehem in Judah": "a man from the town of Bethlehem",
+    "with his wife and two sons": "together with his family",
+    "went to reside in the land of Moab": "moved to live in another country"
+  };
+  return explanations[phrase] || "what the text describes";
+}
+
+// Helper to generate contextual expressions
+function generateContextualExpression(phrase) {
+  // This is a placeholder - in production this would use the LLM
+  const expressions = {
+    "In the days when the judges ruled": "during the time of the early leaders",
+    "there was a famine in the land": "when food became scarce everywhere",
+    "And a certain man from Bethlehem in Judah": "there was this man from Bethlehem",
+    "with his wife and two sons": "along with his whole family",
+    "went to reside in the land of Moab": "had to move to a foreign place"
+  };
+  return expressions[phrase] || "the meaning of this phrase in our words";
+}
+
 const SYSTEM_PROMPT = `You are a conversational Bible translation assistant designed for end-to-end, iterative translation workflows. You guide users through a symbiotic process where you both teach and learn: you share trustworthy biblical background and methodology guidance, while collecting cultural and linguistic insights to tailor a draft and checks.
 
 — What you do
@@ -154,6 +247,16 @@ Current phrase (${workflow.currentPhrase + 1}/${verseData.phrases?.length}): "${
           const updates = extractStructuredUpdates(fullResponse, workflow);
           if (updates && updates.length > 0) {
             controller.enqueue(encoder.encode(`data: ${JSON.stringify({ updates })}\n\n`));
+          }
+          
+          // Generate and send response suggestions
+          const suggestions = await generateResponseSuggestions(
+            [...messages, { role: 'assistant', content: fullResponse }],
+            workflow,
+            verseData
+          );
+          if (suggestions && suggestions.length > 0) {
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ suggestions })}\n\n`));
           }
           
           controller.enqueue(encoder.encode("data: [DONE]\n\n"));

@@ -185,6 +185,162 @@
   }
 }
 
+/* Response Options Container */
+.response-options-container {
+  padding: 12px 16px;
+  background: #f8f9fa;
+  border-top: 1px solid #e0e0e0;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.options-label {
+  font-size: 12px;
+  color: #6c757d;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+/* Multiple Choice Options */
+.multiple-choice-options {
+  margin-bottom: 8px;
+}
+
+.options-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.option-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: white;
+  border: 2px solid #dee2e6;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+  color: #333;
+  min-height: 40px;
+}
+
+.option-button:hover:not(:disabled) {
+  background: #007bff;
+  color: white;
+  border-color: #007bff;
+  transform: scale(1.02);
+}
+
+.option-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.option-letter {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: #007bff;
+  color: white;
+  border-radius: 50%;
+  font-weight: 600;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.option-button:hover:not(:disabled) .option-letter {
+  background: white;
+  color: #007bff;
+}
+
+.option-text {
+  text-align: left;
+  flex: 1;
+}
+
+/* Response Suggestions */
+.response-suggestions {
+  margin-bottom: 8px;
+}
+
+.suggestion-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.suggestion-card {
+  padding: 12px 16px;
+  background: white;
+  border: 2px solid #dee2e6;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  min-height: 80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.suggestion-card:hover:not(:disabled) {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: transparent;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.suggestion-card:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.suggestion-text {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 4px;
+  line-height: 1.4;
+}
+
+.suggestion-hint {
+  font-size: 11px;
+  opacity: 0.7;
+  font-style: italic;
+}
+
+.suggestion-card:hover:not(:disabled) .suggestion-hint {
+  opacity: 0.9;
+}
+
+/* Mobile responsiveness for options */
+@media (max-width: 768px) {
+  .suggestion-cards {
+    grid-template-columns: 1fr;
+  }
+  
+  .option-button {
+    flex: 1 1 100%;
+  }
+}
+
 /* Input Form */
 .input-form {
   padding: 16px;

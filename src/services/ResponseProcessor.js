@@ -7,6 +7,68 @@ export class ResponseProcessor {
   }
 
   /**
+   * Extract multiple choice options from assistant message
+   * Returns null if no options found, or an object with options
+   */
+  extractMultipleChoiceOptions(content) {
+    const options = [];
+    
+    // Pattern 1: Lines starting with a) b) c) etc.
+    const letterPattern = /^([a-d])\)\s*(.+)$/gim;
+    let matches = content.matchAll(letterPattern);
+    
+    for (const match of matches) {
+      options.push({
+        letter: match[1].toLowerCase(),
+        text: match[2].trim(),
+        fullText: match[0]
+      });
+    }
+    
+    // Pattern 2: Numbered list with letter sub-items (e.g., "1. Choose:\n   a) Option")
+    const subItemPattern = /^\s*[-•]\s*([a-d])\)\s*(.+)$/gim;
+    matches = content.matchAll(subItemPattern);
+    
+    for (const match of matches) {
+      // Avoid duplicates
+      if (!options.find(opt => opt.letter === match[1].toLowerCase())) {
+        options.push({
+          letter: match[1].toLowerCase(),
+          text: match[2].trim(),
+          fullText: match[0]
+        });
+      }
+    }
+    
+    // Only return if we found meaningful options
+    if (options.length >= 2) {
+      return {
+        type: 'multiple-choice',
+        options: options.sort((a, b) => a.letter.localeCompare(b.letter))
+      };
+    }
+    
+    return null;
+  }
+
+  /**
+   * Detect if a message contains an open-ended question
+   */
+  isOpenEndedQuestion(content) {
+    // Check for question marks
+    const hasQuestion = content.includes('?');
+    
+    // Check for question words
+    const questionWords = /\b(what|how|why|when|where|who|which|could|would|should|can you|describe|explain|tell me)\b/i;
+    const hasQuestionWord = questionWords.test(content);
+    
+    // Check it's not multiple choice
+    const multipleChoice = this.extractMultipleChoiceOptions(content);
+    
+    return (hasQuestion || hasQuestionWord) && !multipleChoice;
+  }
+
+  /**
    * Process an AI response and update the appropriate canvas artifacts
    */
   async processResponse(message, workflow) {
