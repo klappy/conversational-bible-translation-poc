@@ -183,6 +183,7 @@ async function processConversation(userMessage, conversationHistory) {
             responses.state = {
               ...stateResult,
               response: conversationalPart,
+              agent: stateResult.agent, // Preserve agent visual info even on JSON error
             };
           }
           // Don't show anything if there's no conversational part
@@ -201,6 +202,7 @@ async function processConversation(userMessage, conversationHistory) {
           responses.state = {
             ...stateResult,
             response: conversationalPart, // The text the scribe says
+            agent: stateResult.agent, // Make sure to preserve the agent visual info
             updates: stateUpdates.updates,
             summary: stateUpdates.summary,
           };
