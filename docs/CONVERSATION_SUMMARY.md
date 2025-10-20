@@ -288,6 +288,56 @@ The system is now antifragile - agents can fail independently, new agents can be
 
 ---
 
-_Last Updated: October 17, 2025_
-_Version: 0.3.0_
-_Status: Multi-agent architecture deployed, ready for testing_
+## Session 5: Agent Behavior Refinement (October 20, 2025)
+
+### Major Issues Resolved
+
+#### 1. Canvas Scribe Behavior
+- **Problem**: Canvas Scribe was asking questions, repeating messages, and providing summaries
+- **Solution**: Aggressively updated system prompt with explicit "YOU NEVER ASK QUESTIONS!" rules
+- **Result**: Scribe now only acknowledges and records data silently
+
+#### 2. Translation Assistant Question Order  
+- **Problem**: Not following the prescribed 7-step customization order, asking duplicate questions
+- **Solution**: Added `MANDATORY ORDER FOR CUSTOMIZATION` with explicit sequence enforcement
+- **Result**: Consistent, logical flow through customization process
+
+#### 3. JSON Output in Understanding Phase
+- **Problem**: Translation Assistant reverting to plain text instead of JSON format
+- **Solution**: Added aggressive warnings and checklists directly in prompts
+- **Result**: Reliable JSON output with proper suggestions
+
+#### 4. UI Panel Synchronization
+- **Problem**: Canvas panels not switching when phase changes
+- **Solution**: Fixed React component state subscriptions to workflow.currentPhase
+- **Result**: Panels automatically switch to relevant tab based on workflow phase
+
+#### 5. Conversation History Context
+- **Problem**: LLMs receiving malformed conversation history
+- **Solution**: Refactored to structured message array format with role/content pairs
+- **Result**: Better context awareness and reduced duplicate questions
+
+### Architecture Improvements
+
+- **State Management**: Improved context-aware recording in Canvas Scribe
+- **Phase Transitions**: Clear rules for when to move between workflow phases  
+- **Message Filtering**: Remove empty Resource Librarian responses
+- **Mobile Experience**: Cards reorder based on active workflow phase
+- **Rich Formatting**: Added bold, italics, and markdown for better readability
+
+### Current Workflow
+
+1. **Planning Phase**: 7-step customization in strict order
+2. **Understanding Phase**: Systematic phrase-by-phrase scripture understanding
+3. **Drafting Phase**: Translation work with collected context
+4. **Checking Phase**: Quality assurance and validation
+5. **Sharing Phase**: Community feedback collection
+6. **Publishing Phase**: Final output generation
+
+The system now provides a natural, conversational flow with proper state management, accurate phase tracking, and responsive UI updates.
+
+---
+
+_Last Updated: October 20, 2025_
+_Version: 0.3.5_
+_Status: Agent behaviors refined, ready for comprehensive testing_

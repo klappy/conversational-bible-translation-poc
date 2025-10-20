@@ -42,7 +42,7 @@ Traditional BT workflows are resource-heavy, often inaccessible to low-literacy 
 
 ## 3. Product Overview
 
-The Bible Translation Assistant is a React-based PWA that functions as a conversational LLM interface, starting with a chat prompt and dynamically generating a canvas for drafts. It guides users through Planning, Understanding, Drafting, Checking, Sharing/Feedback, and Publishing/Iteration, emphasizing symbiotic learning: AI shares trusted info, learns user phrasings for personalization. The PoC focuses on Ruth 1 (English target, extensible to minority languages via LWC), using FIA resources for multimodal Understanding/Drafting and uW translationHelps for supplemental Q&A and Checking.
+The Bible Translation Assistant is a React-based PWA that functions as a conversational LLM interface, starting with a chat prompt and dynamically generating a canvas for translations. It guides users through Planning, Understanding, Drafting, Checking, Sharing/Feedback, and Publishing/Iteration, emphasizing symbiotic learning: AI shares trusted info, learns user phrasings for personalization. The PoC focuses on Ruth 1 (English target, extensible to minority languages via LWC), using FIA resources for multimodal Understanding/Drafting and uW translationHelps for supplemental Q&A and Checking.
 
 **Core Workflow Phases**:
 
@@ -86,7 +86,7 @@ The Bible Translation Assistant is a React-based PWA that functions as a convers
 - **Conversational Interface**:
   - Start with prompt: “Welcome. What kind of translation are you doing?” (Set language pair, reading level, literal/meaning-based).
   - Dynamic tool building: Generate canvas sidebar, embed FIA media (e.g., videos/maps) in chat.
-  - Symbiotic Data Collection: Probe for cultural phrasings (e.g., “How to say ‘loyalty’ for your audience?”); build mini-glossary.
+  - Symbiotic Data Collection: Probe for cultural phrasings (e.g., "How to say 'loyalty' for your community?"); build mini-glossary.
 - **Planning Phase**:
   - Interview for style guide (e.g., “Dynamic or literal? Grade 8?”); enforce with notifications (e.g., “This exceeds Grade 8—simplify?”).
   - Requirements: Store guide in project DB (Firebase JSON); flag deviations real-time.

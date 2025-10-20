@@ -4,7 +4,7 @@
  */
 
 import { OpenAI } from "openai";
-import { getActiveAgents, getAgent } from "./agents/registry.js";
+import { getAgent } from "./agents/registry.js";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -21,15 +21,84 @@ async function callAgent(agent, message, context) {
         role: "system",
         content: agent.systemPrompt,
       },
-      {
-        role: "user",
-        content: JSON.stringify({
-          userMessage: message,
-          context: context,
-          timestamp: new Date().toISOString(),
-        }),
-      },
     ];
+
+    // Add conversation history as natural messages (for primary agent only)
+    if (agent.id === "primary" && context.conversationHistory) {
+      context.conversationHistory.forEach((msg) => {
+        // Parse assistant messages if they're JSON
+        let content = msg.content;
+        if (msg.role === "assistant" && msg.agent?.id === "primary") {
+          try {
+            const parsed = JSON.parse(content);
+            content = parsed.message || content;
+          } catch {
+            // Not JSON, use as-is
+          }
+        }
+
+        // Skip Canvas Scribe acknowledgments
+        if (msg.agent?.id === "state") return;
+
+        messages.push({
+          role: msg.role,
+          content: content,
+        });
+      });
+    }
+
+    // Add the current user message
+    messages.push({
+      role: "user",
+      content: message,
+    });
+
+    // Add canvas state for primary agent to see what's been saved
+    if (agent.id === "primary" && context.canvasState) {
+      const saved = context.canvasState.styleGuide || {};
+      const workflow = context.canvasState.workflow || {};
+      const savedItems = [];
+      if (saved.conversationLanguage)
+        savedItems.push(`Conversation language: ${saved.conversationLanguage}`);
+      if (saved.sourceLanguage) savedItems.push(`Source language: ${saved.sourceLanguage}`);
+      if (saved.targetLanguage) savedItems.push(`Target language: ${saved.targetLanguage}`);
+      if (saved.targetCommunity) savedItems.push(`Target community: ${saved.targetCommunity}`);
+      if (saved.readingLevel) savedItems.push(`Reading level: ${saved.readingLevel}`);
+      if (saved.tone) savedItems.push(`Tone: ${saved.tone}`);
+      if (saved.approach) savedItems.push(`Approach: ${saved.approach}`);
+
+      // Add current phase info
+      const phaseInfo = `CURRENT PHASE: ${workflow.currentPhase || "planning"}
+${
+  workflow.currentPhase === "understanding"
+    ? "⚠️ YOU ARE IN UNDERSTANDING PHASE - YOU MUST RETURN JSON!"
+    : ""
+}`;
+
+      if (savedItems.length > 0) {
+        messages.push({
+          role: "system",
+          content: `${phaseInfo}\n\nAlready collected information:\n${savedItems.join("\n")}`,
+        });
+      } else {
+        messages.push({
+          role: "system",
+          content: phaseInfo,
+        });
+      }
+    }
+
+    // For non-primary agents, provide context differently
+    if (agent.id !== "primary") {
+      messages.push({
+        role: "system",
+        content: `Context: ${JSON.stringify({
+          canvasState: context.canvasState,
+          primaryResponse: context.primaryResponse,
+          orchestration: context.orchestration,
+        })}`,
+      });
+    }
 
     // Add timeout wrapper for API call
     const timeoutPromise = new Promise((_, reject) => {
@@ -130,98 +199,117 @@ async function processConversation(userMessage, conversationHistory) {
     timestamp: new Date().toISOString(),
   };
 
-  // Determine which agents should be active
-  const activeAgents = getActiveAgents(canvasState.workflow, userMessage);
-  console.log(
-    "Active agents:",
-    activeAgents.map((a) => a.id)
-  );
+  // First, ask the orchestrator which agents should respond
+  const orchestrator = getAgent("orchestrator");
+  console.log("Asking orchestrator which agents to activate...");
+  const orchestratorResponse = await callAgent(orchestrator, userMessage, context);
 
-  // Skip orchestrator for now - just use primary and state agents
-  // This simplifies things and reduces API calls
-  const orchestration = {
-    agents: ["primary", "state"],
-    sequential: false,
-  };
+  let orchestration;
+  try {
+    orchestration = JSON.parse(orchestratorResponse.response);
+    console.log("Orchestrator decided:", orchestration);
+  } catch (error) {
+    // If orchestrator fails, fall back to sensible defaults
+    console.error("Orchestrator response was not valid JSON, using defaults:", error.message);
+    orchestration = {
+      agents: ["primary", "state"],
+      notes: "Fallback to primary and state agents",
+    };
+  }
 
-  // Call primary translator
-  const primary = getAgent("primary");
-  console.log("Calling primary translator...");
-  responses.primary = await callAgent(primary, userMessage, {
-    ...context,
-    orchestration,
-  });
+  // Only call the agents the orchestrator says we need
+  const agentsToCall = orchestration.agents || ["primary", "state"];
 
-  // State manager watches the conversation (only if primary succeeded)
-  if (!responses.primary.error) {
-    const stateManager = getAgent("state");
-    console.log("Calling state manager...");
-    console.log("State manager agent info:", stateManager?.visual); // Debug log
-    const stateResult = await callAgent(stateManager, userMessage, {
+  // Call Resource Librarian if orchestrator says so
+  if (agentsToCall.includes("resource")) {
+    const resource = getAgent("resource");
+    console.log("Calling resource librarian...");
+    responses.resource = await callAgent(resource, userMessage, {
       ...context,
-      primaryResponse: responses.primary.response,
       orchestration,
     });
-    
-    console.log("State result agent info:", stateResult?.agent); // Debug log
+    console.log("Resource librarian responded");
+  }
 
-    // Parse and apply state updates
-    try {
-      // Canvas Scribe now provides conversational text + JSON
-      // Extract JSON from the response (it comes after the conversational part)
-      const responseText = stateResult.response;
-      const jsonMatch = responseText.match(/\{[\s\S]*\}$/);
+  // Call primary translator if orchestrator says so
+  if (agentsToCall.includes("primary")) {
+    const primary = getAgent("primary");
+    console.log("Calling primary translator...");
+    responses.primary = await callAgent(primary, userMessage, {
+      ...context,
+      orchestration,
+    });
+  }
 
-      if (jsonMatch) {
-        // Try to parse the JSON
-        let stateUpdates;
-        try {
-          stateUpdates = JSON.parse(jsonMatch[0]);
-        } catch (jsonError) {
-          console.error("Invalid JSON from Canvas Scribe:", jsonError);
-          console.error("JSON text:", jsonMatch[0]);
-          // If JSON is invalid, only show the conversational part
-          const conversationalPart = responseText
+  // Call state manager if orchestrator says so
+  if (agentsToCall.includes("state") && !responses.primary?.error) {
+    const stateManager = getAgent("state");
+    console.log("Calling state manager...");
+    console.log("State manager agent info:", stateManager?.visual);
+    const stateResult = await callAgent(stateManager, userMessage, {
+      ...context,
+      primaryResponse: responses.primary?.response,
+      resourceResponse: responses.resource?.response,
+      orchestration,
+    });
+
+    console.log("State result agent info:", stateResult?.agent);
+    console.log("State response:", stateResult?.response);
+
+    // Canvas Scribe should return either:
+    // 1. Empty string (stay silent)
+    // 2. Brief acknowledgment like "Noted!" or "Got it!"
+    // 3. Acknowledgment + JSON state update (rare)
+
+    const responseText = stateResult.response.trim();
+
+    // If empty response, scribe stays silent
+    if (!responseText || responseText === "") {
+      console.log("Canvas Scribe staying silent");
+      // Don't add to responses
+    }
+    // Check if response contains JSON (for state updates)
+    else if (responseText.includes("{") && responseText.includes("}")) {
+      try {
+        // Extract JSON from the response
+        const jsonMatch = responseText.match(/\{[\s\S]*\}$/);
+        if (jsonMatch) {
+          const stateUpdates = JSON.parse(jsonMatch[0]);
+
+          // Apply state updates if present
+          if (stateUpdates.updates && Object.keys(stateUpdates.updates).length > 0) {
+            await updateCanvasState(stateUpdates.updates, "state");
+          }
+
+          // Get the acknowledgment part (before JSON)
+          const acknowledgment = responseText
             .substring(0, responseText.indexOf(jsonMatch[0]))
             .trim();
-          if (conversationalPart) {
+
+          // Only show acknowledgment if present
+          if (acknowledgment) {
             responses.state = {
               ...stateResult,
-              response: conversationalPart,
-              agent: stateResult.agent, // Preserve agent visual info even on JSON error
+              response: acknowledgment,
             };
           }
-          // Don't show anything if there's no conversational part
-          return;
         }
-
-        if (stateUpdates.updates && Object.keys(stateUpdates.updates).length > 0) {
-          await updateCanvasState(stateUpdates.updates, "state");
-        }
-
-        // Extract the conversational part (before the JSON)
-        const conversationalPart = responseText
-          .substring(0, responseText.indexOf(jsonMatch[0]))
-          .trim();
-
-        // Only include state response if there's a conversational part
-        if (conversationalPart) {
-          responses.state = {
-            ...stateResult,
-            response: conversationalPart, // The text the scribe says
-            agent: stateResult.agent, // Make sure to preserve the agent visual info
-            updates: stateUpdates.updates,
-            summary: stateUpdates.summary,
-          };
-        }
+      } catch (e) {
+        console.error("Error parsing state JSON:", e);
+        // If JSON parsing fails, treat whole response as acknowledgment
+        responses.state = {
+          ...stateResult,
+          response: responseText,
+        };
       }
-    } catch (e) {
-      console.error("Error parsing state updates:", e);
-      // Don't show raw responses with JSON to the user
-      // Only show if it's a pure conversational response (no JSON detected)
-      if (!stateResult.response.includes('{"updates"')) {
-        responses.state = stateResult;
-      }
+    }
+    // Simple acknowledgment (no JSON)
+    else {
+      console.log("Canvas Scribe simple acknowledgment:", responseText);
+      responses.state = {
+        ...stateResult,
+        response: responseText,
+      };
     }
   }
 
@@ -279,23 +367,104 @@ async function processConversation(userMessage, conversationHistory) {
  */
 function mergeAgentResponses(responses) {
   const messages = [];
+  let suggestions = []; // ALWAYS an array, never null
 
   // Include Canvas Scribe's conversational response FIRST if present
-  // This way it notes things before the main response, not after
-  if (responses.state && !responses.state.error && responses.state.response) {
-    console.log("Adding Canvas Scribe message with agent:", responses.state.agent); // Debug
-    messages.push({
-      role: "assistant",
-      content: responses.state.response,
-      agent: responses.state.agent,
-    });
+  // Canvas Scribe should return either just an acknowledgment or empty string
+  if (
+    responses.state &&
+    !responses.state.error &&
+    responses.state.response &&
+    responses.state.response.trim() !== ""
+  ) {
+    // Canvas Scribe might return JSON with state update, extract just the acknowledgment
+    let scribeMessage = responses.state.response;
+
+    // Check if response contains JSON (state update)
+    if (scribeMessage.includes("{") && scribeMessage.includes("}")) {
+      // Extract just the acknowledgment part (before the JSON)
+      const jsonStart = scribeMessage.indexOf("{");
+      const acknowledgment = scribeMessage.substring(0, jsonStart).trim();
+      if (acknowledgment && acknowledgment !== "") {
+        scribeMessage = acknowledgment;
+      } else {
+        // No acknowledgment, just state update - stay silent
+        console.log("Canvas Scribe updated state silently");
+        scribeMessage = null;
+      }
+    }
+
+    // Only add message if there's actual content to show
+    if (scribeMessage && scribeMessage.trim() !== "") {
+      console.log("Adding Canvas Scribe acknowledgment:", scribeMessage);
+      messages.push({
+        role: "assistant",
+        content: scribeMessage,
+        agent: responses.state.agent,
+      });
+    }
+  } else if (responses.state && responses.state.response === "") {
+    console.log("Canvas Scribe returned empty response (staying silent)");
   }
 
-  // Then include primary response
-  if (responses.primary && !responses.primary.error) {
+  // Include Resource Librarian SECOND (to present scripture before questions)
+  // Orchestrator only calls them when needed, so if they responded, include it
+  if (responses.resource && !responses.resource.error && responses.resource.response) {
+    const resourceText = responses.resource.response.trim();
+    // Skip truly empty responses including just quotes
+    if (resourceText && resourceText !== '""' && resourceText !== "''") {
+      console.log("Adding Resource Librarian message with agent:", responses.resource.agent);
+      messages.push({
+        role: "assistant",
+        content: responses.resource.response,
+        agent: responses.resource.agent,
+      });
+    } else {
+      console.log("Resource Librarian returned empty response (staying silent)");
+    }
+  }
+
+  // Then include primary response (Translation Assistant)
+  // Extract message and suggestions from JSON response
+  if (responses.primary && !responses.primary.error && responses.primary.response) {
+    console.log("\n=== PRIMARY AGENT RESPONSE ===");
+    console.log("Raw:", responses.primary.response);
+
+    let messageContent = responses.primary.response;
+
+    // Try to parse as JSON first
+    try {
+      const parsed = JSON.parse(responses.primary.response);
+      console.log("Parsed as JSON:", parsed);
+
+      // Extract message
+      if (parsed.message) {
+        messageContent = parsed.message;
+        console.log("✅ Found message:", messageContent);
+      }
+
+      // Extract suggestions - MUST be an array
+      if (parsed.suggestions && Array.isArray(parsed.suggestions)) {
+        suggestions = parsed.suggestions;
+        console.log("✅ Found suggestions array:", suggestions);
+      } else if (parsed.suggestions) {
+        // Suggestions exist but wrong format
+        console.log("⚠️ Suggestions exist but not an array:", parsed.suggestions);
+        suggestions = []; // Keep it as empty array
+      } else {
+        // No suggestions in response
+        console.log("ℹ️ No suggestions in response");
+        suggestions = []; // Keep it as empty array
+      }
+    } catch (error) {
+      console.log("⚠️ Not valid JSON, treating as plain text message");
+      // Not JSON, use the raw response as the message, no suggestions
+      suggestions = [];
+    }
+
     messages.push({
       role: "assistant",
-      content: responses.primary.response,
+      content: messageContent,
       agent: responses.primary.agent,
     });
   }
@@ -315,20 +484,12 @@ function mergeAgentResponses(responses) {
     }
   }
 
-  // Include resources if provided
-  if (responses.resource?.resources && responses.resource.resources.length > 0) {
-    const resourceContent = responses.resource.resources
-      .map((r) => `**${r.title}**\n${r.content}`)
-      .join("\n\n");
+  console.log("\n=== FINAL MERGE RESULTS ===");
+  console.log("Total messages:", messages.length);
+  console.log("Suggestions to send:", suggestions);
+  console.log("================================\n");
 
-    messages.push({
-      role: "assistant",
-      content: `📚 **Biblical Resources**\n\n${resourceContent}`,
-      agent: responses.resource.agent,
-    });
-  }
-
-  return messages;
+  return { messages, suggestions };
 }
 
 /**
@@ -365,11 +526,12 @@ const handler = async (req, context) => {
     console.log("Agent responses state info:", agentResponses.state?.agent); // Debug
 
     // Merge responses into coherent output
-    const messages = mergeAgentResponses(agentResponses);
+    const { messages, suggestions } = mergeAgentResponses(agentResponses);
     console.log("Merged messages");
     // Debug: Check if state message has correct agent info
-    const stateMsg = messages.find(m => m.content && m.content.includes("Got it"));
+    const stateMsg = messages.find((m) => m.content && m.content.includes("Got it"));
     console.log("State message agent info:", stateMsg?.agent);
+    console.log("Quick suggestions:", suggestions);
 
     // Get updated canvas state
     const canvasState = await getCanvasState();
@@ -378,6 +540,7 @@ const handler = async (req, context) => {
     return new Response(
       JSON.stringify({
         messages,
+        suggestions, // Include dynamic suggestions from agents
         agentResponses: Object.keys(agentResponses).reduce((acc, key) => {
           if (agentResponses[key] && !agentResponses[key].error) {
             acc[key] = {

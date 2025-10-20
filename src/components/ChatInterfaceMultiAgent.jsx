@@ -1,8 +1,10 @@
 import { useState, useRef, useEffect } from "react";
 import { useTranslation } from "../contexts/TranslationContext";
 import { createResponseProcessor } from "../services/ResponseProcessor";
+import { generateUniqueId } from "../utils/idGenerator";
 import AgentMessage from "./AgentMessage";
 import AgentStatus from "./AgentStatus";
+import QuickSuggestions from "./QuickSuggestions";
 import "./ChatInterface.css";
 
 const ChatInterfaceMultiAgent = () => {
@@ -12,11 +14,15 @@ const ChatInterfaceMultiAgent = () => {
   const [activeAgents, setActiveAgents] = useState(["primary", "state"]);
   const [thinkingAgents, setThinkingAgents] = useState([]);
   const [canvasState, setCanvasState] = useState(null);
-  const [responseOptions, setResponseOptions] = useState(null); // For multiple choice options
-  const [responseSuggestions, setResponseSuggestions] = useState([]); // For AI suggestions
+  const [responseSuggestions, setResponseSuggestions] = useState([
+    "I'd like to customize the reading level and style",
+    "Tell me about this translation process",
+    "Use these settings and begin",
+  ]); // Start with default suggestions
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
   const responseProcessorRef = useRef(null);
+  const previousMessageCount = useRef(0);
 
   const { messages, addMessage, setMessages, generateInitialMessage, updateFromServerState } =
     useTranslation();
@@ -69,67 +75,19 @@ const ChatInterfaceMultiAgent = () => {
       addMessage(initialMsg);
       initialMessageGenerated.current = true;
 
-      // Check if initial message is a question and generate suggestions
-      if (initialMsg && responseProcessorRef.current) {
-        const isOpenEnded = responseProcessorRef.current.isOpenEndedQuestion(initialMsg.content);
-        if (isOpenEnded) {
-          // For initial message, we're always in planning phase
-          const suggestions = generateQuickSuggestions({ currentPhase: "planning" });
-          setResponseSuggestions(suggestions);
-        }
-      }
+      // Don't process suggestions here - backend handles everything now
     }
   }, [messages.length, generateInitialMessage, addMessage, canvasState]);
 
   useEffect(() => {
-    scrollToBottom();
-
-    // Check the last message whenever messages update
-    if (messages.length > 0 && responseProcessorRef.current) {
-      // Find the last message that's not from Canvas Scribe (state agent)
-      let lastRelevantMessage = null;
-      for (let i = messages.length - 1; i >= 0; i--) {
-        const msg = messages[i];
-        if (
-          msg.role === "assistant" &&
-          msg.agent?.id !== "state" &&
-          msg.agent?.name !== "Canvas Scribe"
-        ) {
-          lastRelevantMessage = msg;
-          break;
-        }
-      }
-
-      // Only process assistant messages that aren't from Canvas Scribe
-      if (lastRelevantMessage) {
-        const isOpenEnded = responseProcessorRef.current.isOpenEndedQuestion(
-          lastRelevantMessage.content
-        );
-        const multipleChoice = responseProcessorRef.current.extractMultipleChoiceOptions(
-          lastRelevantMessage.content
-        );
-
-        if (multipleChoice) {
-          setResponseOptions(multipleChoice);
-          setResponseSuggestions([]);
-        } else if (isOpenEnded) {
-          // ALWAYS use planning phase for initial questions about language
-          const isInitialQuestion =
-            lastRelevantMessage.content.toLowerCase().includes("what language") ||
-            lastRelevantMessage.content.toLowerCase().includes("welcome") ||
-            messages.length <= 3;
-
-          const workflow = isInitialQuestion ? { currentPhase: "planning" } : canvasState?.workflow;
-          const suggestions = generateQuickSuggestions(workflow);
-          setResponseSuggestions(suggestions);
-          setResponseOptions(null);
-        } else {
-          // No question detected, clear both
-          setResponseOptions(null);
-          setResponseSuggestions([]);
-        }
-      }
+    // Only scroll if we have new messages, not just because canvasState changed
+    if (messages.length > previousMessageCount.current) {
+      scrollToBottom();
+      previousMessageCount.current = messages.length;
     }
+
+    // REMOVED: Old code that was detecting questions and clearing suggestions
+    // The backend handles ALL suggestion logic now!
   }, [messages, canvasState]);
 
   // Initialize response processor (we don't need all the context methods for just detection)
@@ -137,53 +95,27 @@ const ChatInterfaceMultiAgent = () => {
     responseProcessorRef.current = createResponseProcessor({});
   }, []);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  const scrollToBottom = (force = false) => {
+    // Only auto-scroll if user is near the bottom or if forced
+    const chatContainer = document.querySelector(".chat-messages");
+    if (!chatContainer) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+      return;
+    }
 
-  // Generate quick suggestions based on workflow phase
-  const generateQuickSuggestions = (workflow) => {
-    // If no workflow passed, check canvasState
-    const phase = workflow?.currentPhase || canvasState?.workflow?.currentPhase || "planning";
+    const isNearBottom =
+      chatContainer.scrollHeight - chatContainer.scrollTop - chatContainer.clientHeight < 100;
 
-    switch (phase) {
-      case "planning":
-        return [
-          {
-            text: "Use the default settings and begin",
-            value: "Use the default settings and begin",
-          },
-          {
-            text: "I'd like to customize the settings",
-            value: "I'd like to customize the reading level and style for my context",
-          },
-        ];
-      case "understanding":
-        return [
-          { text: "I understand it as...", value: "I understand this phrase to mean..." },
-          {
-            text: "In our context, we'd say...",
-            value: "In our culture, this would be expressed as...",
-          },
-        ];
-      case "drafting":
-        return [
-          { text: "This draft looks good", value: "I like this draft, let's continue" },
-          { text: "I'd like to revise it", value: "Let me adjust the wording..." },
-        ];
-      default:
-        return [
-          { text: "Continue", value: "Yes, let's continue" },
-          { text: "Tell me more", value: "Can you explain that further?" },
-        ];
+    if (force || isNearBottom) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }
   };
 
   const handleOptionClick = (value) => {
+    console.log("🔥🔥🔥 OPTION CLICKED:", value);
     // Set the input value and submit
     setInput(value);
-    // Clear options immediately
-    setResponseOptions(null);
+    // Clear suggestions immediately
     setResponseSuggestions([]);
     // Auto-submit after a brief delay for user to see the filled input
     setTimeout(() => {
@@ -203,7 +135,7 @@ const ChatInterfaceMultiAgent = () => {
     const userMessage = {
       role: "user",
       content: input,
-      id: Date.now(),
+      id: generateUniqueId("user"),
       timestamp: new Date(),
     };
 
@@ -211,8 +143,10 @@ const ChatInterfaceMultiAgent = () => {
     setInput("");
     setIsLoading(true);
 
-    // Clear response options when user submits
-    setResponseOptions(null);
+    // Force scroll when user sends a message
+    scrollToBottom(true);
+
+    // Clear suggestions when user submits
     setResponseSuggestions([]);
 
     // Set agents to thinking state
@@ -250,6 +184,9 @@ const ChatInterfaceMultiAgent = () => {
 
       const result = await response.json();
       console.log("Got result:", result);
+      console.log("🚨 CRITICAL CHECK - result.suggestions:", result.suggestions);
+      console.log("🚨 CRITICAL CHECK - Is Array?:", Array.isArray(result.suggestions));
+      console.log("🚨 CRITICAL CHECK - Length:", result.suggestions?.length);
 
       // Clear thinking agents
       setThinkingAgents([]);
@@ -260,49 +197,40 @@ const ChatInterfaceMultiAgent = () => {
       }
 
       // Add agent messages to conversation
+      console.log("🔴 ABOUT TO PROCESS MESSAGES:", result.messages?.length);
       if (result.messages && result.messages.length > 0) {
+        console.log("🔴 INSIDE MESSAGE PROCESSING BLOCK");
         result.messages.forEach((msg) => {
           addMessage({
             ...msg,
-            id: Date.now() + Math.random(),
+            id: generateUniqueId("msg"),
             timestamp: new Date(),
           });
         });
 
-        // Check the last non-Canvas-Scribe message for question types and extract options
-        let lastRelevantMessage = null;
-        for (let i = result.messages.length - 1; i >= 0; i--) {
-          const msg = result.messages[i];
-          if (msg.agent?.id !== "state" && msg.agent?.name !== "Canvas Scribe") {
-            lastRelevantMessage = msg;
-            break;
-          }
-        }
+        // ALWAYS use suggestions from backend (even if empty array)
+        console.log("\n🎯 FRONTEND: Processing backend response");
+        console.log("Full result:", result);
+        console.log("Suggestions from backend:", result.suggestions);
 
-        if (lastRelevantMessage && responseProcessorRef.current) {
-          const multipleChoiceOptions = responseProcessorRef.current.extractMultipleChoiceOptions(
-            lastRelevantMessage.content
-          );
+        // Just store the raw suggestions array - simple and clean
+        const suggestions = result.suggestions || [];
+        console.log(`📝 Setting ${suggestions.length} suggestions:`, suggestions);
 
-          if (multipleChoiceOptions) {
-            setResponseOptions(multipleChoiceOptions);
-            setResponseSuggestions([]); // Clear suggestions if we have multiple choice
+        // If no suggestions came from backend, provide some defaults based on context
+        if (suggestions.length === 0) {
+          console.log("⚠️ No suggestions from backend, using context-aware defaults");
+          // Check if this is after an informational response
+          const lastMessage = result.messages?.[result.messages.length - 1];
+          if (lastMessage?.content?.includes("translation process")) {
+            setResponseSuggestions(["Start customizing", "Use default settings", "Tell me more"]);
+          } else if (lastMessage?.content?.includes("Ruth")) {
+            setResponseSuggestions(["Continue", "Tell me more about this", "Start translating"]);
           } else {
-            const isOpenEnded = responseProcessorRef.current.isOpenEndedQuestion(
-              lastRelevantMessage.content
-            );
-
-            if (isOpenEnded) {
-              // Generate simple suggestions based on workflow phase
-              const suggestions = generateQuickSuggestions(canvasState?.workflow);
-              setResponseSuggestions(suggestions);
-              setResponseOptions(null);
-            } else {
-              // No question detected, clear both
-              setResponseOptions(null);
-              setResponseSuggestions([]);
-            }
+            setResponseSuggestions(["Continue", "Start over", "Help"]);
           }
+        } else {
+          setResponseSuggestions(suggestions);
         }
       }
 
@@ -319,101 +247,15 @@ const ChatInterfaceMultiAgent = () => {
       console.error("Error stack:", error.stack);
       setThinkingAgents([]);
 
-      // Fall back to old chat endpoint if multi-agent fails
-      try {
-        const fallbackUrl = import.meta.env.DEV
-          ? "http://localhost:9999/.netlify/functions/chat"
-          : "/.netlify/functions/chat";
-
-        const fallbackResponse = await fetch(fallbackUrl, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            messages: [...messages, userMessage].map((m) => ({
-              role: m.role,
-              content: m.content,
-            })),
-            workflow: canvasState?.workflow || {},
-            project: {
-              styleGuide: canvasState?.styleGuide || {},
-              glossary: canvasState?.glossary || {},
-            },
-          }),
-        });
-
-        if (fallbackResponse.ok) {
-          // Handle streaming response
-          const reader = fallbackResponse.body.getReader();
-          const decoder = new TextDecoder();
-          let assistantMessage = "";
-
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-
-            const chunk = decoder.decode(value);
-            const lines = chunk.split("\n");
-
-            for (const line of lines) {
-              if (line.startsWith("data: ")) {
-                const data = line.slice(6);
-                if (data === "[DONE]") continue;
-
-                try {
-                  const parsed = JSON.parse(data);
-                  if (parsed.content) {
-                    assistantMessage += parsed.content;
-                  }
-                  // Handle response suggestions from backend
-                  if (parsed.suggestions) {
-                    setResponseSuggestions(parsed.suggestions);
-                  }
-                } catch (e) {
-                  // Skip invalid JSON
-                }
-              }
-            }
-          }
-
-          addMessage({
-            role: "assistant",
-            content: assistantMessage,
-            id: Date.now(),
-            timestamp: new Date(),
-            agent: { id: "primary", icon: "📖", color: "#3B82F6" },
-          });
-
-          // Extract options from fallback assistant message
-          if (responseProcessorRef.current) {
-            const multipleChoiceOptions =
-              responseProcessorRef.current.extractMultipleChoiceOptions(assistantMessage);
-            if (multipleChoiceOptions) {
-              setResponseOptions(multipleChoiceOptions);
-              setResponseSuggestions([]); // Clear suggestions if we have multiple choice
-            } else if (
-              !responseSuggestions.length &&
-              responseProcessorRef.current.isOpenEndedQuestion(assistantMessage)
-            ) {
-              // Generate suggestions if we don't have them from backend
-              const suggestions = generateQuickSuggestions(canvasState?.workflow);
-              setResponseSuggestions(suggestions);
-              setResponseOptions(null);
-            }
-          }
-        } else {
-          throw new Error("Fallback also failed");
-        }
-      } catch (fallbackError) {
-        addMessage({
-          role: "assistant",
-          content: "I apologize, but I encountered an error. Please try again.",
-          agent: { id: "system", icon: "⚠️", color: "#EF4444" },
-          id: Date.now(),
-          timestamp: new Date(),
-        });
-      }
+      // Show error to user
+      addMessage({
+        role: "assistant",
+        content:
+          "I apologize, but I encountered an error processing your message. Please try again.",
+        agent: { id: "system", icon: "⚠️", color: "#EF4444" },
+        id: generateUniqueId("error"),
+        timestamp: new Date(),
+      });
     } finally {
       setIsLoading(false);
       setThinkingAgents([]);
@@ -432,20 +274,31 @@ const ChatInterfaceMultiAgent = () => {
     }
   };
 
-  // Get current workflow phase for display
-  const getCurrentPhase = () => {
-    return canvasState?.workflow?.currentPhase || "planning";
-  };
-
   const getCurrentVerse = () => {
     return canvasState?.workflow?.currentVerse || "Ruth 1:1";
   };
+
+  // Define phase display names
+  const phaseNames = {
+    planning: "📝 Plan",
+    understanding: "🧠 Understand",
+    drafting: "✍️ Draft",
+    checking: "✅ Check",
+    sharing: "💬 Share",
+    publishing: "📤 Publish",
+  };
+
+  const currentPhase = canvasState?.workflow?.currentPhase || "planning";
+  const phaseDisplay = phaseNames[currentPhase] || currentPhase;
 
   return (
     <div className='chat-interface'>
       <div className='chat-header'>
         <h2>Bible Translation Assistant</h2>
-        <span className='workflow-phase'>{getCurrentVerse()}</span>
+        <div className='workflow-info'>
+          <span className='workflow-phase'>{phaseDisplay}</span>
+          <span className='workflow-verse'>{getCurrentVerse()}</span>
+        </div>
       </div>
 
       {/* Agent Status Panel - Compact by default */}
@@ -479,50 +332,12 @@ const ChatInterfaceMultiAgent = () => {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Response Options - Multiple Choice or Suggestions */}
-      {(responseOptions || responseSuggestions.length > 0) && (
-        <div className='response-options-container'>
-          {responseOptions && responseOptions.type === "multiple-choice" && (
-            <div className='multiple-choice-options'>
-              <div className='options-label'>Choose your response:</div>
-              <div className='options-buttons'>
-                {responseOptions.options.map((option) => (
-                  <button
-                    key={option.letter}
-                    type='button'
-                    className='option-button'
-                    onClick={() => handleOptionClick(option.letter)}
-                    disabled={isLoading}
-                  >
-                    <span className='option-letter'>{option.letter})</span>
-                    <span className='option-text'>{option.text}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {!responseOptions && responseSuggestions.length > 0 && (
-            <div className='response-suggestions'>
-              <div className='options-label'>Quick responses:</div>
-              <div className='suggestion-cards'>
-                {responseSuggestions.map((suggestion, index) => (
-                  <button
-                    key={index}
-                    type='button'
-                    className='suggestion-card'
-                    onClick={() => handleOptionClick(suggestion.value)}
-                    disabled={isLoading}
-                  >
-                    <div className='suggestion-text'>{suggestion.text}</div>
-                    <div className='suggestion-hint'>Click to use this response</div>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      )}
+      {/* Quick Suggestions - Simple, clean, separated */}
+      <QuickSuggestions
+        suggestions={responseSuggestions}
+        onSelect={handleOptionClick}
+        isLoading={isLoading}
+      />
 
       <form onSubmit={handleSubmit} className='input-form'>
         <div className='input-container'>

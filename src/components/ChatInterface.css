@@ -21,7 +21,23 @@
   font-weight: 600;
 }
 
+.workflow-info {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
 .workflow-phase {
+  font-size: 0.875rem;
+  font-weight: 600;
+  background: rgba(59, 130, 246, 0.15);
+  color: #3b82f6;
+  padding: 4px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.workflow-verse {
   font-size: 0.875rem;
   opacity: 0.9;
   background: rgba(255, 255, 255, 0.2);
@@ -335,7 +351,7 @@
   .suggestion-cards {
     grid-template-columns: 1fr;
   }
-  
+
   .option-button {
     flex: 1 1 100%;
   }
@@ -446,7 +462,7 @@
   justify-content: center;
   gap: 8px;
   padding: 16px;
-  color: #6B7280;
+  color: #6b7280;
 }
 
 .thinking-text {
@@ -456,7 +472,8 @@
 }
 
 @keyframes fade {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.5;
   }
   50% {

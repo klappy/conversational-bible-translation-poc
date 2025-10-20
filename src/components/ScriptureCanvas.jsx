@@ -1,10 +1,33 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "../contexts/TranslationContext";
 import "./ScriptureCanvas.css";
 
 const ScriptureCanvas = () => {
   const [activeTab, setActiveTab] = useState("styleGuide");
-  const { project, updateStyleGuide, addGlossaryTerm } = useTranslation();
+  const { project, workflow, updateStyleGuide, addGlossaryTerm } = useTranslation();
+
+  // Map workflow phases to appropriate tabs
+  const phaseToTab = {
+    planning: "styleGuide",
+    understanding: "glossary", // Collect terms during understanding!
+    drafting: "scripture",
+    checking: "scripture",
+    sharing: "feedback",
+    publishing: "scripture",
+  };
+
+  // Update active tab when workflow phase changes
+  useEffect(() => {
+    const currentPhase = workflow?.currentPhase || "planning";
+    const targetTab = phaseToTab[currentPhase] || "styleGuide";
+    console.log(
+      "📚 ScriptureCanvas: Phase changed to",
+      currentPhase,
+      "-> switching to tab",
+      targetTab
+    );
+    setActiveTab(targetTab);
+  }, [workflow?.currentPhase]);
 
   const tabs = [
     { id: "styleGuide", label: "Style Guide", icon: "📝" },

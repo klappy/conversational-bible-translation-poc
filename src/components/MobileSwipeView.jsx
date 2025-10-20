@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, EffectCards } from "swiper/modules";
 import ChatInterface from "./ChatInterface";
@@ -12,7 +12,34 @@ const MobileSwipeView = () => {
   const swiperRef = useRef(null);
   const [cards, setCards] = useState(["chat", "styleGuide", "glossary", "scripture", "feedback"]);
   const [dismissedCards, setDismissedCards] = useState(new Set());
-  const { project, updateStyleGuide, addGlossaryTerm, addFeedback } = useTranslation();
+  const { project, workflow, updateStyleGuide, addGlossaryTerm, addFeedback } = useTranslation();
+
+  // Reorder cards based on workflow phase
+  useEffect(() => {
+    const currentPhase = workflow?.currentPhase || "planning";
+    let orderedCards = ["chat"]; // Chat is always first
+
+    // Add cards in order based on phase priority
+    switch (currentPhase) {
+      case "planning":
+        orderedCards.push("styleGuide", "glossary", "scripture", "feedback");
+        break;
+      case "understanding":
+        orderedCards.push("glossary", "scripture", "styleGuide", "feedback"); // Glossary first for term collection!
+        break;
+      case "drafting":
+      case "checking":
+        orderedCards.push("scripture", "glossary", "styleGuide", "feedback");
+        break;
+      case "sharing":
+        orderedCards.push("feedback", "scripture", "styleGuide", "glossary");
+        break;
+      default:
+        orderedCards.push("styleGuide", "glossary", "scripture", "feedback");
+    }
+
+    setCards(orderedCards);
+  }, [workflow?.currentPhase]);
 
   const handleDismiss = (cardId) => {
     if (cardId === "chat") return; // Can't dismiss chat

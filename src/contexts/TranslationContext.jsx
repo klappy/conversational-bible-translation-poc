@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useCallback } from "react";
+import { generateUniqueId } from "../utils/idGenerator";
 
 const TranslationContext = createContext();
 
@@ -104,7 +105,7 @@ export const TranslationProvider = ({ children }) => {
         comments: [
           ...prev.feedback.comments,
           {
-            id: Date.now(),
+            id: generateUniqueId("verse"),
             verseRef,
             comment,
             reviewer,
@@ -181,7 +182,7 @@ export const TranslationProvider = ({ children }) => {
       ...prev,
       {
         ...message,
-        id: Date.now(),
+        id: message.id || generateUniqueId("msg"),
         timestamp: new Date(),
       },
     ]);
@@ -197,7 +198,7 @@ export const TranslationProvider = ({ children }) => {
       const philosophy = styleGuide.philosophy || "Meaning-based";
 
       return {
-        id: 1,
+        id: generateUniqueId("initial"),
         role: "assistant",
         agent: {
           id: "primary",
