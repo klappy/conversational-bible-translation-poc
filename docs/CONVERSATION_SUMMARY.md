@@ -293,26 +293,31 @@ The system is now antifragile - agents can fail independently, new agents can be
 ### Major Issues Resolved
 
 #### 1. Canvas Scribe Behavior
+
 - **Problem**: Canvas Scribe was asking questions, repeating messages, and providing summaries
 - **Solution**: Aggressively updated system prompt with explicit "YOU NEVER ASK QUESTIONS!" rules
 - **Result**: Scribe now only acknowledges and records data silently
 
-#### 2. Translation Assistant Question Order  
+#### 2. Translation Assistant Question Order
+
 - **Problem**: Not following the prescribed 7-step customization order, asking duplicate questions
 - **Solution**: Added `MANDATORY ORDER FOR CUSTOMIZATION` with explicit sequence enforcement
 - **Result**: Consistent, logical flow through customization process
 
 #### 3. JSON Output in Understanding Phase
+
 - **Problem**: Translation Assistant reverting to plain text instead of JSON format
 - **Solution**: Added aggressive warnings and checklists directly in prompts
 - **Result**: Reliable JSON output with proper suggestions
 
 #### 4. UI Panel Synchronization
+
 - **Problem**: Canvas panels not switching when phase changes
 - **Solution**: Fixed React component state subscriptions to workflow.currentPhase
 - **Result**: Panels automatically switch to relevant tab based on workflow phase
 
 #### 5. Conversation History Context
+
 - **Problem**: LLMs receiving malformed conversation history
 - **Solution**: Refactored to structured message array format with role/content pairs
 - **Result**: Better context awareness and reduced duplicate questions
@@ -320,7 +325,7 @@ The system is now antifragile - agents can fail independently, new agents can be
 ### Architecture Improvements
 
 - **State Management**: Improved context-aware recording in Canvas Scribe
-- **Phase Transitions**: Clear rules for when to move between workflow phases  
+- **Phase Transitions**: Clear rules for when to move between workflow phases
 - **Message Filtering**: Remove empty Resource Librarian responses
 - **Mobile Experience**: Cards reorder based on active workflow phase
 - **Rich Formatting**: Added bold, italics, and markdown for better readability
