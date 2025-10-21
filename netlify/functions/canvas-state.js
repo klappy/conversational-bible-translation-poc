@@ -46,18 +46,18 @@ function getBlobStore(context) {
   // In production, getStore should work without explicit siteID/token
   // as Netlify provides these automatically in the runtime environment
   const storeConfig = {
-    name: "canvas-state"
+    name: "canvas-state",
   };
-  
+
   // Only add siteID and token if they exist (for local development)
   if (context.site?.id || process.env.SITE_ID) {
     storeConfig.siteID = context.site?.id || process.env.SITE_ID;
   }
-  
+
   if (context.token || process.env.NETLIFY_AUTH_TOKEN) {
     storeConfig.token = context.token || process.env.NETLIFY_AUTH_TOKEN;
   }
-  
+
   return getStore(storeConfig);
 }
 
