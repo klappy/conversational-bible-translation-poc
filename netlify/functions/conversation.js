@@ -349,7 +349,7 @@ async function processConversation(userMessage, conversationHistory, sessionId, 
   const suggestionAgent = getAgent("suggestions");
   if (suggestionAgent && responses.primary) {
     console.log("Calling Suggestion Helper for PRIMARY'S new question...");
-    
+
     // Extract the question Primary just asked
     let primaryQuestion = responses.primary.response;
     try {
@@ -358,7 +358,7 @@ async function processConversation(userMessage, conversationHistory, sessionId, 
     } catch {
       // Not JSON, use raw response
     }
-    
+
     // Pass PRIMARY'S question so suggestions match the CURRENT question
     responses.suggestions = await callAgent(
       suggestionAgent,
