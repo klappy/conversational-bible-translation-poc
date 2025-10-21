@@ -29,7 +29,11 @@
     "test:manual": "node test/parallel-test-runner.js manual",
     "test:mixed": "node test/parallel-test-runner.js mixed",
     "test:quick": "node test/parallel-test-runner.js quick",
-    "test:parallel:prod": "node test/parallel-test-runner.js parallel https://conversational-bible-translation-poc.netlify.app"
+    "test:parallel:prod": "node test/parallel-test-runner.js parallel https://conversational-bible-translation-poc.netlify.app",
+    "test:cleanup": "node test/cleanup-test-sessions.js clean",
+    "test:cleanup:dry": "node test/cleanup-test-sessions.js dry",
+    "test:reset": "node test/cleanup-test-sessions.js reset",
+    "test:clean:all": "node test/cleanup-test-sessions.js all"
   },
   "dependencies": {
     "@netlify/blobs": "^10.1.0",

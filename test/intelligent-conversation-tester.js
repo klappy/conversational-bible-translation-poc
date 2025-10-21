@@ -136,12 +136,44 @@ class IntelligentWorkshopAttendee {
   }
 
   /**
+   * Reset the session state before starting
+   */
+  async resetSession() {
+    try {
+      const response = await fetch(
+        `${this.baseUrl}/.netlify/functions/canvas-state?reset=true`,
+        {
+          method: "GET",
+          headers: {
+            "X-Session-ID": this.sessionId,
+          },
+        }
+      );
+      
+      if (response.ok) {
+        const result = await response.json();
+        console.log(`🔄 Session reset: ${result.metadata?.message || 'Success'}`);
+        return true;
+      }
+      
+      console.warn("⚠️ Failed to reset session, continuing anyway");
+      return false;
+    } catch (error) {
+      console.warn(`⚠️ Error resetting session: ${error.message}`);
+      return false;
+    }
+  }
+
+  /**
    * Start a conversation with the AI
    */
   async startConversation() {
     console.log(`\n🎭 Workshop Attendee: ${this.currentPersona.name}`);
     console.log(`📝 Background: ${this.currentPersona.background}\n`);
     console.log("=".repeat(60));
+
+    // Reset session state first
+    await this.resetSession();
 
     // Start with a greeting
     const greeting = this.generateGreeting();
@@ -623,12 +655,28 @@ class IntelligentWorkshopAttendee {
     const phase = this.currentState?.workflow?.currentPhase;
     const isAdvancedPhase = ["checking", "sharing", "publishing"].includes(phase);
 
-    // Check if we've had enough meaningful exchanges
+    // Check if we've had enough meaningful exchanges (lower threshold for quick tests)
     const meaningfulExchanges = this.conversationHistory.filter(
       (msg) => msg.role === "user" && msg.content.length > 10
     ).length;
+    
+    // Check for repetition loops
+    const lastThreeUserMessages = this.conversationHistory
+      .filter(m => m.role === "user")
+      .slice(-3)
+      .map(m => m.content);
+    
+    const isRepeating = lastThreeUserMessages.length === 3 && 
+      lastThreeUserMessages[0] === lastThreeUserMessages[1] && 
+      lastThreeUserMessages[1] === lastThreeUserMessages[2];
+    
+    if (isRepeating) {
+      console.log("⚠️ Detected repetition loop, ending conversation");
+      return true;
+    }
 
-    return hasDraft || isAdvancedPhase || meaningfulExchanges > 20;
+    // For testing, complete after fewer exchanges to avoid loops
+    return hasDraft || isAdvancedPhase || meaningfulExchanges > 10;
   }
 
   /**

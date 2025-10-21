@@ -248,8 +248,30 @@ const handler = async (req, context) => {
     // Log for debugging
     console.log(`Canvas state request: ${req.method} ${path}, session: ${stateKey}`);
 
-    // GET /state - Get current state
+    // GET /state - Get current state (with optional reset)
     if (req.method === "GET" && (path === "" || path === "/")) {
+      // Check for reset flag in query params
+      const shouldReset = url.searchParams.get("reset") === "true";
+      
+      if (shouldReset) {
+        console.log(`Resetting session via GET: ${stateKey}`);
+        const state = await resetState(store, stateKey);
+        return new Response(
+          JSON.stringify({
+            ...state,
+            metadata: {
+              ...state.metadata,
+              reset: true,
+              message: "Session reset successfully"
+            }
+          }), 
+          {
+            status: 200,
+            headers,
+          }
+        );
+      }
+      
       const state = await getState(store, stateKey);
       return new Response(JSON.stringify(state), {
         status: 200,
