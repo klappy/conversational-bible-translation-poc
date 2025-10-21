@@ -43,11 +43,22 @@ const DEFAULT_STATE = {
  * Get the Netlify Blobs store for the current site
  */
 function getBlobStore(context) {
-  return getStore({
-    name: "canvas-state",
-    siteID: context.site?.id || process.env.SITE_ID,
-    token: context.token || process.env.NETLIFY_AUTH_TOKEN,
-  });
+  // In production, getStore should work without explicit siteID/token
+  // as Netlify provides these automatically in the runtime environment
+  const storeConfig = {
+    name: "canvas-state"
+  };
+  
+  // Only add siteID and token if they exist (for local development)
+  if (context.site?.id || process.env.SITE_ID) {
+    storeConfig.siteID = context.site?.id || process.env.SITE_ID;
+  }
+  
+  if (context.token || process.env.NETLIFY_AUTH_TOKEN) {
+    storeConfig.token = context.token || process.env.NETLIFY_AUTH_TOKEN;
+  }
+  
+  return getStore(storeConfig);
 }
 
 /**
