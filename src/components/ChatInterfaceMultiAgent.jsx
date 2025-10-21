@@ -84,7 +84,6 @@ const ChatInterfaceMultiAgent = () => {
       scrollToBottom();
       previousMessageCount.current = messages.length;
     }
-
   }, [messages, canvasState]);
 
   const scrollToBottom = (force = false) => {
@@ -102,7 +101,6 @@ const ChatInterfaceMultiAgent = () => {
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }
   };
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();

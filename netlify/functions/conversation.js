@@ -152,13 +152,13 @@ async function updateCanvasState(updates, agentId = "system", sessionId = "defau
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-Session-ID": sessionId,  // ADD SESSION HEADER!
+        "X-Session-ID": sessionId, // ADD SESSION HEADER!
       },
       body: JSON.stringify(payload),
     });
 
     console.log("🔵 Update response status:", response.status);
-    
+
     if (response.ok) {
       const result = await response.json();
       console.log("🔵 Update result:", JSON.stringify(result, null, 2));
@@ -214,10 +214,15 @@ async function processConversation(userMessage, conversationHistory, sessionId, 
   const suggestionAgent = getAgent("suggestions");
   if (suggestionAgent) {
     console.log("Calling Suggestion Helper...");
-    responses.suggestions = await callAgent(suggestionAgent, userMessage, {
-      ...context,
-      orchestration,
-    }, openaiClient);
+    responses.suggestions = await callAgent(
+      suggestionAgent,
+      userMessage,
+      {
+        ...context,
+        orchestration,
+      },
+      openaiClient
+    );
   }
 
   // Call Resource Librarian if orchestrator says so
@@ -319,7 +324,9 @@ async function processConversation(userMessage, conversationHistory, sessionId, 
           }
 
           // Show the message from JSON or extract from beginning of response
-          const acknowledgment = stateUpdates.message || responseText.substring(0, responseText.indexOf(jsonMatch[0])).trim();
+          const acknowledgment =
+            stateUpdates.message ||
+            responseText.substring(0, responseText.indexOf(jsonMatch[0])).trim();
           if (acknowledgment) {
             responses.state = {
               ...stateResult,

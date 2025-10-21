@@ -76,7 +76,9 @@ function getStateKey(req) {
     url.searchParams.get("session");
 
   // Use session-specific key if provided, otherwise use default
-  return sessionId ? `session_${sessionId}` : "default";
+  // Don't double-prefix if session ID already starts with "session_"
+  if (!sessionId) return "default";
+  return sessionId.startsWith("session_") ? sessionId : `session_${sessionId}`;
 }
 
 /**
