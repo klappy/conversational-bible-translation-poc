@@ -216,21 +216,6 @@ async function processConversation(userMessage, conversationHistory, sessionId, 
   // Only call the agents the orchestrator says we need
   const agentsToCall = orchestration.agents || ["primary", "state"];
 
-  // ALWAYS call Suggestion Helper (in parallel)
-  const suggestionAgent = getAgent("suggestions");
-  if (suggestionAgent) {
-    console.log("Calling Suggestion Helper...");
-    responses.suggestions = await callAgent(
-      suggestionAgent,
-      userMessage,
-      {
-        ...context,
-        orchestration,
-      },
-      openaiClient
-    );
-  }
-
   // Call Resource Librarian if orchestrator says so
   if (agentsToCall.includes("resource")) {
     const resource = getAgent("resource");
@@ -364,11 +349,16 @@ async function processConversation(userMessage, conversationHistory, sessionId, 
   const suggestionAgent = getAgent("suggestions");
   if (suggestionAgent && responses.primary) {
     console.log("Calling Suggestion Helper with Primary's response context...");
-    responses.suggestions = await callAgent(suggestionAgent, userMessage, {
-      ...context,
-      primaryResponse: responses.primary.response,
-      orchestration,
-    }, openaiClient);
+    responses.suggestions = await callAgent(
+      suggestionAgent,
+      userMessage,
+      {
+        ...context,
+        primaryResponse: responses.primary.response,
+        orchestration,
+      },
+      openaiClient
+    );
   }
 
   // Temporarily disable validator and resource agents to simplify debugging
