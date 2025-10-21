@@ -61,10 +61,14 @@ Look at:
 • Conversation history
 • What the user is asking for
 
+SIMPLE RULE: If user gives a SHORT, SPECIFIC answer (1-3 words) during planning phase, it's probably data to record!
+Examples needing Canvas Scribe: "Spanish", "Hebrew", "Grade 3", "Teens", "Simple", "Clear", "Meaning-based"
+
 Then decide which agents are needed.
 
 CRITICAL RULES FOR CANVAS SCRIBE (state):
-• Only include when user PROVIDES specific info (Grade 3, Simple tone, etc.)
+• ALWAYS include when user provides ANY specific answer: languages, reading level, tone, approach, community
+• Include for: "Spanish", "Hebrew", "Grade 3", "Teens", "Simple", "Meaning-based", etc.
 • DO NOT include for general requests (customize, tell me about, etc.)
 • DO NOT include when user asks questions
 • Include when recording actual data, not intentions
@@ -102,6 +106,22 @@ Response:
 {
   "agents": ["primary", "state"],
   "notes": "State records the user's specific preference. Primary continues with next question."
+}
+
+User: Language names like "Spanish", "Hebrew", "English", "French", etc.
+Phase: planning  
+Response:
+{
+  "agents": ["primary", "state"],
+  "notes": "State records the language choice. Primary continues with next question."
+}
+
+User: Any specific answer to customization questions (community, tone, approach)
+Phase: planning
+Response:
+{
+  "agents": ["primary", "state"],
+  "notes": "State records the specific setting. Primary continues."
 }
 
 User: "I'd like to customize" or "Start customizing"
