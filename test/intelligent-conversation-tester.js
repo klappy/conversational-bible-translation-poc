@@ -140,22 +140,19 @@ class IntelligentWorkshopAttendee {
    */
   async resetSession() {
     try {
-      const response = await fetch(
-        `${this.baseUrl}/.netlify/functions/canvas-state?reset=true`,
-        {
-          method: "GET",
-          headers: {
-            "X-Session-ID": this.sessionId,
-          },
-        }
-      );
-      
+      const response = await fetch(`${this.baseUrl}/.netlify/functions/canvas-state?reset=true`, {
+        method: "GET",
+        headers: {
+          "X-Session-ID": this.sessionId,
+        },
+      });
+
       if (response.ok) {
         const result = await response.json();
-        console.log(`🔄 Session reset: ${result.metadata?.message || 'Success'}`);
+        console.log(`🔄 Session reset: ${result.metadata?.message || "Success"}`);
         return true;
       }
-      
+
       console.warn("⚠️ Failed to reset session, continuing anyway");
       return false;
     } catch (error) {
@@ -659,17 +656,18 @@ class IntelligentWorkshopAttendee {
     const meaningfulExchanges = this.conversationHistory.filter(
       (msg) => msg.role === "user" && msg.content.length > 10
     ).length;
-    
+
     // Check for repetition loops
     const lastThreeUserMessages = this.conversationHistory
-      .filter(m => m.role === "user")
+      .filter((m) => m.role === "user")
       .slice(-3)
-      .map(m => m.content);
-    
-    const isRepeating = lastThreeUserMessages.length === 3 && 
-      lastThreeUserMessages[0] === lastThreeUserMessages[1] && 
+      .map((m) => m.content);
+
+    const isRepeating =
+      lastThreeUserMessages.length === 3 &&
+      lastThreeUserMessages[0] === lastThreeUserMessages[1] &&
       lastThreeUserMessages[1] === lastThreeUserMessages[2];
-    
+
     if (isRepeating) {
       console.log("⚠️ Detected repetition loop, ending conversation");
       return true;

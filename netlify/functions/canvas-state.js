@@ -9,13 +9,15 @@ import { getStore } from "@netlify/blobs";
 // Default state
 const DEFAULT_STATE = {
   styleGuide: {
-    conversationLanguage: "English", // Language of Wider Communication
-    sourceLanguage: "English", // Translating from
-    targetLanguage: "English", // Translating into
-    languagePair: "English → English", // Legacy, kept for compatibility
-    readingLevel: "Grade 1",
-    tone: "Narrator, engaging tone",
-    philosophy: "Meaning-based",
+    conversationLanguage: null, // Not yet collected
+    sourceLanguage: null, // Not yet collected
+    targetLanguage: null, // Not yet collected
+    languagePair: null, // Legacy, kept for compatibility
+    readingLevel: null, // Not yet collected
+    tone: null, // Not yet collected
+    philosophy: null, // Not yet collected
+    approach: null, // Translation approach
+    targetCommunity: null, // Who will read this
   },
   glossary: {
     terms: {},
@@ -28,7 +30,7 @@ const DEFAULT_STATE = {
   },
   workflow: {
     currentPhase: "planning",
-    currentVerse: "Ruth 1:1",
+    currentVerse: null, // Don't default to Ruth 1:1 - let user choose
     currentPhrase: 0,
     phrasesCompleted: {},
     totalPhrases: 0,

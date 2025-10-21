@@ -58,14 +58,22 @@ async function callAgent(agent, message, context) {
       const saved = context.canvasState.styleGuide || {};
       const workflow = context.canvasState.workflow || {};
       const savedItems = [];
-      if (saved.conversationLanguage)
+      
+      // Only show settings that have actually been provided by the user (not null)
+      if (saved.conversationLanguage && saved.conversationLanguage !== null)
         savedItems.push(`Conversation language: ${saved.conversationLanguage}`);
-      if (saved.sourceLanguage) savedItems.push(`Source language: ${saved.sourceLanguage}`);
-      if (saved.targetLanguage) savedItems.push(`Target language: ${saved.targetLanguage}`);
-      if (saved.targetCommunity) savedItems.push(`Target community: ${saved.targetCommunity}`);
-      if (saved.readingLevel) savedItems.push(`Reading level: ${saved.readingLevel}`);
-      if (saved.tone) savedItems.push(`Tone: ${saved.tone}`);
-      if (saved.approach) savedItems.push(`Approach: ${saved.approach}`);
+      if (saved.sourceLanguage && saved.sourceLanguage !== null) 
+        savedItems.push(`Source language: ${saved.sourceLanguage}`);
+      if (saved.targetLanguage && saved.targetLanguage !== null) 
+        savedItems.push(`Target language: ${saved.targetLanguage}`);
+      if (saved.targetCommunity && saved.targetCommunity !== null) 
+        savedItems.push(`Target community: ${saved.targetCommunity}`);
+      if (saved.readingLevel && saved.readingLevel !== null) 
+        savedItems.push(`Reading level: ${saved.readingLevel}`);
+      if (saved.tone && saved.tone !== null) 
+        savedItems.push(`Tone: ${saved.tone}`);
+      if (saved.approach && saved.approach !== null) 
+        savedItems.push(`Approach: ${saved.approach}`);
 
       // Add current phase info
       const phaseInfo = `CURRENT PHASE: ${workflow.currentPhase || "planning"}
