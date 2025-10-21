@@ -359,6 +359,18 @@ async function processConversation(userMessage, conversationHistory, sessionId, 
     }
   }
 
+  // NOW call Suggestion Helper AFTER we have the Primary Agent's response
+  // This ensures suggestions are contextual to the NEW question being asked
+  const suggestionAgent = getAgent("suggestions");
+  if (suggestionAgent && responses.primary) {
+    console.log("Calling Suggestion Helper with Primary's response context...");
+    responses.suggestions = await callAgent(suggestionAgent, userMessage, {
+      ...context,
+      primaryResponse: responses.primary.response,
+      orchestration,
+    }, openaiClient);
+  }
+
   // Temporarily disable validator and resource agents to simplify debugging
   // TODO: Re-enable these once basic flow is working
 
