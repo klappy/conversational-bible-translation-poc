@@ -246,7 +246,7 @@ async function processConversation(userMessage, conversationHistory) {
     const stateManager = getAgent("state");
     console.log("Calling state manager...");
     console.log("State manager agent info:", stateManager?.visual);
-    
+
     // Pass the last question asked by the Translation Assistant
     let lastAssistantQuestion = null;
     for (let i = context.conversationHistory.length - 1; i >= 0; i--) {
@@ -262,7 +262,7 @@ async function processConversation(userMessage, conversationHistory) {
         break;
       }
     }
-    
+
     const stateResult = await callAgent(stateManager, userMessage, {
       ...context,
       primaryResponse: responses.primary?.response,
@@ -442,6 +442,19 @@ function mergeAgentResponses(responses) {
     }
   }
 
+  // Handle Suggestion Helper response (extract suggestions, don't show as message)
+  if (responses.suggestions && !responses.suggestions.error && responses.suggestions.response) {
+    try {
+      const suggestionsArray = JSON.parse(responses.suggestions.response);
+      if (Array.isArray(suggestionsArray)) {
+        suggestions = suggestionsArray;
+        console.log("✅ Got suggestions from Suggestion Helper:", suggestions);
+      }
+    } catch (error) {
+      console.log("⚠️ Suggestion Helper response wasn't valid JSON:", error.message);
+    }
+  }
+
   // Then include primary response (Translation Assistant)
   // Extract message and suggestions from JSON response
   if (responses.primary && !responses.primary.error && responses.primary.response) {
@@ -461,23 +474,23 @@ function mergeAgentResponses(responses) {
         console.log("✅ Found message:", messageContent);
       }
 
-      // Extract suggestions - MUST be an array
-      if (parsed.suggestions && Array.isArray(parsed.suggestions)) {
-        suggestions = parsed.suggestions;
-        console.log("✅ Found suggestions array:", suggestions);
-      } else if (parsed.suggestions) {
-        // Suggestions exist but wrong format
-        console.log("⚠️ Suggestions exist but not an array:", parsed.suggestions);
-        suggestions = []; // Keep it as empty array
-      } else {
-        // No suggestions in response
-        console.log("ℹ️ No suggestions in response");
-        suggestions = []; // Keep it as empty array
+      // Extract suggestions - MUST be an array (only if we don't already have suggestions)
+      if (!suggestions || suggestions.length === 0) {
+        if (parsed.suggestions && Array.isArray(parsed.suggestions)) {
+          suggestions = parsed.suggestions;
+          console.log("✅ Found fallback suggestions from primary:", suggestions);
+        } else if (parsed.suggestions) {
+          // Suggestions exist but wrong format
+          console.log("⚠️ Primary suggestions exist but not an array:", parsed.suggestions);
+        } else {
+          // No suggestions in response
+          console.log("ℹ️ No suggestions from primary agent");
+        }
       }
     } catch (error) {
       console.log("⚠️ Not valid JSON, treating as plain text message");
-      // Not JSON, use the raw response as the message, no suggestions
-      suggestions = [];
+      // Not JSON, use the raw response as the message
+      // Keep existing suggestions if we have them from Suggestion Helper
     }
 
     messages.push({

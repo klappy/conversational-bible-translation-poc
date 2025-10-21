@@ -14,9 +14,15 @@
     "test:agents": "node test/run-tests.js agents",
     "test:prod": "node test/run-tests.js all https://conversational-bible-translation-poc.netlify.app",
     "test:workshop": "node test/intelligent-conversation-tester.js all",
+    "test:workshop:english": "node test/intelligent-conversation-tester.js english-group",
     "test:beginner": "node test/intelligent-conversation-tester.js curious_beginner",
     "test:expert": "node test/intelligent-conversation-tester.js experienced_translator",
     "test:confused": "node test/intelligent-conversation-tester.js confused_user",
+    "test:children": "node test/intelligent-conversation-tester.js children_minister",
+    "test:esl": "node test/intelligent-conversation-tester.js esl_teacher",
+    "test:youth": "node test/intelligent-conversation-tester.js youth_pastor",
+    "test:senior": "node test/intelligent-conversation-tester.js senior_ministry",
+    "test:prison": "node test/intelligent-conversation-tester.js prison_chaplain",
     "test:workshop:prod": "node test/intelligent-conversation-tester.js all https://conversational-bible-translation-poc.netlify.app"
   },
   "dependencies": {

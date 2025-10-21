@@ -241,7 +241,7 @@ const ChatInterfaceMultiAgent = () => {
         } else {
           setResponseSuggestions(suggestions);
         }
-        
+
         // Add suggestions as inline message in conversation history
         if (suggestions && suggestions.length > 0) {
           const suggestionMessage = {
@@ -339,7 +339,7 @@ const ChatInterfaceMultiAgent = () => {
       <div className='messages-container'>
         {messages.map((message) => {
           // Handle inline suggestions
-          if (message.type === 'suggestions' && message.role === 'system') {
+          if (message.type === "suggestions" && message.role === "system") {
             return (
               <InlineSuggestions
                 key={message.id}
@@ -350,14 +350,14 @@ const ChatInterfaceMultiAgent = () => {
                   setInput(suggestion);
                   // Optionally auto-send after a short delay
                   setTimeout(() => {
-                    const form = document.querySelector('.chat-form');
+                    const form = document.querySelector(".chat-form");
                     if (form) form.requestSubmit();
                   }, 100);
                 }}
               />
             );
           }
-          
+
           // Regular message
           return (
             <AgentMessage

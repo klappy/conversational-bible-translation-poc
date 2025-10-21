@@ -7,6 +7,7 @@ This testing framework provides intelligent, conversational testing of the Bible
 ## 🎭 Intelligent Testing Approach
 
 Our tests don't just send pre-scripted messages. They:
+
 - Read and understand AI responses
 - Ask clarifying questions when appropriate
 - Use suggestions intelligently (not always)
@@ -16,48 +17,91 @@ Our tests don't just send pre-scripted messages. They:
 
 ## Test Personas
 
-### 1. **Maria** - Curious Beginner 
+### Foreign Language Translators
+
+#### 1. **Maria** - Curious Beginner
 - First-time Bible translator
 - Spanish speaker translating for youth group
 - Asks questions, needs clarification
 - Engaging and curious
 
-### 2. **John** - Experienced Translator
+#### 2. **John** - Experienced Translator
 - Knows what he wants
 - Direct and efficient
 - Uses suggestions often
 - Translating Greek to French
 
-### 3. **Sarah** - Confused User
+#### 3. **Sarah** - Confused User
 - Uncertain about the process
 - Needs guidance
 - Sometimes changes mind
 - Translating for young children
 
+### English-to-English Simplification Personas
+
+#### 4. **Pastor Amy** - Children's Minister
+- Simplifying for elementary school kids
+- Needs Grade 1 reading level
+- Fun and engaging tone
+- Meaning-based approach
+
+#### 5. **Ms. Chen** - ESL Teacher
+- Teaching adult English learners
+- Needs Grade 4 reading level
+- Clear and respectful tone
+- Methodical approach
+
+#### 6. **Jake** - Youth Pastor
+- Modernizing for high schoolers
+- Grade 10 reading level
+- Relatable and authentic tone
+- Makes scripture relevant
+
+#### 7. **Reverend Thomas** - Senior Ministry
+- Traditional but clear for seniors
+- Grade 8 reading level
+- Dignified tone
+- Word-for-word preference
+
+#### 8. **Chaplain Mike** - Prison Chaplain
+- Accessible for incarcerated individuals
+- Grade 6 reading level
+- Straightforward and hopeful
+- Balanced approach
+
 ## Running Tests
 
 ### Test All Personas (Workshop Simulation)
+
 ```bash
-# Test locally
+# Test all personas locally
 npm run test:workshop
+
+# Test only English-to-English personas
+npm run test:workshop:english
 
 # Test production
 npm run test:workshop:prod
 ```
 
 ### Test Individual Personas
+
 ```bash
-# Test beginner persona
-npm run test:beginner
+# Foreign language personas
+npm run test:beginner    # Maria
+npm run test:expert      # John
+npm run test:confused    # Sarah
 
-# Test experienced translator
-npm run test:expert  
-
-# Test confused user
-npm run test:confused
+# English-to-English personas
+npm run test:children    # Pastor Amy
+npm run test:esl         # Ms. Chen
+npm run test:youth       # Jake
+npm run test:senior      # Reverend Thomas
+npm run test:prison      # Chaplain Mike
 ```
 
 ### Basic API Tests
+
 ```bash
 # Run all API tests
 npm test
@@ -72,6 +116,7 @@ npm run test:agents
 ## What Gets Tested
 
 ### Full Conversation Flow
+
 ✅ Initial greeting and response
 ✅ Language customization (7 settings)
 ✅ Phase transitions (Planning → Understanding → Drafting)
@@ -81,6 +126,7 @@ npm run test:agents
 ✅ Agent coordination (who responds when)
 
 ### Natural Variations
+
 ✅ Using suggestions vs typing own responses
 ✅ Asking clarifying questions
 ✅ Providing detailed vs brief answers
@@ -88,6 +134,7 @@ npm run test:agents
 ✅ Different translation approaches
 
 ### State Management
+
 ✅ Settings are saved correctly
 ✅ Progress persists between messages
 ✅ Phase transitions work properly
@@ -157,6 +204,7 @@ workshop_leader: {
 ## Success Criteria
 
 A test is considered successful if:
+
 - ✅ All 7 style guide settings are collected
 - ✅ The conversation progresses through phases naturally
 - ✅ A draft translation is produced (or attempted)
@@ -171,10 +219,10 @@ These tests can be run in CI/CD pipelines:
 # Example GitHub Actions
 - name: Start local server
   run: npm run dev:netlify &
-  
+
 - name: Wait for server
   run: sleep 10
-  
+
 - name: Run workshop simulation
   run: npm run test:workshop
 ```
@@ -191,21 +239,25 @@ If a test fails:
 ## Benefits of This Approach
 
 ### 🎯 Realistic Testing
+
 - Tests interact like real users would
 - Natural language variations
 - Realistic confusion and clarification
 
 ### 🔄 Comprehensive Coverage
+
 - Multiple personas test different paths
 - Edge cases are naturally discovered
 - Full end-to-end validation
 
 ### 🛡️ Confidence in Changes
+
 - Run before deploying to ensure nothing breaks
 - Catch issues that rigid tests might miss
 - Verify the complete user experience works
 
 ### 🚀 Easy to Extend
+
 - Add new personas easily
 - Test new features naturally
 - No need to rewrite rigid test scripts
@@ -220,4 +272,4 @@ If a test fails:
 
 ---
 
-*"These tests don't just verify the code works - they verify that real people can successfully use the system!"*
+_"These tests don't just verify the code works - they verify that real people can successfully use the system!"_
