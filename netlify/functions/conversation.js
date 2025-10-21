@@ -345,13 +345,24 @@ async function processConversation(userMessage, conversationHistory, sessionId, 
   }
 
   // NOW call Suggestion Helper AFTER we have the Primary Agent's response
-  // This ensures suggestions are contextual to the NEW question being asked
+  // Pass PRIMARY'S NEW QUESTION (not user's old answer) for contextual suggestions
   const suggestionAgent = getAgent("suggestions");
   if (suggestionAgent && responses.primary) {
-    console.log("Calling Suggestion Helper with Primary's response context...");
+    console.log("Calling Suggestion Helper for PRIMARY'S new question...");
+    
+    // Extract the question Primary just asked
+    let primaryQuestion = responses.primary.response;
+    try {
+      const parsed = JSON.parse(responses.primary.response);
+      primaryQuestion = parsed.message || responses.primary.response;
+    } catch {
+      // Not JSON, use raw response
+    }
+    
+    // Pass PRIMARY'S question so suggestions match the CURRENT question
     responses.suggestions = await callAgent(
       suggestionAgent,
-      userMessage,
+      primaryQuestion, // Changed from userMessage to primaryQuestion!
       {
         ...context,
         primaryResponse: responses.primary.response,
