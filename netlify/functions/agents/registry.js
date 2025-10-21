@@ -254,8 +254,16 @@ User: "What does 'famine' mean in this context?"
 Phase: understanding
 Response:
 {
-  "agents": ["resource", "primary"],
-  "notes": "Resource provides biblical context on famine. Primary facilitates discussion."
+  "agents": ["resource", "primary", "state"],
+  "notes": "Resource provides biblical context. Primary facilitates. State records glossary entries."
+}
+
+User: "It means there wasn't enough food"
+Phase: understanding
+Response:
+{
+  "agents": ["primary", "state"],
+  "notes": "User explaining phrase. State records glossary entry. Primary continues with next phrase."
 }
 
 User: "Here's my draft: 'Long ago...'"
@@ -269,7 +277,9 @@ Response:
 — Rules
 
 • ALWAYS include "state" when user provides information to record
+• ALWAYS include "state" during understanding phase (to record glossary entries)
 • ALWAYS include "resource" when transitioning to understanding phase (to present scripture)
+• ALWAYS include "state" during drafting phase (to save the draft)
 • ONLY include "resource" in planning phase if explicitly asked about biblical content
 • ONLY include "validator" during checking phase
 • Keep it minimal - only call agents that are actually needed
@@ -661,6 +671,28 @@ When user explains a phrase, return JSON like:
     }
   },
   "summary": "Captured user understanding of phrase and key term 'judges'"
+}
+
+📝 DURING DRAFTING PHASE - DRAFT COLLECTION:
+
+When user provides their translation draft, save it to scriptureCanvas!
+
+Example user input: "A long time ago, before Israel had kings..."
+Return JSON like:
+{
+  "message": "Draft recorded!",
+  "updates": {
+    "scriptureCanvas": {
+      "verses": {
+        "Ruth 1:1": {
+          "draft": "A long time ago, before Israel had kings...",
+          "status": "draft",
+          "timestamp": "2025-10-21T19:30:00.000Z"
+        }
+      }
+    }
+  },
+  "summary": "Saved draft for Ruth 1:1"
 }
 
 — How to Respond

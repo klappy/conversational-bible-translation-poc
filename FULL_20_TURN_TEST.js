@@ -44,7 +44,7 @@ async function main() {
   ];
 
   for (let i = 0; i < planningTurns.length; i++) {
-    const {msg, desc} = planningTurns[i];
+    const { msg, desc } = planningTurns[i];
     console.log(`\n${i + 1}. ${desc}: "${msg}"`);
     const result = await send(msg, history);
     const q = extractPrimary(result);
@@ -74,7 +74,7 @@ async function main() {
   ];
 
   for (let i = 0; i < understandingTurns.length; i++) {
-    const {msg, desc} = understandingTurns[i];
+    const { msg, desc } = understandingTurns[i];
     console.log(`\n${i + 9}. ${desc}: "${msg}"`);
     const result = await send(msg, history);
     const q = extractPrimary(result);
@@ -91,7 +91,8 @@ async function main() {
   console.log("-".repeat(80));
 
   console.log("\n19. Provide draft");
-  const draft = "A long time ago, before Israel had kings, there wasn't enough food. A man from Bethlehem moved his family to Moab.";
+  const draft =
+    "A long time ago, before Israel had kings, there wasn't enough food. A man from Bethlehem moved his family to Moab.";
   const r19 = await send(draft, history);
   const q19 = extractPrimary(r19);
   const s19 = r19.suggestions || [];
@@ -123,7 +124,10 @@ async function main() {
   console.log("Current Phase:", finalState.workflow?.currentPhase);
   console.log("Glossary Phrases:", Object.keys(finalState.glossary?.userPhrases || {}).length);
   console.log("Glossary Terms:", Object.keys(finalState.glossary?.keyTerms || {}).length);
-  console.log("Draft Saved:", finalState.scriptureCanvas?.verses?.["Ruth 1:1"]?.draft ? "YES ✅" : "NO ❌");
+  console.log(
+    "Draft Saved:",
+    finalState.scriptureCanvas?.verses?.["Ruth 1:1"]?.draft ? "YES ✅" : "NO ❌"
+  );
 
   console.log("\n" + "=".repeat(80));
   console.log("ANALYSIS");
@@ -164,4 +168,3 @@ main().catch((err) => {
   console.error("❌ Test crashed:", err.message);
   process.exit(1);
 });
-
