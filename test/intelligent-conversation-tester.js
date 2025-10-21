@@ -282,43 +282,55 @@ class IntelligentWorkshopAttendee {
     }
 
     // Understanding phase
-    if (content.includes("ruth 1:1") || content.includes("first verse") || content.includes("here is the text")) {
+    if (
+      content.includes("ruth 1:1") ||
+      content.includes("first verse") ||
+      content.includes("here is the text")
+    ) {
       return this.respondToScripturePresentation();
     }
 
-    if (content.includes("understand") || content.includes("make sense") || content.includes("clear")) {
+    if (
+      content.includes("understand") ||
+      content.includes("make sense") ||
+      content.includes("clear")
+    ) {
       return this.respondToUnderstandingCheck();
     }
-    
+
     // If asked about understanding a phrase
-    if (content.includes("phrase") && (content.includes("understand") || content.includes("mean"))) {
+    if (
+      content.includes("phrase") &&
+      (content.includes("understand") || content.includes("mean"))
+    ) {
       return "Yes, I understand that phrase. Let's continue.";
     }
 
     // Drafting phase - be more aggressive about providing drafts
     if (
-      content.includes("draft") || 
-      content.includes("translate") || 
-      content.includes("try writing") || 
+      content.includes("draft") ||
+      content.includes("translate") ||
+      content.includes("try writing") ||
       content.includes("your version") ||
       content.includes("ready to draft") ||
       content.includes("start drafting")
     ) {
       return this.provideDraft();
     }
-    
+
     // If we've understood all phrases, offer to draft
     if (content.includes("understood all") || content.includes("ready to draft")) {
       return this.provideDraft();
     }
 
-    // Use suggestions sometimes, especially "Start drafting" 
+    // Use suggestions sometimes, especially "Start drafting"
     if (suggestions && suggestions.length > 0) {
       // Always pick drafting-related suggestions
-      const draftSuggestion = suggestions.find(s => 
-        s.toLowerCase().includes("draft") || 
-        s.toLowerCase().includes("start") ||
-        s.toLowerCase().includes("yes")
+      const draftSuggestion = suggestions.find(
+        (s) =>
+          s.toLowerCase().includes("draft") ||
+          s.toLowerCase().includes("start") ||
+          s.toLowerCase().includes("yes")
       );
       if (draftSuggestion) {
         return draftSuggestion;
@@ -433,16 +445,23 @@ class IntelligentWorkshopAttendee {
    */
   respondToScripturePresentation() {
     const responses = {
-      curious_beginner: "Oh interesting! So this is talking about the time of the judges and a famine. What does Moab represent here?",
-      experienced_translator: "Yes, I understand. The temporal setting and geographical movement are key. Let's continue.",
+      curious_beginner:
+        "Oh interesting! So this is talking about the time of the judges and a famine. What does Moab represent here?",
+      experienced_translator:
+        "Yes, I understand. The temporal setting and geographical movement are key. Let's continue.",
       confused_user: "I think I understand - there was a famine and someone went to Moab?",
-      children_minister: "OK, so this is about a family that had to move because there was no food. How should I explain this to kids?",
-      esl_teacher: "I see - a time period, a problem (famine), and a solution (migration). Let me work through this for my students.",
-      youth_pastor: "Got it - tough times, family has to relocate. How can I make this relatable for teens?",
-      senior_ministry: "I understand - the time of judges, famine in the land, journey to Moab. Let's proceed with clarity.",
-      prison_chaplain: "A story about hardship and having to leave home. This will resonate. Let's continue."
+      children_minister:
+        "OK, so this is about a family that had to move because there was no food. How should I explain this to kids?",
+      esl_teacher:
+        "I see - a time period, a problem (famine), and a solution (migration). Let me work through this for my students.",
+      youth_pastor:
+        "Got it - tough times, family has to relocate. How can I make this relatable for teens?",
+      senior_ministry:
+        "I understand - the time of judges, famine in the land, journey to Moab. Let's proceed with clarity.",
+      prison_chaplain:
+        "A story about hardship and having to leave home. This will resonate. Let's continue.",
     };
-    
+
     return responses[this.persona] || responses.confused_user;
   }
 
