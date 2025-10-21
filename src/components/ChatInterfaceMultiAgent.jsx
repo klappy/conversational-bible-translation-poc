@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useTranslation } from "../contexts/TranslationContext";
 import { createResponseProcessor } from "../services/ResponseProcessor";
 import { generateUniqueId } from "../utils/idGenerator";
-import { getSessionHeaders, getSessionInfo } from "../utils/sessionManager";
+import { getSessionHeaders } from "../utils/sessionManager";
 import AgentMessage from "./AgentMessage";
 import AgentStatus from "./AgentStatus";
 import QuickSuggestions from "./QuickSuggestions";
@@ -28,8 +28,7 @@ const ChatInterfaceMultiAgent = () => {
   const responseProcessorRef = useRef(null);
   const previousMessageCount = useRef(0);
 
-  const { messages, addMessage, setMessages, generateInitialMessage, updateFromServerState } =
-    useTranslation();
+  const { messages, addMessage, generateInitialMessage, updateFromServerState } = useTranslation();
 
   // Track if initial message has been generated
   const initialMessageGenerated = useRef(false);
@@ -55,7 +54,7 @@ const ChatInterfaceMultiAgent = () => {
             updateFromServerState(state);
           }
         }
-      } catch (error) {
+      } catch {
         // Silently fail - server might not be running yet
       }
     };
@@ -69,7 +68,7 @@ const ChatInterfaceMultiAgent = () => {
     return () => {
       clearInterval(intervalId);
     };
-  }, []); // Empty dependency array - only set up once
+  }, [updateFromServerState]); // Include dependency
 
   // Separate effect for initial message generation
   useEffect(() => {

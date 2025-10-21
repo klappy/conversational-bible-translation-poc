@@ -9,16 +9,17 @@ import { getStore } from "@netlify/blobs";
 // Default state
 const DEFAULT_STATE = {
   styleGuide: {
-    conversationLanguage: null, // Not yet collected
-    sourceLanguage: null, // Not yet collected
-    targetLanguage: null, // Not yet collected
-    languagePair: null, // Legacy, kept for compatibility
-    readingLevel: null, // Not yet collected
-    tone: null, // Not yet collected
-    philosophy: null, // Not yet collected
-    approach: null, // Translation approach
-    targetCommunity: null, // Who will read this
+    conversationLanguage: "English", // Default value
+    sourceLanguage: "English", // Default value
+    targetLanguage: "English", // Default value
+    languagePair: "English → English", // Legacy, kept for compatibility
+    readingLevel: "Grade 1", // Default value
+    tone: "Straightforward and hopeful", // Default value
+    philosophy: "Meaning-based", // Default value
+    approach: "Dynamic", // Translation approach default
+    targetCommunity: "Teens", // Default audience
   },
+  settingsCustomized: false, // Track if user has customized settings
   glossary: {
     terms: {},
   },
@@ -30,7 +31,7 @@ const DEFAULT_STATE = {
   },
   workflow: {
     currentPhase: "planning",
-    currentVerse: null, // Don't default to Ruth 1:1 - let user choose
+    currentVerse: "Ruth 1:1", // Default verse to work with
     currentPhrase: 0,
     phrasesCompleted: {},
     totalPhrases: 0,
@@ -52,12 +53,12 @@ function getBlobStore(context) {
   };
 
   // Only add siteID and token if they exist (for local development)
-  if (context.site?.id || process.env.SITE_ID) {
-    storeConfig.siteID = context.site?.id || process.env.SITE_ID;
+  if (context.site?.id) {
+    storeConfig.siteID = context.site.id;
   }
 
-  if (context.token || process.env.NETLIFY_AUTH_TOKEN) {
-    storeConfig.token = context.token || process.env.NETLIFY_AUTH_TOKEN;
+  if (context.token) {
+    storeConfig.token = context.token;
   }
 
   return getStore(storeConfig);
@@ -127,7 +128,7 @@ async function getState(store, stateKey) {
 /**
  * Update the state with validation
  */
-async function updateState(store, stateKey, updates, agentId = "user") {
+async function updateState(store, stateKey, updates) {
   try {
     // Validate updates
     if (!updates || typeof updates !== "object") {

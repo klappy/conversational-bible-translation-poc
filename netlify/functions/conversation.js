@@ -6,14 +6,12 @@
 import { OpenAI } from "openai";
 import { getAgent } from "./agents/registry.js";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// OpenAI client will be initialized per request with context
 
 /**
  * Call an individual agent with context
  */
-async function callAgent(agent, message, context) {
+async function callAgent(agent, message, context, openaiClient) {
   console.log(`Calling agent: ${agent.id}`);
   try {
     const messages = [
@@ -53,47 +51,12 @@ async function callAgent(agent, message, context) {
       content: message,
     });
 
-    // Add canvas state for primary agent to see what's been saved
-    if (agent.id === "primary" && context.canvasState) {
-      const saved = context.canvasState.styleGuide || {};
-      const workflow = context.canvasState.workflow || {};
-      const savedItems = [];
-      
-      // Only show settings that have actually been provided by the user (not null)
-      if (saved.conversationLanguage && saved.conversationLanguage !== null)
-        savedItems.push(`Conversation language: ${saved.conversationLanguage}`);
-      if (saved.sourceLanguage && saved.sourceLanguage !== null) 
-        savedItems.push(`Source language: ${saved.sourceLanguage}`);
-      if (saved.targetLanguage && saved.targetLanguage !== null) 
-        savedItems.push(`Target language: ${saved.targetLanguage}`);
-      if (saved.targetCommunity && saved.targetCommunity !== null) 
-        savedItems.push(`Target community: ${saved.targetCommunity}`);
-      if (saved.readingLevel && saved.readingLevel !== null) 
-        savedItems.push(`Reading level: ${saved.readingLevel}`);
-      if (saved.tone && saved.tone !== null) 
-        savedItems.push(`Tone: ${saved.tone}`);
-      if (saved.approach && saved.approach !== null) 
-        savedItems.push(`Approach: ${saved.approach}`);
-
-      // Add current phase info
-      const phaseInfo = `CURRENT PHASE: ${workflow.currentPhase || "planning"}
-${
-  workflow.currentPhase === "understanding"
-    ? "⚠️ YOU ARE IN UNDERSTANDING PHASE - YOU MUST RETURN JSON!"
-    : ""
-}`;
-
-      if (savedItems.length > 0) {
-        messages.push({
-          role: "system",
-          content: `${phaseInfo}\n\nAlready collected information:\n${savedItems.join("\n")}`,
-        });
-      } else {
-        messages.push({
-          role: "system",
-          content: phaseInfo,
-        });
-      }
+    // Provide canvas state context to all agents
+    if (context.canvasState) {
+      messages.push({
+        role: "system",
+        content: `Current canvas state: ${JSON.stringify(context.canvasState)}`,
+      });
     }
 
     // For non-primary agents, provide context differently
@@ -113,7 +76,7 @@ ${
       setTimeout(() => reject(new Error(`Timeout calling ${agent.id}`)), 10000); // 10 second timeout
     });
 
-    const completionPromise = openai.chat.completions.create({
+    const completionPromise = openaiClient.chat.completions.create({
       model: agent.model,
       messages: messages,
       temperature: agent.id === "state" ? 0.1 : 0.7, // Lower temp for state extraction
@@ -142,13 +105,16 @@ ${
 /**
  * Get current canvas state from state management function
  */
-async function getCanvasState() {
+async function getCanvasState(sessionId = "default") {
   try {
-    const stateUrl = process.env.CONTEXT?.url
-      ? new URL("/.netlify/functions/canvas-state", process.env.CONTEXT.url).href
-      : "http://localhost:9999/.netlify/functions/canvas-state";
+    // Use absolute URL for localhost (Netlify Functions requirement)
+    const stateUrl = "http://localhost:8888/.netlify/functions/canvas-state";
 
-    const response = await fetch(stateUrl);
+    const response = await fetch(stateUrl, {
+      headers: {
+        "X-Session-ID": sessionId,
+      },
+    });
     if (response.ok) {
       return await response.json();
     }
@@ -170,9 +136,8 @@ async function getCanvasState() {
  */
 async function updateCanvasState(updates, agentId = "system") {
   try {
-    const stateUrl = process.env.CONTEXT?.url
-      ? new URL("/.netlify/functions/canvas-state/update", process.env.CONTEXT.url).href
-      : "http://localhost:9999/.netlify/functions/canvas-state/update";
+    // Use absolute URL for localhost
+    const stateUrl = "http://localhost:8888/.netlify/functions/canvas-state/update";
 
     const response = await fetch(stateUrl, {
       method: "POST",
@@ -194,10 +159,11 @@ async function updateCanvasState(updates, agentId = "system") {
 /**
  * Process conversation with multiple agents
  */
-async function processConversation(userMessage, conversationHistory) {
+async function processConversation(userMessage, conversationHistory, sessionId, openaiClient) {
   console.log("Starting processConversation with message:", userMessage);
+  console.log("Using session ID:", sessionId);
   const responses = {};
-  const canvasState = await getCanvasState();
+  const canvasState = await getCanvasState(sessionId);
   console.log("Got canvas state");
 
   // Build context for agents
@@ -210,7 +176,7 @@ async function processConversation(userMessage, conversationHistory) {
   // First, ask the orchestrator which agents should respond
   const orchestrator = getAgent("orchestrator");
   console.log("Asking orchestrator which agents to activate...");
-  const orchestratorResponse = await callAgent(orchestrator, userMessage, context);
+  const orchestratorResponse = await callAgent(orchestrator, userMessage, context, openaiClient);
 
   let orchestration;
   try {
@@ -232,21 +198,33 @@ async function processConversation(userMessage, conversationHistory) {
   if (agentsToCall.includes("resource")) {
     const resource = getAgent("resource");
     console.log("Calling resource librarian...");
-    responses.resource = await callAgent(resource, userMessage, {
-      ...context,
-      orchestration,
-    });
+    responses.resource = await callAgent(
+      resource,
+      userMessage,
+      {
+        ...context,
+        orchestration,
+      },
+      openaiClient
+    );
     console.log("Resource librarian responded");
   }
 
   // Call primary translator if orchestrator says so
   if (agentsToCall.includes("primary")) {
+    console.log("========== PRIMARY AGENT CALLED ==========");
     const primary = getAgent("primary");
     console.log("Calling primary translator...");
-    responses.primary = await callAgent(primary, userMessage, {
-      ...context,
-      orchestration,
-    });
+
+    responses.primary = await callAgent(
+      primary,
+      userMessage,
+      {
+        ...context,
+        orchestration,
+      },
+      openaiClient
+    );
   }
 
   // Call state manager if orchestrator says so
@@ -271,21 +249,25 @@ async function processConversation(userMessage, conversationHistory) {
       }
     }
 
-    const stateResult = await callAgent(stateManager, userMessage, {
-      ...context,
-      primaryResponse: responses.primary?.response,
-      resourceResponse: responses.resource?.response,
-      lastAssistantQuestion,
-      orchestration,
-    });
+    const stateResult = await callAgent(
+      stateManager,
+      userMessage,
+      {
+        ...context,
+        primaryResponse: responses.primary?.response,
+        resourceResponse: responses.resource?.response,
+        lastAssistantQuestion,
+        orchestration,
+      },
+      openaiClient
+    );
 
     console.log("State result agent info:", stateResult?.agent);
     console.log("State response:", stateResult?.response);
 
-    // Canvas Scribe should return either:
-    // 1. Empty string (stay silent)
-    // 2. Brief acknowledgment like "Noted!" or "Got it!"
-    // 3. Acknowledgment + JSON state update (rare)
+    // Canvas Scribe should return JSON with:
+    // { "message": "Noted!", "updates": {...}, "summary": "..." }
+    // Or empty string to stay silent
 
     const responseText = stateResult.response.trim();
 
@@ -294,48 +276,34 @@ async function processConversation(userMessage, conversationHistory) {
       console.log("Canvas Scribe staying silent");
       // Don't add to responses
     }
-    // Check if response contains JSON (for state updates)
-    else if (responseText.includes("{") && responseText.includes("}")) {
+    // Parse JSON response from Canvas Scribe
+    else {
       try {
-        // Extract JSON from the response
-        const jsonMatch = responseText.match(/\{[\s\S]*\}$/);
-        if (jsonMatch) {
-          const stateUpdates = JSON.parse(jsonMatch[0]);
+        const stateUpdates = JSON.parse(responseText);
+        console.log("Canvas Scribe returned:", stateUpdates);
 
-          // Apply state updates if present
-          if (stateUpdates.updates && Object.keys(stateUpdates.updates).length > 0) {
-            await updateCanvasState(stateUpdates.updates, "state");
-          }
+        // Apply state updates if present
+        if (stateUpdates.updates && Object.keys(stateUpdates.updates).length > 0) {
+          console.log("Applying state updates:", stateUpdates.updates);
+          await updateCanvasState(stateUpdates.updates, "state");
+        }
 
-          // Get the acknowledgment part (before JSON)
-          const acknowledgment = responseText
-            .substring(0, responseText.indexOf(jsonMatch[0]))
-            .trim();
-
-          // Only show acknowledgment if present
-          if (acknowledgment) {
-            responses.state = {
-              ...stateResult,
-              response: acknowledgment,
-            };
-          }
+        // Show the message from JSON (e.g., "Noted!")
+        if (stateUpdates.message) {
+          responses.state = {
+            ...stateResult,
+            response: stateUpdates.message,
+          };
         }
       } catch (e) {
-        console.error("Error parsing state JSON:", e);
+        console.error("Error parsing Canvas Scribe JSON:", e);
+        console.error("Raw response was:", responseText);
         // If JSON parsing fails, treat whole response as acknowledgment
         responses.state = {
           ...stateResult,
           response: responseText,
         };
       }
-    }
-    // Simple acknowledgment (no JSON)
-    else {
-      console.log("Canvas Scribe simple acknowledgment:", responseText);
-      responses.state = {
-        ...stateResult,
-        response: responseText,
-      };
     }
   }
 
@@ -495,7 +463,7 @@ function mergeAgentResponses(responses) {
           console.log("ℹ️ No suggestions from primary agent");
         }
       }
-    } catch (error) {
+    } catch {
       console.log("⚠️ Not valid JSON, treating as plain text message");
       // Not JSON, use the raw response as the message
       // Keep existing suggestions if we have them from Suggestion Helper
@@ -535,13 +503,10 @@ function mergeAgentResponses(responses) {
  * Netlify Function Handler
  */
 const handler = async (req, context) => {
-  // Store context for internal use
-  process.env.CONTEXT = context;
-
   // Enable CORS
   const headers = {
     "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Headers": "Content-Type, X-Session-ID",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
   };
 
@@ -559,8 +524,17 @@ const handler = async (req, context) => {
     const { message, history = [] } = await req.json();
     console.log("Received message:", message);
 
+    // Get session ID from headers
+    const sessionId = req.headers["x-session-id"] || "default";
+    console.log("Session ID from header:", sessionId);
+
+    // Initialize OpenAI client with API key from Netlify environment
+    const openai = new OpenAI({
+      apiKey: context.env?.OPENAI_API_KEY,
+    });
+
     // Process conversation with multiple agents
-    const agentResponses = await processConversation(message, history);
+    const agentResponses = await processConversation(message, history, sessionId, openai);
     console.log("Got agent responses");
     console.log("Agent responses state info:", agentResponses.state?.agent); // Debug
 
@@ -573,7 +547,7 @@ const handler = async (req, context) => {
     console.log("Quick suggestions:", suggestions);
 
     // Get updated canvas state
-    const canvasState = await getCanvasState();
+    const canvasState = await getCanvasState(sessionId);
 
     // Return response with agent attribution
     return new Response(

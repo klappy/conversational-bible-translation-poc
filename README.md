@@ -1,23 +1,31 @@
 # Bible Translation Assistant (PoC)
 
-**Version 0.4.0** | [Changelog](./CHANGELOG.md)
+**Version 0.4.1** | [Changelog](./CHANGELOG.md) | [System Design](./SYSTEM_DESIGN.md)
 
 An AI-powered conversational Bible translation tool implementing the FIA (Familiarization, Internalization, Articulation) methodology for church-based Bible translation.
 
+> **Status:** Working (75% success rate, improvements underway)
+> **See:** [SYSTEM_DESIGN.md](./SYSTEM_DESIGN.md) for complete system documentation
+
 ## Features
 
-- 🤖 **Multi-Agent System**: Team of specialized AI agents working together
+### Working Features ✅
+
+- 🤖 **Multi-Agent System**: 5 specialized AI agents collaborating (Orchestrator, Translator, Scribe, Librarian, Suggester)
 - 🎯 **Conversational Interface**: Natural chat-based translation workflow
 - 📱 **Responsive Design**: Swipeable cards on mobile, sidebar on desktop
 - 📖 **FIA Methodology**: Phrase-by-phrase understanding before drafting
-- 🔍 **Smart Checking**: Automated validation with unfoldingWord resources
-- 💬 **Community Feedback**: Simulated peer review system
-- 🎤 **Mock Audio Support**: Prepared for voice input/output
-- 🎭 **Visual Agent Identity**: Each agent has unique icon and color
 - 💾 **Persistent State**: Translation progress saved with Netlify Blobs
-- 👥 **Multi-User Sessions**: Workshop support with isolated user spaces
+- 👥 **Multi-User Sessions**: Workshop support with isolated user spaces (100+ concurrent users)
 - 📤 **Session Sharing**: QR codes and links for cross-device access
-- 🔄 **Seamless Continuity**: Resume translations on any device
+- 🎭 **Visual Agent Identity**: Each agent has unique icon and color
+- 💡 **Smart Suggestions**: Context-aware quick response options
+
+### Planned Features 🚧
+
+- 🔍 **Smart Checking**: Automated validation with unfoldingWord resources
+- 💬 **Community Feedback**: Real multi-user peer review
+- 🎤 **Audio Support**: Voice input/output with Whisper API
 
 ## Tech Stack
 

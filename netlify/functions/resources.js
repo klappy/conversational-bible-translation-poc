@@ -1,11 +1,11 @@
 import fs from "fs/promises";
 import path from "path";
 
-export default async function handler(req, context) {
+export default async function handler(req) {
   // Enable CORS
   const headers = {
     "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Headers": "Content-Type, X-Session-ID",
     "Access-Control-Allow-Methods": "GET, OPTIONS",
   };
 
@@ -33,12 +33,22 @@ export default async function handler(req, context) {
     let filePath;
     let contentType = "application/json";
 
+    // In Netlify Functions, files are in the function bundle
+    // Use relative paths from the function directory
+    const basePath = path.resolve(
+      path.dirname(new URL(import.meta.url).pathname),
+      "..",
+      "..",
+      "public",
+      "data"
+    );
+
     switch (resourceType) {
       case "bible":
-        filePath = path.join(process.cwd(), "public", "data", "ruth", `${resourceId}.json`);
+        filePath = path.join(basePath, "ruth", `${resourceId}.json`);
         break;
       case "fia":
-        filePath = path.join(process.cwd(), "public", "data", "ruth", "fia", resourceId);
+        filePath = path.join(basePath, "ruth", "fia", resourceId);
         // Determine content type based on file extension
         if (resourceId.endsWith(".jpg") || resourceId.endsWith(".jpeg")) {
           contentType = "image/jpeg";
@@ -49,10 +59,10 @@ export default async function handler(req, context) {
         }
         break;
       case "uw":
-        filePath = path.join(process.cwd(), "public", "data", "ruth", "uw", `${resourceId}.json`);
+        filePath = path.join(basePath, "ruth", "uw", `${resourceId}.json`);
         break;
       case "glossary":
-        filePath = path.join(process.cwd(), "public", "data", "glossary-defaults.json");
+        filePath = path.join(basePath, "glossary-defaults.json");
         break;
       default:
         return new Response(JSON.stringify({ error: "Invalid resource type" }), {
