@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { getSessionInfo, clearSession, getShareableUrl } from '../utils/sessionManager';
-import './SessionInfo.css';
+import { useState, useEffect } from "react";
+import { getSessionInfo, clearSession, getShareableUrl } from "../utils/sessionManager";
+import "./SessionInfo.css";
 
 const SessionInfo = ({ showDebug = false }) => {
   const [sessionInfo, setSessionInfo] = useState(null);
@@ -18,7 +18,7 @@ const SessionInfo = ({ showDebug = false }) => {
   };
 
   const handleNewSession = () => {
-    if (confirm('Start a new session? This will clear your current translation progress.')) {
+    if (confirm("Start a new session? This will clear your current translation progress.")) {
       clearSession();
     }
   };
@@ -29,23 +29,17 @@ const SessionInfo = ({ showDebug = false }) => {
   if (!showDebug && !sessionInfo.isWorkshop) return null;
 
   return (
-    <div className="session-info">
-      {sessionInfo.isWorkshop && (
-        <div className="workshop-badge">
-          🎓 Workshop Session
-        </div>
-      )}
-      
+    <div className='session-info'>
+      {sessionInfo.isWorkshop && <div className='workshop-badge'>🎓 Workshop Session</div>}
+
       {showDebug && (
-        <div className="session-details">
-          <div className="session-id">
-            Session: {sessionInfo.sessionId.substring(0, 20)}...
-          </div>
-          <div className="session-actions">
-            <button onClick={handleCopyUrl} className="copy-btn">
-              {copied ? '✓ Copied!' : '📋 Copy URL'}
+        <div className='session-details'>
+          <div className='session-id'>Session: {sessionInfo.sessionId.substring(0, 20)}...</div>
+          <div className='session-actions'>
+            <button onClick={handleCopyUrl} className='copy-btn'>
+              {copied ? "✓ Copied!" : "📋 Copy URL"}
             </button>
-            <button onClick={handleNewSession} className="new-session-btn">
+            <button onClick={handleNewSession} className='new-session-btn'>
               🔄 New Session
             </button>
           </div>

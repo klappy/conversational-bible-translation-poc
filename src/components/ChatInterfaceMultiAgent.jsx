@@ -6,6 +6,7 @@ import { getSessionHeaders, getSessionInfo } from "../utils/sessionManager";
 import AgentMessage from "./AgentMessage";
 import AgentStatus from "./AgentStatus";
 import QuickSuggestions from "./QuickSuggestions";
+import ShareSession from "./ShareSession";
 import "./ChatInterface.css";
 
 const ChatInterfaceMultiAgent = () => {
@@ -20,6 +21,7 @@ const ChatInterfaceMultiAgent = () => {
     "Tell me about this translation process",
     "Use these settings and begin",
   ]); // Start with default suggestions
+  const [showShareModal, setShowShareModal] = useState(false);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
   const responseProcessorRef = useRef(null);
@@ -41,8 +43,8 @@ const ChatInterfaceMultiAgent = () => {
 
         const response = await fetch(apiUrl, {
           headers: {
-            ...getSessionHeaders()
-          }
+            ...getSessionHeaders(),
+          },
         });
         if (response.ok) {
           const state = await response.json();
@@ -170,7 +172,7 @@ const ChatInterfaceMultiAgent = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          ...getSessionHeaders()
+          ...getSessionHeaders(),
         },
         body: JSON.stringify({
           message: input,
@@ -304,6 +306,13 @@ const ChatInterfaceMultiAgent = () => {
         <div className='workflow-info'>
           <span className='workflow-phase'>{phaseDisplay}</span>
           <span className='workflow-verse'>{getCurrentVerse()}</span>
+          <button 
+            className='share-button' 
+            onClick={() => setShowShareModal(true)}
+            title='Share session or continue on another device'
+          >
+            📤 Share
+          </button>
         </div>
       </div>
 
@@ -374,6 +383,11 @@ const ChatInterfaceMultiAgent = () => {
           </div>
         )}
       </form>
+      
+      <ShareSession 
+        isOpen={showShareModal} 
+        onClose={() => setShowShareModal(false)} 
+      />
     </div>
   );
 };

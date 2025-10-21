@@ -3,6 +3,7 @@
 ## 🎉 What's New
 
 Your Bible Translation Assistant now has **persistent state storage** using Netlify Blobs! This means:
+
 - ✅ Translation progress is saved between sessions
 - ✅ State survives page refreshes
 - ✅ Multiple users can work independently (session support)
@@ -13,7 +14,7 @@ Your Bible Translation Assistant now has **persistent state storage** using Netl
 ### 1. Basic Persistence Test
 
 1. **Open your site**: https://conversational-bible-translation-poc.netlify.app
-2. **Start a conversation**: 
+2. **Start a conversation**:
    - Type: "Hello, I want to translate Ruth into Spanish"
    - Wait for response
 3. **Check state is saved**:
@@ -26,16 +27,20 @@ Your Bible Translation Assistant now has **persistent state storage** using Netl
 Test that multiple users can work independently:
 
 **User 1**:
+
 ```
 https://conversational-bible-translation-poc.netlify.app?session=workshop_user1
 ```
+
 - Translate into Spanish
 - Set reading level to Grade 3
 
-**User 2**: 
+**User 2**:
+
 ```
 https://conversational-bible-translation-poc.netlify.app?session=workshop_user2
 ```
+
 - Translate into French
 - Set reading level to Grade 5
 
@@ -44,9 +49,11 @@ Each user's progress is completely isolated!
 ### 3. Default Session Test
 
 Without any session parameter:
+
 ```
 https://conversational-bible-translation-poc.netlify.app
 ```
+
 - Uses default session
 - Good for single-user mode
 - State persists in browser localStorage
@@ -54,6 +61,7 @@ https://conversational-bible-translation-poc.netlify.app
 ## 🔍 What to Look For
 
 ### ✅ Working Correctly If:
+
 - Conversation history persists after refresh
 - Style guide settings are retained
 - Scripture Canvas content is saved
@@ -61,6 +69,7 @@ https://conversational-bible-translation-poc.netlify.app
 - Different session URLs maintain separate states
 
 ### ⚠️ Issues to Watch For:
+
 - Empty conversation after refresh → Persistence not working
 - Mixed data between sessions → Session isolation problem
 - Slow loading → API latency (normal for serverless cold start)
@@ -68,12 +77,15 @@ https://conversational-bible-translation-poc.netlify.app
 ## 🛠️ Debugging
 
 ### Check Session Info
+
 Add `?debug=true` to see session details:
+
 ```
 https://conversational-bible-translation-poc.netlify.app?debug=true
 ```
 
 ### View Netlify Function Logs
+
 1. Go to Netlify dashboard
 2. Click "Functions" tab
 3. Select `canvas-state`
@@ -82,11 +94,13 @@ https://conversational-bible-translation-poc.netlify.app?debug=true
 ### Test API Directly
 
 Check current state:
+
 ```bash
 curl https://conversational-bible-translation-poc.netlify.app/.netlify/functions/canvas-state
 ```
 
 With specific session:
+
 ```bash
 curl https://conversational-bible-translation-poc.netlify.app/.netlify/functions/canvas-state?session=test123
 ```
@@ -103,11 +117,13 @@ curl https://conversational-bible-translation-poc.netlify.app/.netlify/functions
 For the ETEN Summit workshop:
 
 1. **Facilitator prepares**:
+
    ```
    Base URL: https://conversational-bible-translation-poc.netlify.app
    ```
 
 2. **Generate attendee URLs**:
+
    ```
    Attendee 1: ?session=eten2025_attendee1
    Attendee 2: ?session=eten2025_attendee2
@@ -124,11 +140,13 @@ For the ETEN Summit workshop:
 ## 🚀 Next Steps
 
 ### If Persistence Works:
+
 ✅ Ready for production use!
 ✅ Can handle workshop scenarios
 ✅ State management is reliable
 
 ### Optional Enhancements:
+
 - [ ] Add session management UI
 - [ ] Show "last saved" timestamp
 - [ ] Add export/import feature
@@ -145,17 +163,20 @@ For the ETEN Summit workshop:
 ## 🆘 Troubleshooting
 
 ### State Not Persisting?
+
 1. Check browser console for errors
 2. Verify Netlify Blobs is enabled
 3. Check function logs in Netlify dashboard
 4. Try different session ID
 
 ### Session Mixing?
+
 1. Clear browser cache
 2. Use incognito/private window
 3. Explicitly set session parameter
 
 ### Performance Issues?
+
 1. Normal on first load (cold start)
 2. Should improve after warm-up
 3. Consider implementing caching
@@ -163,6 +184,7 @@ For the ETEN Summit workshop:
 ## 🎉 Success Indicators
 
 When everything is working:
+
 - ✅ Refresh doesn't lose data
 - ✅ Multiple tabs can have different sessions
 - ✅ Workshop attendees work independently

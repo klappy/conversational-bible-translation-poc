@@ -56,11 +56,11 @@ function getBlobStore(context) {
 function getStateKey(req) {
   // Check for session ID in headers or query params
   const url = new URL(req.url);
-  const sessionId = 
-    req.headers.get?.("x-session-id") || 
+  const sessionId =
+    req.headers.get?.("x-session-id") ||
     req.headers["x-session-id"] ||
     url.searchParams.get("session");
-  
+
   // Use session-specific key if provided, otherwise use default
   return sessionId ? `session_${sessionId}` : "default";
 }
@@ -168,13 +168,11 @@ async function resetState(store, stateKey) {
 async function listSessions(store) {
   try {
     const { blobs } = await store.list();
-    return blobs.map(blob => ({
+    return blobs.map((blob) => ({
       key: blob.key,
       // Extract session ID from key
-      sessionId: blob.key.startsWith('session_') 
-        ? blob.key.replace('session_', '') 
-        : blob.key,
-      isDefault: blob.key === 'default'
+      sessionId: blob.key.startsWith("session_") ? blob.key.replace("session_", "") : blob.key,
+      isDefault: blob.key === "default",
     }));
   } catch (error) {
     console.error("Error listing sessions:", error);
@@ -229,10 +227,10 @@ const handler = async (req, context) => {
   try {
     // Get the Blobs store
     const store = getBlobStore(context);
-    
+
     // Get the state key (session-specific or default)
     const stateKey = getStateKey(req);
-    
+
     const url = new URL(req.url);
     const path = url.pathname.replace("/.netlify/functions/canvas-state", "");
 

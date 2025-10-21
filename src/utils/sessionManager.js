@@ -10,23 +10,23 @@
 export function getSessionId() {
   // Check URL params first (for workshop attendees with specific links)
   const urlParams = new URLSearchParams(window.location.search);
-  const urlSession = urlParams.get('session');
-  
+  const urlSession = urlParams.get("session");
+
   if (urlSession) {
     // Save URL session to localStorage for persistence
-    localStorage.setItem('sessionId', urlSession);
+    localStorage.setItem("sessionId", urlSession);
     return urlSession;
   }
-  
+
   // Check localStorage for existing session
-  let sessionId = localStorage.getItem('sessionId');
-  
+  let sessionId = localStorage.getItem("sessionId");
+
   if (!sessionId) {
     // Generate new session ID
     sessionId = generateSessionId();
-    localStorage.setItem('sessionId', sessionId);
+    localStorage.setItem("sessionId", sessionId);
   }
-  
+
   return sessionId;
 }
 
@@ -43,7 +43,7 @@ export function generateSessionId() {
  * Clear the current session
  */
 export function clearSession() {
-  localStorage.removeItem('sessionId');
+  localStorage.removeItem("sessionId");
   // Optionally reload to get fresh state
   window.location.href = window.location.pathname;
 }
@@ -54,7 +54,7 @@ export function clearSession() {
 export function getSessionHeaders() {
   const sessionId = getSessionId();
   return {
-    'X-Session-ID': sessionId
+    "X-Session-ID": sessionId,
   };
 }
 
@@ -63,8 +63,8 @@ export function getSessionHeaders() {
  */
 export function isWorkshopSession() {
   const urlParams = new URLSearchParams(window.location.search);
-  const urlSession = urlParams.get('session');
-  return urlSession && urlSession.includes('workshop');
+  const urlSession = urlParams.get("session");
+  return urlSession && urlSession.includes("workshop");
 }
 
 /**
@@ -83,13 +83,11 @@ export function getSessionInfo() {
   const sessionId = getSessionId();
   const isWorkshop = isWorkshopSession();
   const shareUrl = getShareableUrl();
-  
+
   return {
     sessionId,
     isWorkshop,
     shareUrl,
-    createdAt: sessionId.includes('_') 
-      ? new Date(parseInt(sessionId.split('_')[1])) 
-      : null
+    createdAt: sessionId.includes("_") ? new Date(parseInt(sessionId.split("_")[1])) : null,
   };
 }
