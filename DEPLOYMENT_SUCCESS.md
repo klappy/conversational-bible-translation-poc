@@ -22,6 +22,7 @@
 Your site is live but won't fully function until you set your OpenAI API key.
 
 **Run this command now:**
+
 ```bash
 netlify env:set OPENAI_API_KEY "your_actual_api_key_here"
 ```
@@ -42,18 +43,19 @@ Once your API key is set, test these features:
 
 ### 📊 Deployment Status
 
-| Component | Status | Details |
-|-----------|--------|---------|
-| GitHub Repository | ✅ Complete | All 529 files pushed |
-| Netlify Site | ✅ Complete | Site created and configured |
-| Auto-Deploy | ✅ Active | Git pushes trigger builds |
-| Production Build | ✅ Live | Deployed successfully |
-| Functions | ✅ Deployed | 3 functions active |
-| Environment Vars | ⏳ Pending | Need to set OPENAI_API_KEY |
+| Component         | Status      | Details                     |
+| ----------------- | ----------- | --------------------------- |
+| GitHub Repository | ✅ Complete | All 529 files pushed        |
+| Netlify Site      | ✅ Complete | Site created and configured |
+| Auto-Deploy       | ✅ Active   | Git pushes trigger builds   |
+| Production Build  | ✅ Live     | Deployed successfully       |
+| Functions         | ✅ Deployed | 3 functions active          |
+| Environment Vars  | ⏳ Pending  | Need to set OPENAI_API_KEY  |
 
 ### 🔄 Continuous Deployment Active
 
 From now on:
+
 - Every push to `main` branch triggers a new deployment
 - Build takes ~2-3 minutes
 - Preview deploys available for pull requests
@@ -97,6 +99,7 @@ netlify deploy --prod
 ### 🎯 Ready for ETEN Summit!
 
 Your Bible Translation Assistant is now:
+
 - ✅ Deployed to production
 - ✅ Accessible from anywhere
 - ✅ Ready for demonstration

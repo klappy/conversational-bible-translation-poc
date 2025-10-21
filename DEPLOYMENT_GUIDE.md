@@ -7,6 +7,7 @@ This guide will walk you through deploying your Bible Translation Assistant to p
 ## Step 1: Create GitHub Repository ✅
 
 ### Manual Steps Required:
+
 1. Go to https://github.com/new
 2. Create a new repository with these settings:
    - Repository name: `conversational-bible-translation-poc`
@@ -16,6 +17,7 @@ This guide will walk you through deploying your Bible Translation Assistant to p
 3. Click "Create repository"
 
 ### Push Your Code:
+
 After creating the repository, run these commands in your terminal:
 
 ```bash
@@ -32,6 +34,7 @@ git push -u origin main
 ### Option A: Deploy via Netlify Web UI (Recommended)
 
 1. **Connect Repository**:
+
    - Go to https://app.netlify.com
    - Click "Add new site" → "Import an existing project"
    - Choose "GitHub"
@@ -40,11 +43,13 @@ git push -u origin main
 
 2. **Configure Build Settings**:
    Netlify should auto-detect these, but verify:
+
    - Build command: `npm run build`
    - Publish directory: `dist`
    - Functions directory: `netlify/functions`
 
 3. **Add Environment Variables**:
+
    - Click "Show advanced" before deploying
    - Add variables:
      - Key: `OPENAI_API_KEY`
@@ -79,6 +84,7 @@ netlify env:set OPENAI_API_KEY "your_api_key_here"
 ## Step 3: Verify Deployment
 
 ### Testing Checklist:
+
 - [ ] Site loads at your Netlify URL
 - [ ] Chat interface appears and accepts input
 - [ ] Translation Assistant responds to messages
@@ -90,10 +96,12 @@ netlify env:set OPENAI_API_KEY "your_api_key_here"
 ### Common Issues:
 
 1. **"Failed to load" or API errors**:
+
    - Verify OPENAI_API_KEY is set in Netlify environment variables
    - Check OpenAI API key is valid and has credits
 
 2. **Functions not working**:
+
    - Check Netlify Functions logs: Site dashboard → Functions → View logs
    - Verify functions directory is set to `netlify/functions`
 
@@ -104,25 +112,28 @@ netlify env:set OPENAI_API_KEY "your_api_key_here"
 ## Step 4: Post-Deployment Setup (Optional)
 
 ### Custom Domain
+
 1. Go to Site settings → Domain management
 2. Click "Add custom domain"
 3. Follow DNS configuration for your provider
 
 ### Deploy Notifications
+
 1. Go to Site settings → Build & deploy → Deploy notifications
 2. Add email or Slack webhook for build status
 
 ### Monitoring
+
 1. Enable Netlify Analytics (paid feature)
 2. Set up error tracking (e.g., Sentry)
 3. Monitor function logs regularly
 
 ## Environment Variables Reference
 
-| Variable | Required | Default | Description |
-|----------|----------|---------|-------------|
-| OPENAI_API_KEY | Yes | - | Your OpenAI API key |
-| OPENAI_MODEL | No | gpt-4o-mini | Model for primary agent |
+| Variable       | Required | Default     | Description             |
+| -------------- | -------- | ----------- | ----------------------- |
+| OPENAI_API_KEY | Yes      | -           | Your OpenAI API key     |
+| OPENAI_MODEL   | No       | gpt-4o-mini | Model for primary agent |
 
 ## Useful Commands
 
@@ -153,6 +164,7 @@ npm run dev:netlify
 ## Next Steps
 
 After successful deployment:
+
 1. Share the URL with stakeholders for testing
 2. Gather feedback on the translation workflow
 3. Monitor usage and API costs

@@ -1,14 +1,10 @@
 /**
- * Canvas State Management
- * Manages the state of all canvas artifacts server-side
+ * Canvas State Management with Netlify Blobs
+ * Manages the state of all canvas artifacts using Netlify Blobs for persistence
  * This is the single source of truth for the application state
  */
 
-import { promises as fs } from "fs";
-import { join } from "path";
-
-// State file path (in temp directory for local dev)
-const STATE_FILE = join("/tmp", "canvas-state.json");
+import { getStore } from "@netlify/blobs";
 
 // Default state
 const DEFAULT_STATE = {
@@ -44,27 +40,58 @@ const DEFAULT_STATE = {
 };
 
 /**
- * Load state from file or return default
+ * Get the Netlify Blobs store for the current site
  */
-async function loadState() {
+function getBlobStore(context) {
+  return getStore({
+    name: "canvas-state",
+    siteID: context.site?.id || process.env.SITE_ID,
+    token: context.token || process.env.NETLIFY_AUTH_TOKEN,
+  });
+}
+
+/**
+ * Get session-specific state key
+ */
+function getStateKey(req) {
+  // Check for session ID in headers or query params
+  const url = new URL(req.url);
+  const sessionId = 
+    req.headers.get?.("x-session-id") || 
+    req.headers["x-session-id"] ||
+    url.searchParams.get("session");
+  
+  // Use session-specific key if provided, otherwise use default
+  return sessionId ? `session_${sessionId}` : "default";
+}
+
+/**
+ * Load state from Blobs or return default
+ */
+async function loadState(store, stateKey) {
   try {
-    const data = await fs.readFile(STATE_FILE, "utf8");
-    return JSON.parse(data);
+    const data = await store.get(stateKey);
+    if (data) {
+      return JSON.parse(data);
+    }
+    // No existing state, return default
+    return { ...DEFAULT_STATE };
   } catch (error) {
-    // File doesn't exist or is invalid, return default
+    console.error("Error loading state from Blobs:", error);
+    // Return default state on error
     return { ...DEFAULT_STATE };
   }
 }
 
 /**
- * Save state to file
+ * Save state to Blobs
  */
-async function saveState(state) {
+async function saveState(store, stateKey, state) {
   try {
-    await fs.writeFile(STATE_FILE, JSON.stringify(state, null, 2));
+    await store.set(stateKey, JSON.stringify(state));
     return true;
   } catch (error) {
-    console.error("Error saving state:", error);
+    console.error("Error saving state to Blobs:", error);
     return false;
   }
 }
@@ -72,13 +99,14 @@ async function saveState(state) {
 /**
  * Get the current state
  */
-async function getState() {
-  const globalState = await loadState();
+async function getState(store, stateKey) {
+  const globalState = await loadState(store, stateKey);
   return {
     ...globalState,
     metadata: {
       ...globalState.metadata,
       retrieved: new Date().toISOString(),
+      sessionId: stateKey,
     },
   };
 }
@@ -86,7 +114,7 @@ async function getState() {
 /**
  * Update the state with validation
  */
-async function updateState(updates, agentId = "user") {
+async function updateState(store, stateKey, updates, agentId = "user") {
   try {
     // Validate updates
     if (!updates || typeof updates !== "object") {
@@ -94,7 +122,7 @@ async function updateState(updates, agentId = "user") {
     }
 
     // Load current state
-    let globalState = await loadState();
+    let globalState = await loadState(store, stateKey);
 
     // Apply updates (deep merge)
     globalState = deepMerge(globalState, updates);
@@ -103,12 +131,12 @@ async function updateState(updates, agentId = "user") {
     globalState.metadata.lastUpdated = new Date().toISOString();
     globalState.metadata.version = (globalState.metadata.version || 1) + 1;
 
-    // Save to file
-    await saveState(globalState);
+    // Save to Blobs
+    await saveState(store, stateKey, globalState);
 
     return {
       success: true,
-      state: await getState(),
+      state: await getState(store, stateKey),
     };
   } catch (error) {
     return {
@@ -121,40 +149,37 @@ async function updateState(updates, agentId = "user") {
 /**
  * Reset state to initial values
  */
-async function resetState() {
+async function resetState(store, stateKey) {
   const globalState = {
-    styleGuide: {
-      conversationLanguage: "English", // Language of Wider Communication
-      sourceLanguage: "English", // Translating from
-      targetLanguage: "English", // Translating into
-      languagePair: "English → English", // Legacy, kept for compatibility
-      readingLevel: "Grade 1",
-      tone: "Narrator, engaging tone",
-      philosophy: "Meaning-based",
-    },
-    glossary: {
-      terms: {},
-    },
-    scriptureCanvas: {
-      verses: {},
-    },
-    feedback: {
-      comments: [],
-    },
-    workflow: {
-      currentPhase: "planning",
-      currentVerse: "Ruth 1:1",
-      currentPhrase: 0,
-      phrasesCompleted: {},
-      totalPhrases: 0,
-    },
+    ...DEFAULT_STATE,
     metadata: {
       lastUpdated: new Date().toISOString(),
       version: 1,
+      sessionId: stateKey,
     },
   };
-  await saveState(globalState);
-  return getState();
+  await saveState(store, stateKey, globalState);
+  return getState(store, stateKey);
+}
+
+/**
+ * List all sessions (for admin/debug purposes)
+ */
+async function listSessions(store) {
+  try {
+    const { blobs } = await store.list();
+    return blobs.map(blob => ({
+      key: blob.key,
+      // Extract session ID from key
+      sessionId: blob.key.startsWith('session_') 
+        ? blob.key.replace('session_', '') 
+        : blob.key,
+      isDefault: blob.key === 'default'
+    }));
+  } catch (error) {
+    console.error("Error listing sessions:", error);
+    return [];
+  }
 }
 
 /**
@@ -191,7 +216,7 @@ const handler = async (req, context) => {
   // Enable CORS
   const headers = {
     "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Headers": "Content-Type, X-Session-ID",
     "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
     "Content-Type": "application/json",
   };
@@ -202,24 +227,48 @@ const handler = async (req, context) => {
   }
 
   try {
+    // Get the Blobs store
+    const store = getBlobStore(context);
+    
+    // Get the state key (session-specific or default)
+    const stateKey = getStateKey(req);
+    
     const url = new URL(req.url);
     const path = url.pathname.replace("/.netlify/functions/canvas-state", "");
 
+    // Log for debugging
+    console.log(`Canvas state request: ${req.method} ${path}, session: ${stateKey}`);
+
     // GET /state - Get current state
     if (req.method === "GET" && (path === "" || path === "/")) {
-      const state = await getState();
+      const state = await getState(store, stateKey);
       return new Response(JSON.stringify(state), {
         status: 200,
         headers,
       });
     }
 
-    // GET /history - Get state history (deprecated for file-based storage)
-    if (req.method === "GET" && path === "/history") {
-      const state = await getState();
+    // GET /sessions - List all sessions (admin/debug)
+    if (req.method === "GET" && path === "/sessions") {
+      const sessions = await listSessions(store);
       return new Response(
         JSON.stringify({
-          history: [], // No longer storing history with file-based approach
+          sessions,
+          currentSession: stateKey,
+        }),
+        {
+          status: 200,
+          headers,
+        }
+      );
+    }
+
+    // GET /history - Get state history (deprecated but kept for compatibility)
+    if (req.method === "GET" && path === "/history") {
+      const state = await getState(store, stateKey);
+      return new Response(
+        JSON.stringify({
+          history: [], // No longer storing history with Blobs approach
           currentState: state,
         }),
         {
@@ -234,7 +283,7 @@ const handler = async (req, context) => {
       const body = await req.json();
       const { updates, agentId } = body;
 
-      const result = await updateState(updates, agentId);
+      const result = await updateState(store, stateKey, updates, agentId);
 
       return new Response(JSON.stringify(result), {
         status: result.success ? 200 : 400,
@@ -244,7 +293,7 @@ const handler = async (req, context) => {
 
     // POST /reset - Reset state
     if (req.method === "POST" && path === "/reset") {
-      const state = await resetState();
+      const state = await resetState(store, stateKey);
 
       return new Response(
         JSON.stringify({
@@ -256,6 +305,34 @@ const handler = async (req, context) => {
           headers,
         }
       );
+    }
+
+    // DELETE /session - Delete a specific session
+    if (req.method === "DELETE" && path === "/session") {
+      try {
+        await store.delete(stateKey);
+        return new Response(
+          JSON.stringify({
+            success: true,
+            message: `Session ${stateKey} deleted`,
+          }),
+          {
+            status: 200,
+            headers,
+          }
+        );
+      } catch (error) {
+        return new Response(
+          JSON.stringify({
+            success: false,
+            error: error.message,
+          }),
+          {
+            status: 500,
+            headers,
+          }
+        );
+      }
     }
 
     // Method not allowed

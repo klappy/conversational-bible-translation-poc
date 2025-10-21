@@ -21,6 +21,7 @@ Replace `your_actual_api_key_here` with your actual OpenAI API key.
 ## Verify It's Set
 
 After setting, you can verify with:
+
 ```bash
 netlify env:list
 ```

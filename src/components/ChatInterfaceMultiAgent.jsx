@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useTranslation } from "../contexts/TranslationContext";
 import { createResponseProcessor } from "../services/ResponseProcessor";
 import { generateUniqueId } from "../utils/idGenerator";
+import { getSessionHeaders, getSessionInfo } from "../utils/sessionManager";
 import AgentMessage from "./AgentMessage";
 import AgentStatus from "./AgentStatus";
 import QuickSuggestions from "./QuickSuggestions";
@@ -38,7 +39,11 @@ const ChatInterfaceMultiAgent = () => {
           ? "http://localhost:9999/.netlify/functions/canvas-state"
           : "/.netlify/functions/canvas-state";
 
-        const response = await fetch(apiUrl);
+        const response = await fetch(apiUrl, {
+          headers: {
+            ...getSessionHeaders()
+          }
+        });
         if (response.ok) {
           const state = await response.json();
           setCanvasState(state);
@@ -165,6 +170,7 @@ const ChatInterfaceMultiAgent = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          ...getSessionHeaders()
         },
         body: JSON.stringify({
           message: input,

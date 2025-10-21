@@ -1,6 +1,7 @@
 # Deployment Checklist
 
 ## Pre-Flight Checks ✅
+
 - [x] Build tested locally (`npm run build`)
 - [x] Environment variables documented
 - [x] `.gitignore` configured properly
@@ -15,11 +16,13 @@
 **Status**: Ready to create
 
 **Action Required**:
+
 1. Go to: https://github.com/new
 2. Create repository named: `conversational-bible-translation-poc`
 3. Set visibility (Public/Private)
 4. **DO NOT initialize with any files**
 5. After creation, run in terminal:
+
 ```bash
 # Replace YOUR_USERNAME with your GitHub username
 git remote add origin https://github.com/YOUR_USERNAME/conversational-bible-translation-poc.git
@@ -31,6 +34,7 @@ git push -u origin main
 **Two Options Available**:
 
 #### Option A: Web UI (Easier)
+
 - [ ] Go to https://app.netlify.com
 - [ ] Import from GitHub
 - [ ] Configure build settings
@@ -38,6 +42,7 @@ git push -u origin main
 - [ ] Deploy
 
 #### Option B: CLI (Faster)
+
 ```bash
 # Run these commands:
 netlify init
@@ -63,6 +68,7 @@ netlify env:set OPENAI_API_KEY "your_key_here"
 ## Current Status
 
 **You are currently logged in to Netlify CLI as:**
+
 - Name: Christopher Klapp
 - Email: christopher@klapp.name
 - Teams: unfoldingWord, klappy
@@ -92,6 +98,7 @@ OPENAI_API_KEY=your_actual_api_key_here
 ```
 
 Optional:
+
 ```
 OPENAI_MODEL=gpt-4o-mini
 ```
@@ -99,6 +106,7 @@ OPENAI_MODEL=gpt-4o-mini
 ## Files Ready for Deployment
 
 ✅ All required files are present:
+
 - `/netlify.toml` - Configuration
 - `/package.json` - Dependencies
 - `/netlify/functions/` - Serverless functions
