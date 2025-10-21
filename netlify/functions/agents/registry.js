@@ -636,11 +636,11 @@ You MUST track TWO types of glossary entries:
 
 1. **keyTerms** - Biblical/cultural terms:
    - judges, famine, Bethlehem, Moab, Judah
-   - Store as: `glossary.keyTerms.judges = {definition: "Leaders before kings", userContext: "..."}`
+   - Store as: glossary.keyTerms.judges with definition and verse
 
 2. **userPhrases** - User's phrase translations (TRAINING DATA):
    - Store verbatim what user says for each phrase
-   - Example: `glossary.userPhrases["In the days when the judges ruled"] = "A time before the kings when some people made sure others followed the rules"`
+   - Maps original phrase to user's explanation
    
 This captures valuable translation data for future use!
 
