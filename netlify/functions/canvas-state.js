@@ -9,6 +9,7 @@ import { getStore } from "@netlify/blobs";
 // Default state
 const DEFAULT_STATE = {
   styleGuide: {
+    userName: null, // User's name - collected first
     conversationLanguage: "English", // Default value
     sourceLanguage: "English", // Default value
     targetLanguage: "English", // Default value

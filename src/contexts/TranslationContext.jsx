@@ -191,12 +191,25 @@ export const TranslationProvider = ({ children }) => {
   // Generate initial message based on server state
   const generateInitialMessage = useCallback(
     (serverState) => {
-      const styleGuide = serverState?.styleGuide || project.styleGuide;
-      const readingLevel = styleGuide.readingLevel || "Grade 1";
-      const languagePair = styleGuide.languagePair || "English → English";
-      const tone = styleGuide.tone || "Narrator, engaging tone";
-      const philosophy = styleGuide.philosophy || "Meaning-based";
+      const userName = serverState?.styleGuide?.userName;
+      
+      // If we already have the user's name, greet them personally
+      if (userName) {
+        return {
+          id: generateUniqueId("initial"),
+          role: "assistant",
+          agent: {
+            id: "primary",
+            icon: "📖",
+            color: "#3B82F6",
+            name: "Translation Assistant",
+          },
+          content: `Welcome back, ${userName}! Ready to continue translating Ruth together?`,
+          timestamp: new Date(),
+        };
+      }
 
+      // First time - ask for their name
       return {
         id: generateUniqueId("initial"),
         role: "assistant",
@@ -206,7 +219,7 @@ export const TranslationProvider = ({ children }) => {
           color: "#3B82F6",
           name: "Translation Assistant",
         },
-        content: `Welcome! Let's translate Ruth together.\n\nFirst, what language would you like to use for our conversation? And what language are you translating the Scripture into?`,
+        content: `Hello! I'm here to help you translate the book of Ruth.\n\nWhat's your name?`,
         timestamp: new Date(),
       };
     },
