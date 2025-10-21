@@ -26,10 +26,10 @@ async function callAgent(agent, message, context, openaiClient) {
       context.conversationHistory.forEach((msg) => {
         // Skip Canvas Scribe acknowledgments
         if (msg.agent?.id === "state") return;
-        
+
         // Skip inline suggestion messages (they're system UI elements, not conversation)
         if (msg.type === "suggestions" && msg.role === "system") return;
-        
+
         // Skip messages with array content (would cause OpenAI errors)
         if (Array.isArray(msg.content)) return;
 
