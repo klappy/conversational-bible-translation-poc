@@ -192,7 +192,7 @@ export const TranslationProvider = ({ children }) => {
   const generateInitialMessage = useCallback(
     (serverState) => {
       const userName = serverState?.styleGuide?.userName;
-      
+
       // If we already have the user's name, greet them personally
       if (userName) {
         return {
