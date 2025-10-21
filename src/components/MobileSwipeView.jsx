@@ -113,14 +113,24 @@ const MobileSwipeView = () => {
               </button>
             </div>
             <div className='card-content'>
-              {Object.keys(project.glossary.terms).length === 0 ? (
+              {(!project.glossary?.keyTerms || Object.keys(project.glossary.keyTerms).length === 0) && 
+               (!project.glossary?.userPhrases || Object.keys(project.glossary.userPhrases).length === 0) ? (
                 <p className='empty-state'>Terms will appear as you translate</p>
               ) : (
                 <div className='terms-list'>
-                  {Object.entries(project.glossary.terms).map(([term, data]) => (
+                  {/* User Phrases */}
+                  {project.glossary?.userPhrases && Object.entries(project.glossary.userPhrases).map(([phrase, translation]) => (
+                    <div key={phrase} className='term-item'>
+                      <strong>{phrase}</strong>
+                      <p>→ {translation}</p>
+                    </div>
+                  ))}
+                  
+                  {/* Key Terms */}
+                  {project.glossary?.keyTerms && Object.entries(project.glossary.keyTerms).map(([term, data]) => (
                     <div key={term} className='term-item'>
                       <strong>{term}</strong>
-                      <p>{data.definition}</p>
+                      <p>{data.definition || data}</p>
                       {data.notes && <p className='notes'>{data.notes}</p>}
                     </div>
                   ))}
