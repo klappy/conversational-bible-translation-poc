@@ -9,7 +9,7 @@
 import fetch from 'node-fetch';
 
 class ConversationTester {
-  constructor(baseUrl = 'http://localhost:9999') {
+  constructor(baseUrl = 'http://localhost:8888') {
     this.baseUrl = baseUrl;
     this.sessionId = `test_${Date.now()}`;
     this.conversationHistory = [];

@@ -8,7 +8,7 @@
 import fetch from "node-fetch";
 
 class IntelligentWorkshopAttendee {
-  constructor(baseUrl = "http://localhost:9999", persona = "curious_beginner") {
+  constructor(baseUrl = "http://localhost:8888", persona = "curious_beginner") {
     this.baseUrl = baseUrl;
     this.sessionId = `workshop_${persona}_${Date.now()}`;
     this.conversationHistory = [];
