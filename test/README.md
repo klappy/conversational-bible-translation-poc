@@ -80,8 +80,10 @@ Our tests don't just send pre-scripted messages. They:
 ## 🧪 Core Test Files
 
 ### `workshop-flow-test.js`
+
 **Purpose:** Complete end-to-end test of the workshop experience  
 **What it tests:**
+
 - Name collection and greeting
 - All 7 translation settings customization
 - Understanding phase with glossary collection (terms & phrases)
@@ -91,8 +93,10 @@ Our tests don't just send pre-scripted messages. They:
 **Run:** `node test/workshop-flow-test.js`
 
 ### `regression-test-suite.js`
+
 **Purpose:** Quick regression tests to catch breaking changes  
 **What it tests:**
+
 - Quick response timing (suggestions match current question)
 - Glossary collection during Understanding phase
 - Draft saving to scriptureCanvas during Drafting
@@ -104,11 +108,13 @@ Our tests don't just send pre-scripted messages. They:
 ## 🚦 Testing Strategy
 
 1. **Before Every Commit:** Run regression suite (< 1 minute)
+
    ```bash
    node test/regression-test-suite.js
    ```
 
 2. **After Feature Changes:** Run workshop flow test (~ 2 minutes)
+
    ```bash
    node test/workshop-flow-test.js
    ```

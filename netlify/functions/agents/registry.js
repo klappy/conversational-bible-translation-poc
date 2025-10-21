@@ -430,9 +430,9 @@ The planning phase is about understanding what kind of translation the user want
 ⚠️ CRITICAL RULE #1 - CHECK FOR NAME FIRST ⚠️
 
 IF userName IS NULL:
-→ DON'T ask about languages yet!
-→ The initial message already asked for their name
-→ WAIT for user to provide their name
+→ If this is the very first message (empty message or no history), ask for their name:
+  "Hello! I'm here to help you translate the book of Ruth.\n\nWhat's your name?"
+→ Otherwise WAIT for user to provide their name
 → When they do, greet them warmly and move to language settings
 
 IF userName EXISTS but conversationLanguage IS NULL:
@@ -827,6 +827,7 @@ Got it!
     "styleGuide": {
       "approach": "Meaning-based"
     },
+    "settingsCustomized": true,
     "workflow": {
       "currentPhase": "understanding"
     }

@@ -2,14 +2,14 @@
 
 /**
  * WORKSHOP FLOW TEST
- * 
+ *
  * Validates the complete workshop experience from start to finish:
  * - Name collection
  * - Settings customization
  * - Understanding phase with glossary collection
  * - Drafting phase with draft saving
  * - Proper phase transitions
- * 
+ *
  * Run with: node test/workshop-flow-test.js
  */
 
@@ -22,7 +22,7 @@ const SESSION_ID = `workshop_test_${Date.now()}`;
 // Test utilities
 function makeRequest(path, method = "GET", body = null) {
   const url = new URL(`${BASE_URL}/.netlify/functions${path}`);
-  
+
   const options = {
     method,
     headers: {
@@ -86,8 +86,8 @@ async function runWorkshopTest() {
     // Test 1: Initial greeting and name collection
     log("📝 TEST 1: Name Collection", "yellow");
     let response = await sendMessage("", conversationHistory);
-    let primaryMsg = response.messages.find(m => m.agent?.name === "Translation Assistant");
-    
+    let primaryMsg = response.messages.find((m) => m.agent?.name === "Translation Assistant");
+
     if (primaryMsg && primaryMsg.content.includes("What's your name")) {
       log("✅ Initial greeting asks for name", "green");
       testsPassed++;
@@ -99,10 +99,10 @@ async function runWorkshopTest() {
     // Provide name
     response = await sendMessage("Sarah", conversationHistory);
     conversationHistory.push({ role: "user", content: "Sarah" });
-    
+
     // Test 2: Settings collection
     log("\n📝 TEST 2: Settings Collection", "yellow");
-    
+
     const settings = [
       { input: "English", description: "conversation language" },
       { input: "English", description: "source language" },
@@ -116,14 +116,14 @@ async function runWorkshopTest() {
     for (const setting of settings) {
       response = await sendMessage(setting.input, conversationHistory);
       conversationHistory.push({ role: "user", content: setting.input });
-      
+
       // Add assistant responses to history
-      response.messages.forEach(msg => {
+      response.messages.forEach((msg) => {
         if (msg.role === "assistant" && msg.content) {
           conversationHistory.push(msg);
         }
       });
-      
+
       log(`  Setting ${setting.description}: ${setting.input}`, "blue");
     }
 
@@ -139,11 +139,11 @@ async function runWorkshopTest() {
 
     // Test 3: Understanding phase with glossary collection
     log("\n📝 TEST 3: Understanding Phase", "yellow");
-    
+
     // Start understanding
     response = await sendMessage("Let's understand the text", conversationHistory);
     conversationHistory.push({ role: "user", content: "Let's understand the text" });
-    
+
     // Work through phrases
     const phrases = [
       { input: "Time before Israel had kings", phrase: "judges ruled" },
@@ -156,13 +156,13 @@ async function runWorkshopTest() {
     for (const item of phrases) {
       response = await sendMessage(item.input, conversationHistory);
       conversationHistory.push({ role: "user", content: item.input });
-      
-      response.messages.forEach(msg => {
+
+      response.messages.forEach((msg) => {
         if (msg.role === "assistant" && msg.content) {
           conversationHistory.push(msg);
         }
       });
-      
+
       log(`  Phrase "${item.phrase}": ${item.input}`, "blue");
     }
 
@@ -170,9 +170,14 @@ async function runWorkshopTest() {
     state = await getCanvasState();
     const hasGlossaryTerms = Object.keys(state.glossary?.keyTerms || {}).length > 0;
     const hasUserPhrases = Object.keys(state.glossary?.userPhrases || {}).length > 0;
-    
+
     if (hasGlossaryTerms || hasUserPhrases) {
-      log(`✅ Glossary collected: ${Object.keys(state.glossary?.keyTerms || {}).length} terms, ${Object.keys(state.glossary?.userPhrases || {}).length} phrases`, "green");
+      log(
+        `✅ Glossary collected: ${Object.keys(state.glossary?.keyTerms || {}).length} terms, ${
+          Object.keys(state.glossary?.userPhrases || {}).length
+        } phrases`,
+        "green"
+      );
       testsPassed++;
     } else {
       log("❌ No glossary entries collected", "red");
@@ -181,29 +186,30 @@ async function runWorkshopTest() {
 
     // Test 4: Drafting phase
     log("\n📝 TEST 4: Drafting Phase", "yellow");
-    
+
     // Indicate ready to draft
     response = await sendMessage("Ready to draft", conversationHistory);
     conversationHistory.push({ role: "user", content: "Ready to draft" });
-    
-    response.messages.forEach(msg => {
+
+    response.messages.forEach((msg) => {
       if (msg.role === "assistant" && msg.content) {
         conversationHistory.push(msg);
       }
     });
 
     // Provide draft
-    const draft = "Long ago, before Israel had kings, there wasn't enough food. A man from Bethlehem took his wife and two sons to live in Moab where there was food.";
+    const draft =
+      "Long ago, before Israel had kings, there wasn't enough food. A man from Bethlehem took his wife and two sons to live in Moab where there was food.";
     response = await sendMessage(draft, conversationHistory);
     conversationHistory.push({ role: "user", content: draft });
-    
+
     // Wait a moment for state to update
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
     // Check if draft was saved
     state = await getCanvasState();
     const savedDraft = state.scriptureCanvas?.verses?.["Ruth 1:1"]?.draft;
-    
+
     if (savedDraft) {
       log(`✅ Draft saved: "${savedDraft.substring(0, 50)}..."`, "green");
       testsPassed++;
@@ -214,27 +220,27 @@ async function runWorkshopTest() {
 
     // Test 5: Verify complete state
     log("\n📝 TEST 5: Final State Verification", "yellow");
-    
+
     const checks = [
-      { 
-        name: "User name saved", 
+      {
+        name: "User name saved",
         value: state.styleGuide?.userName,
-        expected: "Sarah"
+        expected: "Sarah",
       },
-      { 
-        name: "Reading level saved", 
+      {
+        name: "Reading level saved",
         value: state.styleGuide?.readingLevel,
-        expected: "Grade 6"
+        expected: "Grade 6",
       },
-      { 
-        name: "Current phase", 
+      {
+        name: "Current phase",
         value: state.workflow?.currentPhase,
-        expected: "drafting"
+        expected: "drafting",
       },
-      { 
-        name: "Settings customized", 
+      {
+        name: "Settings customized",
         value: state.settingsCustomized,
-        expected: true
+        expected: true,
       },
     ];
 
@@ -247,7 +253,6 @@ async function runWorkshopTest() {
         testsFailed++;
       }
     }
-
   } catch (error) {
     log(`\n❌ Test error: ${error.message}`, "red");
     testsFailed++;
@@ -257,13 +262,16 @@ async function runWorkshopTest() {
   log("\n" + "=".repeat(80), "blue");
   log("TEST SUMMARY", "blue");
   log("=".repeat(80), "blue");
-  
+
   const totalTests = testsPassed + testsFailed;
   const successRate = Math.round((testsPassed / totalTests) * 100);
-  
-  log(`Tests Passed: ${testsPassed}/${totalTests}`, testsPassed === totalTests ? "green" : "yellow");
+
+  log(
+    `Tests Passed: ${testsPassed}/${totalTests}`,
+    testsPassed === totalTests ? "green" : "yellow"
+  );
   log(`Success Rate: ${successRate}%`, successRate === 100 ? "green" : "yellow");
-  
+
   if (testsPassed === totalTests) {
     log("\n✅ WORKSHOP FLOW IS FULLY FUNCTIONAL!", "green");
     log("Users can successfully complete the translation workshop.", "green");
@@ -271,14 +279,14 @@ async function runWorkshopTest() {
     log("\n⚠️  SOME TESTS FAILED", "red");
     log("The workshop may not be fully functional.", "red");
   }
-  
+
   log("\nTo run this test again: node test/workshop-flow-test.js", "blue");
-  
+
   process.exit(testsFailed > 0 ? 1 : 0);
 }
 
 // Run the test
-runWorkshopTest().catch(error => {
+runWorkshopTest().catch((error) => {
   log(`Fatal error: ${error.message}`, "red");
   process.exit(1);
 });
