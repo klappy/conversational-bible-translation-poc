@@ -306,8 +306,8 @@ const ChatInterfaceMultiAgent = () => {
         <div className='workflow-info'>
           <span className='workflow-phase'>{phaseDisplay}</span>
           <span className='workflow-verse'>{getCurrentVerse()}</span>
-          <button 
-            className='share-button' 
+          <button
+            className='share-button'
             onClick={() => setShowShareModal(true)}
             title='Share session or continue on another device'
           >
@@ -383,11 +383,8 @@ const ChatInterfaceMultiAgent = () => {
           </div>
         )}
       </form>
-      
-      <ShareSession 
-        isOpen={showShareModal} 
-        onClose={() => setShowShareModal(false)} 
-      />
+
+      <ShareSession isOpen={showShareModal} onClose={() => setShowShareModal(false)} />
     </div>
   );
 };

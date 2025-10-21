@@ -32,62 +32,62 @@ const ShareSession = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="share-modal-overlay" onClick={onClose}>
-      <div className="share-modal" onClick={(e) => e.stopPropagation()}>
-        <div className="share-modal-header">
+    <div className='share-modal-overlay' onClick={onClose}>
+      <div className='share-modal' onClick={(e) => e.stopPropagation()}>
+        <div className='share-modal-header'>
           <h2>📤 Share Your Translation Session</h2>
-          <button className="close-button" onClick={onClose}>
+          <button className='close-button' onClick={onClose}>
             ✕
           </button>
         </div>
 
-        <div className="share-modal-content">
-          <div className="share-section">
+        <div className='share-modal-content'>
+          <div className='share-section'>
             <h3>📱 Scan to Continue on Mobile</h3>
-            <div className="qr-code-container">
+            <div className='qr-code-container'>
               <QRCodeSVG
                 value={sessionUrl}
                 size={200}
-                level="M"
+                level='M'
                 includeMargin={true}
-                bgColor="#ffffff"
-                fgColor="#000000"
+                bgColor='#ffffff'
+                fgColor='#000000'
               />
             </div>
-            <p className="help-text">Scan this QR code with your phone to continue translating there</p>
+            <p className='help-text'>
+              Scan this QR code with your phone to continue translating there
+            </p>
           </div>
 
-          <div className="share-divider">
+          <div className='share-divider'>
             <span>OR</span>
           </div>
 
-          <div className="share-section">
+          <div className='share-section'>
             <h3>🔗 Share Link</h3>
-            <div className="url-container">
-              <input type="text" value={sessionUrl} readOnly className="url-input" />
-              <button onClick={handleCopyUrl} className="copy-button">
+            <div className='url-container'>
+              <input type='text' value={sessionUrl} readOnly className='url-input' />
+              <button onClick={handleCopyUrl} className='copy-button'>
                 {copied ? "✓ Copied!" : "📋 Copy"}
               </button>
             </div>
-            <p className="help-text">
+            <p className='help-text'>
               Share this link to collaborate or continue on another device
             </p>
           </div>
 
-          <div className="share-section">
+          <div className='share-section'>
             <h3>🔑 Session Code</h3>
-            <div className="session-code-container">
-              <code className="session-code">{sessionId}</code>
-              <button onClick={handleCopyCode} className="copy-code-button">
+            <div className='session-code-container'>
+              <code className='session-code'>{sessionId}</code>
+              <button onClick={handleCopyCode} className='copy-code-button'>
                 📋
               </button>
             </div>
-            <p className="help-text">
-              Your unique session identifier (for reference)
-            </p>
+            <p className='help-text'>Your unique session identifier (for reference)</p>
           </div>
 
-          <div className="share-info">
+          <div className='share-info'>
             <h4>ℹ️ How It Works</h4>
             <ul>
               <li>Your translation progress is automatically saved</li>

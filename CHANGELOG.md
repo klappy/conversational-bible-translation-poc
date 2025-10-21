@@ -5,6 +5,59 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2025-10-21
+
+### Added
+
+- **Persistent State Storage**: Implemented Netlify Blobs for serverless state persistence
+  - Translation progress now survives page refreshes and function restarts
+  - Automatic state saving with no data loss
+  - Replaced ephemeral `/tmp` storage with reliable cloud storage
+  
+- **Multi-User Session Support**: Enable workshop scenarios with isolated sessions
+  - Each user gets independent translation workspace via URL parameters
+  - Session isolation ensures no data mixing between users
+  - Support for 100+ concurrent workshop attendees
+  - Session management via `?session=workshop_user1` URL pattern
+  
+- **Session Sharing Features**: Share and continue translations across devices
+  - QR code generation for instant mobile access
+  - Shareable links for collaboration
+  - Copy session URL with one click
+  - Continue translations on phone, tablet, or another computer
+  - "Share" button prominently displayed in interface header
+  
+- **Session Management Utilities**: New tools for session handling
+  - `sessionManager.js` utility for session ID generation and management
+  - Session info component for debugging
+  - Workshop mode detection
+  - Automatic session persistence in localStorage
+
+### Changed
+
+- **Backend Architecture**: Refactored state management from file-based to Blob storage
+  - `canvas-state.js` now uses `@netlify/blobs` package
+  - Added session-aware state keys
+  - Improved error handling and fallback to defaults
+  
+- **API Integration**: Updated all frontend API calls to include session headers
+  - Added `X-Session-ID` header to all requests
+  - Session context preserved across all API interactions
+
+### Fixed
+
+- **State Persistence Issues**: Resolved all data loss problems in production
+  - State now properly persists between serverless function invocations
+  - No more lost translations after page refresh
+  - Consistent state across all function calls
+
+### Documentation
+
+- Created `MULTI_USER_ARCHITECTURE.md` for technical implementation details
+- Added `PERSISTENCE_TESTING_GUIDE.md` for testing the new features
+- Created `SHARING_GUIDE.md` with user instructions for session sharing
+- Updated deployment guides with persistence information
+
 ## [0.3.5] - 2025-10-20
 
 ### Fixed
