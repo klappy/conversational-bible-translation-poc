@@ -1,0 +1,462 @@
+Running parallel tests...
+
+🎬 Starting Parallel Workshop Simulation
+==========================================
+Running tests in batches of 3 for server stability
+
+
+📦 Running batch 1/3
+   Tests: curious_beginner (suggestions), children_minister (suggestions), esl_teacher (suggestions)
+
+🚀 Starting curious_beginner (suggestions mode)...
+
+🎭 Workshop Attendee: Maria
+📝 Background: First-time Bible translator, Spanish speaker
+
+============================================================
+
+👤 Maria: "Hello! I'm interested in translating the Bible for my youth group"
+
+🚀 Starting children_minister (suggestions mode)...
+
+🎭 Workshop Attendee: Pastor Amy
+📝 Background: Children's ministry leader simplifying for kids
+
+============================================================
+
+👤 Pastor Amy: "Hi! I need to make the Bible understandable for kids"
+
+🚀 Starting esl_teacher (suggestions mode)...
+
+🎭 Workshop Attendee: Ms. Chen
+📝 Background: ESL teacher needing simplified text for adult learners
+
+============================================================
+
+👤 Ms. Chen: "Good morning, I'm looking to create accessible Bible texts for my ESL students"
+
+📚 Resource Librarian: "Here is the text from **Ruth 1:1** in the *Berean Study Bible (BSB)*:
+
+> *In the days when the judge..."
+
+📖 Translation Assistant: "**Got it!** We're focusing on making the Bible understandable, especially for kids.
+
+Now, let's dive..."
+   💡 Suggestions: [Begin understanding, Review settings, Change a setting]
+
+👤 Pastor Amy: "OK, so this is about a family that had to move because there was no food. How should I explain this to kids?"
+
+📚 Resource Librarian: "Here is the text from **Ruth 1:1** in the *Berean Study Bible (BSB)*:
+
+> *In the days when the judge..."
+
+📖 Translation Assistant: "Great to hear you're interested in translating for your youth group!
+
+Now that we've set up your tra..."
+   💡 Suggestions: [Begin understanding, Review settings, Change a setting]
+
+👤 Maria: "Oh interesting! So this is talking about the time of the judges and a famine. What does Moab represent here?"
+
+📚 Resource Librarian: "Here is the text from **Ruth 1:1** in the *Berean Study Bible (BSB)*:
+
+> *In the days when the judge..."
+
+📖 Translation Assistant: "**Great!** Now that we have your translation brief set up, let's begin understanding the text.
+
+— *R..."
+   💡 Suggestions: [Begin understanding, Review settings, Change a setting]
+
+👤 Ms. Chen: "I see - a time period, a problem (famine), and a solution (migration). Let me work through this for my students."
+
+📖 Translation Assistant: "Let's work through this verse **phrase by phrase**.
+
+First phrase: *'In the days when the judges rul..."
+   💡 Suggestions: [Tell me a story about this, Brief explanation, Historical context, Multiple choice options]
+
+✅ Conversation complete!
+
+============================================================
+📊 TEST REPORT
+============================================================
+Persona: Ms. Chen
+Exchanges: 2
+Final Phase: understanding
+Style Guide Complete: true
+Has Draft: false
+Success: ❌
+
+Collected Settings:
+  conversationLanguage: English
+  sourceLanguage: English
+  targetLanguage: English
+  languagePair: English → English
+  readingLevel: Grade 1
+  tone: Straightforward and hopeful
+  philosophy: Meaning-based
+  approach: Meaning-based
+  targetCommunity: Teens
+
+📚 Resource Librarian: "From Ruth 1:1 in the Berean Study Bible:
+
+> *In the days when the judges ruled, there was a famine i..."
+
+📖 Translation Assistant: "Let's work through this verse **phrase by phrase**.
+
+First phrase: *'In the days when the judges rul..."
+   💡 Suggestions: [Tell me a story about this, Brief explanation, Historical context, Multiple choice options]
+
+📚 Resource Librarian: ""From Ruth 1:1 in the Berean Study Bible (BSB):
+
+*In the days when the judges ruled, there was a fam..."
+
+📖 Translation Assistant: "Let's work through this verse **phrase by phrase**.
+
+First phrase: *'In the days when the judges rul..."
+   💡 Suggestions: [Tell me a story about this, Brief explanation, Historical context, Multiple choice options]
+
+✅ Conversation complete!
+
+============================================================
+📊 TEST REPORT
+============================================================
+Persona: Maria
+Exchanges: 2
+Final Phase: understanding
+Style Guide Complete: true
+Has Draft: false
+Success: ❌
+
+Collected Settings:
+  conversationLanguage: English
+  sourceLanguage: English
+  targetLanguage: English
+  languagePair: English → English
+  readingLevel: Grade 1
+  tone: Straightforward and hopeful
+  philosophy: Meaning-based
+  approach: Meaning-based
+  targetCommunity: Teens
+
+✅ Conversation complete!
+
+============================================================
+📊 TEST REPORT
+============================================================
+Persona: Pastor Amy
+Exchanges: 2
+Final Phase: understanding
+Style Guide Complete: true
+Has Draft: false
+Success: ❌
+
+Collected Settings:
+  conversationLanguage: English
+  sourceLanguage: English
+  targetLanguage: English
+  languagePair: English → English
+  readingLevel: Grade 1
+  tone: Straightforward and hopeful
+  philosophy: Meaning-based
+  approach: Meaning-based
+  targetCommunity: Teens
+   ⏸️  Pausing before next batch...
+
+📦 Running batch 2/3
+   Tests: experienced_translator (manual), youth_pastor (manual), senior_ministry (manual)
+
+🚀 Starting experienced_translator (manual mode)...
+
+🎭 Workshop Attendee: John
+📝 Background: Has done translation before, knows what he wants
+
+============================================================
+
+👤 John: "Hi, let's get started with translation"
+
+🚀 Starting youth_pastor (manual mode)...
+
+🎭 Workshop Attendee: Jake
+📝 Background: Youth pastor modernizing scripture for teens
+
+============================================================
+
+👤 Jake: "What's up! Need help modernizing scripture for high schoolers"
+
+🚀 Starting senior_ministry (manual mode)...
+
+🎭 Workshop Attendee: Reverend Thomas
+📝 Background: Senior ministry leader, wants traditional but clear
+
+============================================================
+
+👤 Reverend Thomas: "Greetings, I minister to seniors and need clear Bible texts"
+
+📚 Resource Librarian: "Here is the text from **Ruth 1:1** in the *Berean Study Bible (BSB)*:
+
+> *In the days when the judge..."
+
+📖 Translation Assistant: "Now that we've set up your translation brief, let's begin understanding the text.
+
+— *Ready to explo..."
+   💡 Suggestions: [Continue, Review settings, Start over]
+
+👤 John: "Yes, I understand. The temporal setting and geographical movement are key. Let's continue."
+
+📚 Resource Librarian: "I'll provide the scripture for context."
+
+📖 Translation Assistant: "**Great to see your enthusiasm!**
+
+Now that we've set up your translation brief, let's begin underst..."
+   💡 Suggestions: [Begin understanding, Review settings, Change a setting]
+
+👤 Jake: "Got it - tough times, family has to relocate. How can I make this relatable for teens?"
+
+📚 Resource Librarian: "Here is the text from **Ruth 1:1** in the *Berean Study Bible (BSB)*:
+
+> *In the days when the judge..."
+
+📖 Translation Assistant: "**Great!** Now that we've set up your translation brief, let's begin understanding the text.
+
+— *Rea..."
+   💡 Suggestions: [Continue, Review settings, Start over]
+
+👤 Reverend Thomas: "I understand - the time of judges, famine in the land, journey to Moab. Let's proceed with clarity."
+
+📚 Resource Librarian: ""From **Ruth 1:1** in the *Berean Study Bible (BSB)*:
+
+> *In the days when the judges ruled, there w..."
+
+📖 Translation Assistant: "Let's work through this verse **phrase by phrase**.
+
+First phrase: *'In the days when the judges rul..."
+   💡 Suggestions: [Tell me a story about this, Brief explanation, Historical context, Multiple choice options]
+
+📚 Resource Librarian: "Here is the text from **Ruth 1:1** in the *Berean Study Bible (BSB)*:
+
+> *In the days when the judge..."
+
+📖 Translation Assistant: "Let's work through this verse **phrase by phrase**.
+
+First phrase: *'In the days when the judges rul..."
+   💡 Suggestions: [Tell me a story about this, Brief explanation, Historical context, Multiple choice options]
+
+📚 Resource Librarian: "Here is the text from **Ruth 1:1** in the *Berean Study Bible (BSB)*:
+
+> *In the days when the judge..."
+
+📖 Translation Assistant: "Let's work through this verse **phrase by phrase**.
+
+First phrase: *'In the days when the judges rul..."
+   💡 Suggestions: [Tell me a story about this, Brief explanation, Historical context, Multiple choice options]
+
+✅ Conversation complete!
+
+============================================================
+📊 TEST REPORT
+============================================================
+Persona: John
+Exchanges: 2
+Final Phase: understanding
+Style Guide Complete: true
+Has Draft: false
+Success: ❌
+
+Collected Settings:
+  conversationLanguage: English
+  sourceLanguage: English
+  targetLanguage: English
+  languagePair: English → English
+  readingLevel: Grade 1
+  tone: Straightforward and hopeful
+  philosophy: Meaning-based
+  approach: Meaning-based
+  targetCommunity: Teens
+
+✅ Conversation complete!
+
+============================================================
+📊 TEST REPORT
+============================================================
+Persona: Reverend Thomas
+Exchanges: 2
+Final Phase: understanding
+Style Guide Complete: true
+Has Draft: false
+Success: ❌
+
+Collected Settings:
+  conversationLanguage: English
+  sourceLanguage: English
+  targetLanguage: English
+  languagePair: English → English
+  readingLevel: Grade 1
+  tone: Straightforward and hopeful
+  philosophy: Meaning-based
+  approach: Meaning-based
+  targetCommunity: Teens
+
+✅ Conversation complete!
+
+============================================================
+📊 TEST REPORT
+============================================================
+Persona: Jake
+Exchanges: 2
+Final Phase: understanding
+Style Guide Complete: true
+Has Draft: false
+Success: ❌
+
+Collected Settings:
+  conversationLanguage: English
+  sourceLanguage: English
+  targetLanguage: English
+  languagePair: English → English
+  readingLevel: Grade 1
+  tone: Straightforward and hopeful
+  philosophy: Meaning-based
+  approach: Meaning-based
+  targetCommunity: Teens
+   ⏸️  Pausing before next batch...
+
+📦 Running batch 3/3
+   Tests: confused_user (mixed), prison_chaplain (mixed)
+
+🚀 Starting confused_user (mixed mode)...
+
+🎭 Workshop Attendee: Sarah
+📝 Background: Not sure about the process, needs guidance
+
+============================================================
+
+👤 Sarah: "Hello? Can someone help me?"
+
+🚀 Starting prison_chaplain (mixed mode)...
+
+🎭 Workshop Attendee: Chaplain Mike
+📝 Background: Prison chaplain needing accessible version
+
+============================================================
+
+👤 Chaplain Mike: "Hi, I work in corrections and need plain language Bible texts"
+
+📚 Resource Librarian: "Here is the text from **Ruth 1:1** in simple language:
+
+> *Back when the judges were in charge, ther..."
+
+📖 Translation Assistant: "Now that we've set up your translation brief, let's begin understanding the text.
+
+— *Ready to explo..."
+   💡 Suggestions: [Begin understanding, Review settings, Change a setting]
+
+👤 Chaplain Mike: "A story about hardship and having to leave home. This will resonate. Let's continue."
+
+📚 Resource Librarian: "Here is the text from **Ruth 1:1** in the *Berean Study Bible (BSB)*:
+
+> *In the days when the judge..."
+
+📖 Translation Assistant: "Now that we've set up your translation brief, let's begin understanding the text.
+
+— *Ready to explo..."
+   💡 Suggestions: [Begin understanding, Review settings, Change a setting]
+
+👤 Sarah: "I think I understand - there was a famine and someone went to Moab?"
+
+📚 Resource Librarian: "Here is the text from **Ruth 1:1** in the *Berean Study Bible (BSB)*:
+
+> *In the days when the judge..."
+
+📖 Translation Assistant: "Let's work through this verse **phrase by phrase**.
+
+First phrase: *'In the days when the judges rul..."
+   💡 Suggestions: [Tell me a story about this, Brief explanation, Historical context, Multiple choice options]
+
+📚 Resource Librarian: "Here is the text from **Ruth 1:1** in the *Berean Study Bible (BSB)*:
+
+*In the days when the judges ..."
+
+📖 Translation Assistant: "Great start! Let's work through this verse **phrase by phrase**.
+
+First phrase: *'In the days when t..."
+   💡 Suggestions: [Tell me a story about this, Brief explanation, Historical context, Multiple choice options]
+
+✅ Conversation complete!
+
+============================================================
+📊 TEST REPORT
+============================================================
+Persona: Chaplain Mike
+Exchanges: 2
+Final Phase: understanding
+Style Guide Complete: true
+Has Draft: false
+Success: ❌
+
+Collected Settings:
+  conversationLanguage: English
+  sourceLanguage: English
+  targetLanguage: English
+  languagePair: English → English
+  readingLevel: Grade 1
+  tone: Straightforward and hopeful
+  philosophy: Meaning-based
+  approach: Meaning-based
+  targetCommunity: Teens
+
+✅ Conversation complete!
+
+============================================================
+📊 TEST REPORT
+============================================================
+Persona: Sarah
+Exchanges: 2
+Final Phase: understanding
+Style Guide Complete: true
+Has Draft: false
+Success: ❌
+
+Collected Settings:
+  conversationLanguage: English
+  sourceLanguage: English
+  targetLanguage: English
+  languagePair: English → English
+  readingLevel: Grade 1
+  tone: Straightforward and hopeful
+  philosophy: Meaning-based
+  approach: Meaning-based
+  targetCommunity: Teens
+
+============================================================
+🏁 PARALLEL TEST SUMMARY
+============================================================
+
+📊 Overall Results:
+   Success Rate: 0/8 (0%)
+   Total Duration: 32s
+   Average Test Duration: 9s
+
+🎯 Results by Interaction Mode:
+   suggestions: 0/3 successful
+   manual: 0/3 successful
+   mixed: 0/2 successful
+
+💬 Interaction Statistics:
+
+❌ Failed Tests:
+   Maria (suggestions): Unknown error
+   Pastor Amy (suggestions): Unknown error
+   Ms. Chen (suggestions): Unknown error
+   John (manual): Unknown error
+   Jake (manual): Unknown error
+   Reverend Thomas (manual): Unknown error
+   Sarah (mixed): Unknown error
+   Chaplain Mike (mixed): Unknown error
+
+⚡ Performance Metrics:
+   Parallel Speedup: 8x
+   Tests per minute: 15
+
+📝 Interaction Mode Analysis:
+   Suggestions-only success rate: 0%
+   Manual-only success rate: 0%
+Completed. Results: 8

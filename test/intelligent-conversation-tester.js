@@ -783,6 +783,9 @@ export async function testPersona(persona = "curious_beginner", baseUrl = "http:
   return await attendee.startConversation();
 }
 
+// Export the class for use in other test modules
+export { IntelligentWorkshopAttendee };
+
 // Allow running from command line
 if (process.argv[1] === import.meta.url) {
   const persona = process.argv[2] || "all";

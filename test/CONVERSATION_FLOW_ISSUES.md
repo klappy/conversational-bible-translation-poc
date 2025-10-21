@@ -59,7 +59,7 @@ PLANNING PHASE (Settings Collection)
 2. "English"
    → "Great! What language are we translating from?"
 
-3. "English" 
+3. "English"
    → "And translating to?"
 
 4. "Simple English"
@@ -85,7 +85,7 @@ UNDERSTANDING PHASE
 10-12. Phrase by phrase understanding
    → Clear progression through each phrase
 
-DRAFTING PHASE  
+DRAFTING PHASE
 ================================
 13. "Ready to draft?"
    → User provides draft
@@ -100,6 +100,7 @@ DRAFTING PHASE
 ## The Core Problems Visualized
 
 ### Problem 1: Phase Jumping
+
 ```
 User State:        [Planning]────[Planning]────[Planning]────[???]
 System Thinks:     [Planning]────[Drafting]────[Understanding]────[Drafting]
@@ -108,18 +109,20 @@ System Thinks:     [Planning]────[Drafting]────[Understanding]�
 ```
 
 ### Problem 2: Settings Collection Chaos
+
 ```
 Expected:  Language → Source → Target → Community → Level → Tone → Approach → DONE
-  
-Reality:   Language → [JUMP TO DRAFT] ← Level → Level → Level → [ASK FOR VERSE] → 
+
+Reality:   Language → [JUMP TO DRAFT] ← Level → Level → Level → [ASK FOR VERSE] →
            Level → [FINALLY TONE] → Tone → Tone → [CONFUSED] → Approach? → Level?
 ```
 
 ### Problem 3: State Not Persisting
+
 ```
 User Input                 System Response           State Update
 "Here's my draft..."   →   "Noted!"             →   ❌ NOT SAVED
-"Here's my draft..."   →   "Great!"             →   ❌ NOT SAVED  
+"Here's my draft..."   →   "Great!"             →   ❌ NOT SAVED
 "Here's my draft..."   →   "Recorded!"          →   ❌ NOT SAVED
 [User frustration builds]
 ```
@@ -127,19 +130,21 @@ User Input                 System Response           State Update
 ## Specific Agent Confusion
 
 ### Canvas Scribe Issues
+
 ```
 SHOULD DO:
 User: "Grade 4"
-Scribe: "Noted! Setting reading level to Grade 4" 
+Scribe: "Noted! Setting reading level to Grade 4"
 → Updates: state.styleGuide.readingLevel = "Grade 4"
 
 ACTUALLY DOES:
-User: "Grade 4"  
+User: "Grade 4"
 Scribe: "Noted!"
 → Updates: Nothing or wrong field
 ```
 
 ### Orchestrator Issues
+
 ```
 SHOULD DO:
 - Check current phase from state
@@ -153,6 +158,7 @@ ACTUALLY DOES:
 ```
 
 ### Translation Assistant Issues
+
 ```
 SHOULD DO:
 - Check what settings are missing
@@ -170,15 +176,18 @@ ACTUALLY DOES:
 ### 😫 Frustration Points
 
 1. **"Why do I keep repeating myself?"**
+
    - User says "Grade 4" six times
    - System never seems to "get it"
 
 2. **"What phase are we in?"**
+
    - System says drafting
    - Still asking for settings
    - User confused about progress
 
 3. **"Where's my draft?"**
+
    - User provides complete draft
    - System doesn't save it
    - Has to provide again
@@ -191,12 +200,14 @@ ACTUALLY DOES:
 ### 🎯 Success Factors
 
 Successful conversations happen when:
+
 - User is patient with repetition
 - User provides draft multiple times
 - Conversation is long enough (20+ exchanges)
 - User doesn't try to be efficient
 
 Failed conversations happen when:
+
 - User is experienced/efficient (John)
 - User tries to skip ahead (Jake)
 - System jumps phases too early
@@ -229,6 +240,7 @@ Failed conversations happen when:
 ## Recommendations for Breaking Loops
 
 ### 1. Detect Repetition
+
 ```python
 if user_input == last_user_input:
     # User is repeating
@@ -237,6 +249,7 @@ if user_input == last_user_input:
 ```
 
 ### 2. Track Settings Properly
+
 ```python
 settings_needed = {
     'conversationLanguage': None,
@@ -251,6 +264,7 @@ settings_needed = {
 ```
 
 ### 3. Clear Phase Transitions
+
 ```python
 if all_settings_complete():
     print("Great! All settings collected. Moving to understanding phase...")
@@ -258,6 +272,7 @@ if all_settings_complete():
 ```
 
 ### 4. Save Drafts Immediately
+
 ```python
 if looks_like_draft(user_input):
     save_draft(user_input)
@@ -268,8 +283,9 @@ if looks_like_draft(user_input):
 ## Summary
 
 The conversation flow breaks down due to:
+
 1. **Phase confusion** - System doesn't know where it is
-2. **State not persisting** - Data not saved properly  
+2. **State not persisting** - Data not saved properly
 3. **Repetition loops** - Same exchanges over and over
 4. **Settings chaos** - No systematic collection
 

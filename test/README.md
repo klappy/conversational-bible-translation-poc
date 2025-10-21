@@ -79,7 +79,22 @@ Our tests don't just send pre-scripted messages. They:
 
 ## Running Tests
 
-### Test All Personas (Workshop Simulation)
+### 🚀 New: Parallel Testing (3-6x Faster!)
+
+```bash
+# Quick smoke test (2 personas, <30s)
+npm run test:quick
+
+# Run all tests in parallel batches
+npm run test:parallel
+
+# Test interaction modes
+npm run test:suggestions  # Only use quick responses
+npm run test:manual       # Only type manually
+npm run test:mixed        # Mix both modes
+```
+
+### Traditional Sequential Tests
 
 ```bash
 # Test all personas locally

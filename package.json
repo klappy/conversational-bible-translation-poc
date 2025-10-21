@@ -23,7 +23,13 @@
     "test:youth": "node test/intelligent-conversation-tester.js youth_pastor",
     "test:senior": "node test/intelligent-conversation-tester.js senior_ministry",
     "test:prison": "node test/intelligent-conversation-tester.js prison_chaplain",
-    "test:workshop:prod": "node test/intelligent-conversation-tester.js all https://conversational-bible-translation-poc.netlify.app"
+    "test:workshop:prod": "node test/intelligent-conversation-tester.js all https://conversational-bible-translation-poc.netlify.app",
+    "test:parallel": "node test/parallel-test-runner.js parallel",
+    "test:suggestions": "node test/parallel-test-runner.js suggestions",
+    "test:manual": "node test/parallel-test-runner.js manual",
+    "test:mixed": "node test/parallel-test-runner.js mixed",
+    "test:quick": "node test/parallel-test-runner.js quick",
+    "test:parallel:prod": "node test/parallel-test-runner.js parallel https://conversational-bible-translation-poc.netlify.app"
   },
   "dependencies": {
     "@netlify/blobs": "^10.1.0",
