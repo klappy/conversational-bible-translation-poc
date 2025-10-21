@@ -7,9 +7,11 @@
 ## Evidence from Your Browser Session
 
 ### Phase 1: Planning ✅ (COMPLETED)
+
 From your logs, you completed all settings and reached Understanding phase.
 
 ### Phase 2: Understanding ✅ (IN PROGRESS)
+
 **From logs lines 809-865:**
 
 ```
@@ -22,9 +24,9 @@ Orchestrator decided: {
 
 Resource Librarian: [Presented Ruth 1:1]
 
-Primary Agent: 
+Primary Agent:
 "Let's begin understanding the text.
-The verse we'll focus on is Ruth 1:1. 
+The verse we'll focus on is Ruth 1:1.
 *Here it is:*
 *'In the days when the judges ruled, there was a famine in the land.'*
 Let's work through this verse **phrase by phrase**.
@@ -40,18 +42,21 @@ The system presented scripture and is asking about the first phrase.
 ### Continue Understanding Phase:
 
 **User responds to phrase 1:**
+
 ```
 User: "This talks about the time period before Israel had kings"
 → System: Acknowledges, asks about phrase 2: "there was a famine in the land"
 ```
 
 **User responds to phrase 2:**
+
 ```
 User: "It means there wasn't enough food"
 → System: Acknowledges, continues through all phrases
 ```
 
 **After all phrases understood:**
+
 ```
 System: "Excellent! We've understood all phrases. Ready to draft your translation?"
 → Transitions to Drafting phase
@@ -60,6 +65,7 @@ System: "Excellent! We've understood all phrases. Ready to draft your translatio
 ### Phase 3: Drafting
 
 **User provides draft:**
+
 ```
 User: "A long time ago when there were no kings in Israel, there was no food. So a man from Bethlehem went to live in another country called Moab with his wife and two sons."
 
@@ -79,6 +85,7 @@ Canvas Scribe saves to:
 ## Proof That Drafts Can Be Saved
 
 ### Test: Direct Draft Save
+
 ```bash
 # Update state with a draft
 curl -X POST http://localhost:8888/.netlify/functions/canvas-state/update \
@@ -109,16 +116,19 @@ curl http://localhost:8888/.netlify/functions/canvas-state \
 ### What's Proven to Work:
 
 1. ✅ **Name Collection**
+
    - User provides name
    - Saved to userName
    - Personal greeting
 
 2. ✅ **Settings Collection (7 parameters)**
+
    - Each setting saves individually
    - Multiple settings persist in same session
    - No repetition loops
 
 3. ✅ **Understanding Phase Entry**
+
    - Orchestrator transitions correctly
    - Resource Librarian presents scripture
    - Primary Agent asks phrase-by-phrase questions
@@ -131,6 +141,7 @@ curl http://localhost:8888/.netlify/functions/canvas-state \
 ### What Needs Browser Testing:
 
 **Completing the full conversation:**
+
 1. Answer phrase understanding questions
 2. Provide translation draft
 3. See draft displayed in Scripture Canvas panel
@@ -139,6 +150,7 @@ curl http://localhost:8888/.netlify/functions/canvas-state \
 ### Based on Architecture:
 
 The system is designed to:
+
 - Save each draft to `scriptureCanvas.verses[verseRef].draft`
 - Display in the right sidebar (desktop) or swipe card (mobile)
 - Allow refinement and iterations
@@ -165,4 +177,3 @@ The system is designed to:
 ---
 
 **Conclusion:** The workflow CAN be completed. The infrastructure is there. Browser testing will prove the full user experience works end-to-end.
-

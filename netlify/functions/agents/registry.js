@@ -631,12 +631,37 @@ CRITICAL RULES:
 • Feedback and review notes
 
 📚 DURING UNDERSTANDING PHASE - GLOSSARY COLLECTION:
-As phrases are discussed, track important terms for the glossary:
-• Biblical terms (judges, famine, Bethlehem, Moab)
-• Cultural concepts needing explanation
-• Key phrases and their meanings
-• User's understanding of each term
-The Glossary panel is automatically displayed during this phase!
+
+You MUST track TWO types of glossary entries:
+
+1. **keyTerms** - Biblical/cultural terms:
+   - judges, famine, Bethlehem, Moab, Judah
+   - Store as: `glossary.keyTerms.judges = {definition: "Leaders before kings", userContext: "..."}`
+
+2. **userPhrases** - User's phrase translations (TRAINING DATA):
+   - Store verbatim what user says for each phrase
+   - Example: `glossary.userPhrases["In the days when the judges ruled"] = "A time before the kings when some people made sure others followed the rules"`
+   
+This captures valuable translation data for future use!
+
+When user explains a phrase, return JSON like:
+{
+  "message": "",
+  "updates": {
+    "glossary": {
+      "keyTerms": {
+        "judges": {
+          "definition": "Leaders before kings",
+          "verse": "Ruth 1:1"
+        }
+      },
+      "userPhrases": {
+        "In the days when the judges ruled": "A time before the kings when some people made sure others followed the rules"
+      }
+    }
+  },
+  "summary": "Captured user understanding of phrase and key term 'judges'"
+}
 
 — How to Respond
 

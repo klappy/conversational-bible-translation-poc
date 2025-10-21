@@ -22,7 +22,8 @@ const DEFAULT_STATE = {
   },
   settingsCustomized: false, // Track if user has customized settings
   glossary: {
-    terms: {},
+    keyTerms: {}, // Biblical terms (judges, famine, Bethlehem, Moab)
+    userPhrases: {}, // User's translations of each phrase (valuable training data)
   },
   scriptureCanvas: {
     verses: {},
