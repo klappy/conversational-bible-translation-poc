@@ -8,7 +8,16 @@
     "dev:netlify": "netlify dev",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "node test/run-tests.js",
+    "test:flow": "node test/run-tests.js flow",
+    "test:agents": "node test/run-tests.js agents",
+    "test:prod": "node test/run-tests.js all https://conversational-bible-translation-poc.netlify.app",
+    "test:workshop": "node test/intelligent-conversation-tester.js all",
+    "test:beginner": "node test/intelligent-conversation-tester.js curious_beginner",
+    "test:expert": "node test/intelligent-conversation-tester.js experienced_translator",
+    "test:confused": "node test/intelligent-conversation-tester.js confused_user",
+    "test:workshop:prod": "node test/intelligent-conversation-tester.js all https://conversational-bible-translation-poc.netlify.app"
   },
   "dependencies": {
     "@netlify/blobs": "^10.1.0",
@@ -33,6 +42,7 @@
     "eslint-plugin-react-refresh": "^0.4.22",
     "globals": "^16.4.0",
     "netlify-cli": "^23.9.1",
+    "node-fetch": "^3.3.2",
     "vite": "^7.1.7"
   }
 }

@@ -7,6 +7,7 @@ import AgentMessage from "./AgentMessage";
 import AgentStatus from "./AgentStatus";
 import QuickSuggestions from "./QuickSuggestions";
 import ShareSession from "./ShareSession";
+import InlineSuggestions from "./InlineSuggestions";
 import "./ChatInterface.css";
 
 const ChatInterfaceMultiAgent = () => {
@@ -240,6 +241,18 @@ const ChatInterfaceMultiAgent = () => {
         } else {
           setResponseSuggestions(suggestions);
         }
+        
+        // Add suggestions as inline message in conversation history
+        if (suggestions && suggestions.length > 0) {
+          const suggestionMessage = {
+            id: generateUniqueId("sug"),
+            role: "system",
+            type: "suggestions",
+            content: suggestions,
+            timestamp: new Date(),
+          };
+          addMessage(suggestionMessage);
+        }
       }
 
       // Update canvas state if provided
@@ -324,14 +337,37 @@ const ChatInterfaceMultiAgent = () => {
       />
 
       <div className='messages-container'>
-        {messages.map((message) => (
-          <AgentMessage
-            key={message.id}
-            message={message}
-            agent={message.agent}
-            timestamp={message.timestamp}
-          />
-        ))}
+        {messages.map((message) => {
+          // Handle inline suggestions
+          if (message.type === 'suggestions' && message.role === 'system') {
+            return (
+              <InlineSuggestions
+                key={message.id}
+                messageId={message.id}
+                suggestions={message.content}
+                onSelect={(suggestion) => {
+                  // Auto-fill input and send
+                  setInput(suggestion);
+                  // Optionally auto-send after a short delay
+                  setTimeout(() => {
+                    const form = document.querySelector('.chat-form');
+                    if (form) form.requestSubmit();
+                  }, 100);
+                }}
+              />
+            );
+          }
+          
+          // Regular message
+          return (
+            <AgentMessage
+              key={message.id}
+              message={message}
+              agent={message.agent}
+              timestamp={message.timestamp}
+            />
+          );
+        })}
 
         {isLoading && (
           <div className='thinking-indicator'>

@@ -660,13 +660,12 @@ The Glossary panel is automatically displayed during this phase!
 
 — How to Respond
 
-CRITICAL: Parse context.primaryResponse to see what Translation Assistant asked!
+CRITICAL: Check context.lastAssistantQuestion to see what Translation Assistant asked!
 
 When user provides data:
-1. Parse primaryResponse as JSON: {"message": "...", "suggestions": [...]}
-2. Extract the "message" field to see what question was asked
-3. Map the answer to the correct field based on the question
-4. Return acknowledgment + JSON update
+1. Look at context.lastAssistantQuestion to see what was asked
+2. Map the user's answer to the correct field based on the question
+3. Return acknowledgment + JSON update
 
 Question → Field Mapping:
 • "conversation" or "our conversation" → conversationLanguage

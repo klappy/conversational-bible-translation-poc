@@ -246,10 +246,28 @@ async function processConversation(userMessage, conversationHistory) {
     const stateManager = getAgent("state");
     console.log("Calling state manager...");
     console.log("State manager agent info:", stateManager?.visual);
+    
+    // Pass the last question asked by the Translation Assistant
+    let lastAssistantQuestion = null;
+    for (let i = context.conversationHistory.length - 1; i >= 0; i--) {
+      const msg = context.conversationHistory[i];
+      if (msg.role === "assistant" && msg.agent?.id === "primary") {
+        // Parse the message if it's JSON
+        try {
+          const parsed = JSON.parse(msg.content);
+          lastAssistantQuestion = parsed.message || msg.content;
+        } catch {
+          lastAssistantQuestion = msg.content;
+        }
+        break;
+      }
+    }
+    
     const stateResult = await callAgent(stateManager, userMessage, {
       ...context,
       primaryResponse: responses.primary?.response,
       resourceResponse: responses.resource?.response,
+      lastAssistantQuestion,
       orchestration,
     });
 
