@@ -1,11 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import { useTranslation } from "../contexts/TranslationContext";
-import { createResponseProcessor } from "../services/ResponseProcessor";
 import { generateUniqueId } from "../utils/idGenerator";
 import { getSessionHeaders } from "../utils/sessionManager";
 import AgentMessage from "./AgentMessage";
 import AgentStatus from "./AgentStatus";
-import QuickSuggestions from "./QuickSuggestions";
 import ShareSession from "./ShareSession";
 import InlineSuggestions from "./InlineSuggestions";
 import "./ChatInterface.css";
@@ -17,15 +15,9 @@ const ChatInterfaceMultiAgent = () => {
   const [activeAgents, setActiveAgents] = useState(["primary", "state"]);
   const [thinkingAgents, setThinkingAgents] = useState([]);
   const [canvasState, setCanvasState] = useState(null);
-  const [responseSuggestions, setResponseSuggestions] = useState([
-    "I'd like to customize the reading level and style",
-    "Tell me about this translation process",
-    "Use these settings and begin",
-  ]); // Start with default suggestions
   const [showShareModal, setShowShareModal] = useState(false);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
-  const responseProcessorRef = useRef(null);
   const previousMessageCount = useRef(0);
 
   const { messages, addMessage, generateInitialMessage, updateFromServerState } = useTranslation();
@@ -93,14 +85,7 @@ const ChatInterfaceMultiAgent = () => {
       previousMessageCount.current = messages.length;
     }
 
-    // REMOVED: Old code that was detecting questions and clearing suggestions
-    // The backend handles ALL suggestion logic now!
   }, [messages, canvasState]);
-
-  // Initialize response processor (we don't need all the context methods for just detection)
-  useEffect(() => {
-    responseProcessorRef.current = createResponseProcessor({});
-  }, []);
 
   const scrollToBottom = (force = false) => {
     // Only auto-scroll if user is near the bottom or if forced
@@ -118,22 +103,6 @@ const ChatInterfaceMultiAgent = () => {
     }
   };
 
-  const handleOptionClick = (value) => {
-    console.log("🔥🔥🔥 OPTION CLICKED:", value);
-    // Set the input value and submit
-    setInput(value);
-    // Clear suggestions immediately
-    setResponseSuggestions([]);
-    // Auto-submit after a brief delay for user to see the filled input
-    setTimeout(() => {
-      if (inputRef.current) {
-        const form = inputRef.current.closest("form");
-        if (form) {
-          form.requestSubmit();
-        }
-      }
-    }, 100);
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -152,9 +121,6 @@ const ChatInterfaceMultiAgent = () => {
 
     // Force scroll when user sends a message
     scrollToBottom(true);
-
-    // Clear suggestions when user submits
-    setResponseSuggestions([]);
 
     // Set agents to thinking state
     setThinkingAgents(["orchestrator", "primary", "state"]);
@@ -216,32 +182,8 @@ const ChatInterfaceMultiAgent = () => {
           });
         });
 
-        // ALWAYS use suggestions from backend (even if empty array)
-        console.log("\n🎯 FRONTEND: Processing backend response");
-        console.log("Full result:", result);
-        console.log("Suggestions from backend:", result.suggestions);
-
-        // Just store the raw suggestions array - simple and clean
-        const suggestions = result.suggestions || [];
-        console.log(`📝 Setting ${suggestions.length} suggestions:`, suggestions);
-
-        // If no suggestions came from backend, provide some defaults based on context
-        if (suggestions.length === 0) {
-          console.log("⚠️ No suggestions from backend, using context-aware defaults");
-          // Check if this is after an informational response
-          const lastMessage = result.messages?.[result.messages.length - 1];
-          if (lastMessage?.content?.includes("translation process")) {
-            setResponseSuggestions(["Start customizing", "Use default settings", "Tell me more"]);
-          } else if (lastMessage?.content?.includes("Ruth")) {
-            setResponseSuggestions(["Continue", "Tell me more about this", "Start translating"]);
-          } else {
-            setResponseSuggestions(["Continue", "Start over", "Help"]);
-          }
-        } else {
-          setResponseSuggestions(suggestions);
-        }
-
         // Add suggestions as inline message in conversation history
+        const suggestions = result.suggestions || [];
         if (suggestions && suggestions.length > 0) {
           const suggestionMessage = {
             id: generateUniqueId("sug"),
@@ -381,13 +323,6 @@ const ChatInterfaceMultiAgent = () => {
 
         <div ref={messagesEndRef} />
       </div>
-
-      {/* Quick Suggestions - Simple, clean, separated */}
-      <QuickSuggestions
-        suggestions={responseSuggestions}
-        onSelect={handleOptionClick}
-        isLoading={isLoading}
-      />
 
       <form onSubmit={handleSubmit} className='input-form'>
         <div className='input-container'>

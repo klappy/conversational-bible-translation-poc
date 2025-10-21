@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, EffectCards } from "swiper/modules";
-import ChatInterface from "./ChatInterface";
+import ChatInterfaceMultiAgent from "./ChatInterfaceMultiAgent";
 import { useTranslation } from "../contexts/TranslationContext";
 import "swiper/css";
 import "swiper/css/pagination";
@@ -69,7 +69,7 @@ const MobileSwipeView = () => {
       case "chat":
         return (
           <div className='mobile-card chat-card'>
-            <ChatInterface />
+            <ChatInterfaceMultiAgent />
           </div>
         );
 

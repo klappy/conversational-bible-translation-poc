@@ -107,8 +107,9 @@ async function callAgent(agent, message, context, openaiClient) {
  */
 async function getCanvasState(sessionId = "default") {
   try {
-    // Use absolute URL for localhost (Netlify Functions requirement)
-    const stateUrl = "http://localhost:8888/.netlify/functions/canvas-state";
+    // In Netlify Functions, we need full localhost URL for internal calls
+    const baseUrl = "http://localhost:8888";
+    const stateUrl = `${baseUrl}/.netlify/functions/canvas-state`;
 
     const response = await fetch(stateUrl, {
       headers: {
@@ -134,24 +135,39 @@ async function getCanvasState(sessionId = "default") {
 /**
  * Update canvas state
  */
-async function updateCanvasState(updates, agentId = "system") {
+async function updateCanvasState(updates, agentId = "system", sessionId = "default") {
   try {
-    // Use absolute URL for localhost
-    const stateUrl = "http://localhost:8888/.netlify/functions/canvas-state/update";
+    // In Netlify Functions, we need full localhost URL for internal calls
+    const baseUrl = "http://localhost:8888";
+    const stateUrl = `${baseUrl}/.netlify/functions/canvas-state/update`;
+
+    console.log("🔵 updateCanvasState called with:", JSON.stringify(updates, null, 2));
+    console.log("🔵 Session ID:", sessionId);
+    console.log("🔵 Sending to:", stateUrl);
+
+    const payload = { updates, agentId };
+    console.log("🔵 Payload:", JSON.stringify(payload, null, 2));
 
     const response = await fetch(stateUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "X-Session-ID": sessionId,  // ADD SESSION HEADER!
       },
-      body: JSON.stringify({ updates, agentId }),
+      body: JSON.stringify(payload),
     });
 
+    console.log("🔵 Update response status:", response.status);
+    
     if (response.ok) {
-      return await response.json();
+      const result = await response.json();
+      console.log("🔵 Update result:", JSON.stringify(result, null, 2));
+      return result;
+    } else {
+      console.error("🔴 Update failed with status:", response.status);
     }
   } catch (error) {
-    console.error("Error updating canvas state:", error);
+    console.error("🔴 Error updating canvas state:", error);
   }
   return null;
 }
@@ -193,6 +209,16 @@ async function processConversation(userMessage, conversationHistory, sessionId, 
 
   // Only call the agents the orchestrator says we need
   const agentsToCall = orchestration.agents || ["primary", "state"];
+
+  // ALWAYS call Suggestion Helper (in parallel)
+  const suggestionAgent = getAgent("suggestions");
+  if (suggestionAgent) {
+    console.log("Calling Suggestion Helper...");
+    responses.suggestions = await callAgent(suggestionAgent, userMessage, {
+      ...context,
+      orchestration,
+    }, openaiClient);
+  }
 
   // Call Resource Librarian if orchestrator says so
   if (agentsToCall.includes("resource")) {
@@ -279,20 +305,33 @@ async function processConversation(userMessage, conversationHistory, sessionId, 
     // Parse JSON response from Canvas Scribe
     else {
       try {
-        const stateUpdates = JSON.parse(responseText);
-        console.log("Canvas Scribe returned:", stateUpdates);
+        // Canvas Scribe returns: "Noted!\n{JSON}" - extract the JSON part
+        const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          const stateUpdates = JSON.parse(jsonMatch[0]);
+          console.log("Canvas Scribe returned:", stateUpdates);
 
-        // Apply state updates if present
-        if (stateUpdates.updates && Object.keys(stateUpdates.updates).length > 0) {
-          console.log("Applying state updates:", stateUpdates.updates);
-          await updateCanvasState(stateUpdates.updates, "state");
-        }
+          // Apply state updates if present
+          if (stateUpdates.updates && Object.keys(stateUpdates.updates).length > 0) {
+            console.log("Applying state updates:", stateUpdates.updates);
+            await updateCanvasState(stateUpdates.updates, "state", sessionId);
+            console.log("✅ State update completed");
+          }
 
-        // Show the message from JSON (e.g., "Noted!")
-        if (stateUpdates.message) {
+          // Show the message from JSON or extract from beginning of response
+          const acknowledgment = stateUpdates.message || responseText.substring(0, responseText.indexOf(jsonMatch[0])).trim();
+          if (acknowledgment) {
+            responses.state = {
+              ...stateResult,
+              response: acknowledgment,
+            };
+          }
+        } else {
+          // No JSON found, just show the response as-is
+          console.log("Canvas Scribe simple acknowledgment:", responseText);
           responses.state = {
             ...stateResult,
-            response: stateUpdates.message,
+            response: responseText,
           };
         }
       } catch (e) {
@@ -524,8 +563,8 @@ const handler = async (req, context) => {
     const { message, history = [] } = await req.json();
     console.log("Received message:", message);
 
-    // Get session ID from headers
-    const sessionId = req.headers["x-session-id"] || "default";
+    // Get session ID from headers (try both .get() and direct access)
+    const sessionId = req.headers.get?.("x-session-id") || req.headers["x-session-id"] || "default";
     console.log("Session ID from header:", sessionId);
 
     // Initialize OpenAI client with API key from Netlify environment
