@@ -18,37 +18,19 @@
   }
 }
 
-.suggestions-copyable-area {
-  user-select: text; /* Make entire area selectable */
-  -webkit-user-select: text;
-  margin-bottom: 8px;
-}
-
 .suggestions-label {
   font-size: 11px;
   color: #64748b;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  margin-bottom: 6px;
-  font-weight: 600;
-  user-select: text;
-}
-
-.suggestions-text-list {
-  font-size: 13px;
-  color: #475569;
-  line-height: 1.6;
-  user-select: text; /* Explicitly selectable */
   margin-bottom: 8px;
-}
-
-.suggestion-text-line {
-  user-select: text;
-  margin: 2px 0;
-  font-weight: 500;
+  font-weight: 600;
+  user-select: text; /* Make label selectable */
 }
 
 .suggestions-list {
+  user-select: text; /* Make entire list selectable */
+  -webkit-user-select: text;
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
@@ -66,6 +48,8 @@
   transition: all 0.2s ease;
   font-weight: 500;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  user-select: text; /* Make button text selectable! */
+  -webkit-user-select: text;
 }
 
 .suggestion-chip:hover:not(:disabled) {
