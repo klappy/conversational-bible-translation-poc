@@ -24,6 +24,15 @@ async function callAgent(agent, message, context, openaiClient) {
     // Add conversation history as natural messages (for primary agent only)
     if (agent.id === "primary" && context.conversationHistory) {
       context.conversationHistory.forEach((msg) => {
+        // Skip Canvas Scribe acknowledgments
+        if (msg.agent?.id === "state") return;
+        
+        // Skip inline suggestion messages (they're system UI elements, not conversation)
+        if (msg.type === "suggestions" && msg.role === "system") return;
+        
+        // Skip messages with array content (would cause OpenAI errors)
+        if (Array.isArray(msg.content)) return;
+
         // Parse assistant messages if they're JSON
         let content = msg.content;
         if (msg.role === "assistant" && msg.agent?.id === "primary") {
@@ -34,9 +43,6 @@ async function callAgent(agent, message, context, openaiClient) {
             // Not JSON, use as-is
           }
         }
-
-        // Skip Canvas Scribe acknowledgments
-        if (msg.agent?.id === "state") return;
 
         messages.push({
           role: msg.role,
