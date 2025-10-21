@@ -20,18 +20,21 @@ Our tests don't just send pre-scripted messages. They:
 ### Foreign Language Translators
 
 #### 1. **Maria** - Curious Beginner
+
 - First-time Bible translator
 - Spanish speaker translating for youth group
 - Asks questions, needs clarification
 - Engaging and curious
 
 #### 2. **John** - Experienced Translator
+
 - Knows what he wants
 - Direct and efficient
 - Uses suggestions often
 - Translating Greek to French
 
 #### 3. **Sarah** - Confused User
+
 - Uncertain about the process
 - Needs guidance
 - Sometimes changes mind
@@ -40,30 +43,35 @@ Our tests don't just send pre-scripted messages. They:
 ### English-to-English Simplification Personas
 
 #### 4. **Pastor Amy** - Children's Minister
+
 - Simplifying for elementary school kids
 - Needs Grade 1 reading level
 - Fun and engaging tone
 - Meaning-based approach
 
 #### 5. **Ms. Chen** - ESL Teacher
+
 - Teaching adult English learners
 - Needs Grade 4 reading level
 - Clear and respectful tone
 - Methodical approach
 
 #### 6. **Jake** - Youth Pastor
+
 - Modernizing for high schoolers
 - Grade 10 reading level
 - Relatable and authentic tone
 - Makes scripture relevant
 
 #### 7. **Reverend Thomas** - Senior Ministry
+
 - Traditional but clear for seniors
 - Grade 8 reading level
 - Dignified tone
 - Word-for-word preference
 
 #### 8. **Chaplain Mike** - Prison Chaplain
+
 - Accessible for incarcerated individuals
 - Grade 6 reading level
 - Straightforward and hopeful

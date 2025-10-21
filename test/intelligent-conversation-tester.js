@@ -282,22 +282,51 @@ class IntelligentWorkshopAttendee {
     }
 
     // Understanding phase
-    if (content.includes("ruth 1:1") || content.includes("first verse")) {
+    if (content.includes("ruth 1:1") || content.includes("first verse") || content.includes("here is the text")) {
       return this.respondToScripturePresentation();
     }
 
-    if (content.includes("understand") || content.includes("make sense")) {
+    if (content.includes("understand") || content.includes("make sense") || content.includes("clear")) {
       return this.respondToUnderstandingCheck();
     }
+    
+    // If asked about understanding a phrase
+    if (content.includes("phrase") && (content.includes("understand") || content.includes("mean"))) {
+      return "Yes, I understand that phrase. Let's continue.";
+    }
 
-    // Drafting phase
-    if (content.includes("draft") || content.includes("translate this")) {
+    // Drafting phase - be more aggressive about providing drafts
+    if (
+      content.includes("draft") || 
+      content.includes("translate") || 
+      content.includes("try writing") || 
+      content.includes("your version") ||
+      content.includes("ready to draft") ||
+      content.includes("start drafting")
+    ) {
+      return this.provideDraft();
+    }
+    
+    // If we've understood all phrases, offer to draft
+    if (content.includes("understood all") || content.includes("ready to draft")) {
       return this.provideDraft();
     }
 
-    // Use suggestions sometimes
-    if (suggestions && suggestions.length > 0 && Math.random() > 0.3) {
-      return this.selectFromSuggestions(suggestions);
+    // Use suggestions sometimes, especially "Start drafting" 
+    if (suggestions && suggestions.length > 0) {
+      // Always pick drafting-related suggestions
+      const draftSuggestion = suggestions.find(s => 
+        s.toLowerCase().includes("draft") || 
+        s.toLowerCase().includes("start") ||
+        s.toLowerCase().includes("yes")
+      );
+      if (draftSuggestion) {
+        return draftSuggestion;
+      }
+      // Otherwise use suggestions randomly
+      if (Math.random() > 0.3) {
+        return this.selectFromSuggestions(suggestions);
+      }
     }
 
     // Default confused response
@@ -403,15 +432,18 @@ class IntelligentWorkshopAttendee {
    * Respond to scripture presentation
    */
   respondToScripturePresentation() {
-    if (this.persona === "curious_beginner") {
-      return "Oh interesting! So this is talking about the time of the judges and a famine. What does Moab represent here?";
-    }
-
-    if (this.persona === "experienced_translator") {
-      return "Yes, I understand. The temporal setting and geographical movement are key. Let's continue.";
-    }
-
-    return "I think I understand - there was a famine and someone went to Moab?";
+    const responses = {
+      curious_beginner: "Oh interesting! So this is talking about the time of the judges and a famine. What does Moab represent here?",
+      experienced_translator: "Yes, I understand. The temporal setting and geographical movement are key. Let's continue.",
+      confused_user: "I think I understand - there was a famine and someone went to Moab?",
+      children_minister: "OK, so this is about a family that had to move because there was no food. How should I explain this to kids?",
+      esl_teacher: "I see - a time period, a problem (famine), and a solution (migration). Let me work through this for my students.",
+      youth_pastor: "Got it - tough times, family has to relocate. How can I make this relatable for teens?",
+      senior_ministry: "I understand - the time of judges, famine in the land, journey to Moab. Let's proceed with clarity.",
+      prison_chaplain: "A story about hardship and having to leave home. This will resonate. Let's continue."
+    };
+    
+    return responses[this.persona] || responses.confused_user;
   }
 
   /**
@@ -430,23 +462,31 @@ class IntelligentWorkshopAttendee {
    */
   provideDraft() {
     const drafts = {
-      curious_beginner: "Here's my attempt: 'Back when the judges were in charge, there wasn't enough food in the land. So a man from Bethlehem in Judah went to live in Moab country with his wife and two sons.'",
-      
-      experienced_translator: "In the days when the judges governed, a famine occurred in the land. A certain man from Bethlehem of Judah went to sojourn in the fields of Moab—he, his wife, and his two sons.",
-      
-      confused_user: "During the time of the judges, there was no food. A man from Bethlehem went to Moab with his family.",
-      
-      children_minister: "Long ago when special leaders called judges were in charge, there was no food to eat. A man from a town called Bethlehem had to take his wife and two boys to live in another place called Moab.",
-      
-      esl_teacher: "When the judges ruled Israel, there was a time with no food. A man from Bethlehem took his wife and two sons. They went to live in the country of Moab.",
-      
-      youth_pastor: "So back in the day when judges ran things, there was this massive food shortage. This guy from Bethlehem packed up his family—his wife and two sons—and moved to Moab to survive.",
-      
-      senior_ministry: "In the time when judges ruled Israel, a famine came upon the land. A man from Bethlehem in Judah took his wife and his two sons and went to live in the country of Moab.",
-      
-      prison_chaplain: "When judges led Israel, food ran out in the land. A man from Bethlehem had to leave with his wife and two sons. They went to Moab to find food and survive."
+      curious_beginner:
+        "Here's my attempt: 'Back when the judges were in charge, there wasn't enough food in the land. So a man from Bethlehem in Judah went to live in Moab country with his wife and two sons.'",
+
+      experienced_translator:
+        "In the days when the judges governed, a famine occurred in the land. A certain man from Bethlehem of Judah went to sojourn in the fields of Moab—he, his wife, and his two sons.",
+
+      confused_user:
+        "During the time of the judges, there was no food. A man from Bethlehem went to Moab with his family.",
+
+      children_minister:
+        "Long ago when special leaders called judges were in charge, there was no food to eat. A man from a town called Bethlehem had to take his wife and two boys to live in another place called Moab.",
+
+      esl_teacher:
+        "When the judges ruled Israel, there was a time with no food. A man from Bethlehem took his wife and two sons. They went to live in the country of Moab.",
+
+      youth_pastor:
+        "So back in the day when judges ran things, there was this massive food shortage. This guy from Bethlehem packed up his family—his wife and two sons—and moved to Moab to survive.",
+
+      senior_ministry:
+        "In the time when judges ruled Israel, a famine came upon the land. A man from Bethlehem in Judah took his wife and his two sons and went to live in the country of Moab.",
+
+      prison_chaplain:
+        "When judges led Israel, food ran out in the land. A man from Bethlehem had to leave with his wife and two sons. They went to Moab to find food and survive.",
     };
-    
+
     return drafts[this.persona] || drafts.confused_user;
   }
 
@@ -566,10 +606,10 @@ class IntelligentWorkshopAttendee {
 
     // Check if we've had enough meaningful exchanges
     const meaningfulExchanges = this.conversationHistory.filter(
-      (msg) => msg.role === "user" && msg.content.length > 20
+      (msg) => msg.role === "user" && msg.content.length > 10
     ).length;
 
-    return hasDraft || isAdvancedPhase || meaningfulExchanges > 15;
+    return hasDraft || isAdvancedPhase || meaningfulExchanges > 20;
   }
 
   /**
@@ -649,7 +689,7 @@ export async function runWorkshopSimulation(baseUrl = "http://localhost:9999", g
 
   const results = [];
   let personas = [];
-  
+
   if (group === "english-group") {
     // Just the English-to-English personas
     personas = [
