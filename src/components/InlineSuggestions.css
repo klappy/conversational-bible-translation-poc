@@ -18,25 +18,33 @@
   }
 }
 
+.suggestions-copyable-area {
+  user-select: text; /* Make entire area selectable */
+  -webkit-user-select: text;
+  margin-bottom: 8px;
+}
+
 .suggestions-label {
   font-size: 11px;
   color: #64748b;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
   font-weight: 600;
+  user-select: text;
 }
 
-.suggestions-copyable-text {
-  font-size: 12px;
+.suggestions-text-list {
+  font-size: 13px;
   color: #475569;
+  line-height: 1.6;
+  user-select: text; /* Explicitly selectable */
   margin-bottom: 8px;
-  padding: 4px 0;
-  user-select: text; /* Make it selectable for copy */
-  line-height: 1.5;
 }
 
-.suggestion-text-item {
+.suggestion-text-line {
+  user-select: text;
+  margin: 2px 0;
   font-weight: 500;
 }
 

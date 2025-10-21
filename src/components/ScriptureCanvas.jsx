@@ -80,43 +80,59 @@ const ScriptureCanvas = () => {
     </div>
   );
 
-  const renderGlossary = () => (
-    <div className='canvas-section'>
-      <h3>Key Terms</h3>
-      <div className='glossary-content'>
-        {Object.keys(project.glossary.terms).length === 0 ? (
-          <p className='empty-state'>Terms will appear here as you progress through translation</p>
-        ) : (
-          <div className='terms-list'>
-            {Object.entries(project.glossary.terms).map(([term, data]) => (
-              <div key={term} className='term-item'>
-                <div className='term-header'>
-                  <strong>{term}</strong>
-                  {data.userProvided && <span className='badge'>User</span>}
+  const renderGlossary = () => {
+    const keyTerms = project.glossary?.keyTerms || {};
+    const userPhrases = project.glossary?.userPhrases || {};
+    const hasContent = Object.keys(keyTerms).length > 0 || Object.keys(userPhrases).length > 0;
+
+    return (
+      <div className='canvas-section'>
+        <h3>Glossary</h3>
+        <div className='glossary-content'>
+          {!hasContent ? (
+            <p className='empty-state'>Terms and phrases will appear as you discuss the passage</p>
+          ) : (
+            <>
+              {/* User Phrases - What you said about each phrase */}
+              {Object.keys(userPhrases).length > 0 && (
+                <div className='glossary-section'>
+                  <h4>Your Phrase Translations</h4>
+                  <div className='terms-list'>
+                    {Object.entries(userPhrases).map(([phrase, translation]) => (
+                      <div key={phrase} className='term-item phrase-item'>
+                        <div className='term-header'>
+                          <strong className='original-phrase'>{phrase}</strong>
+                        </div>
+                        <p className='definition user-translation'>→ {translation}</p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                <p className='definition'>{data.definition}</p>
-                {data.notes && <p className='notes'>{data.notes}</p>}
-              </div>
-            ))}
-          </div>
-        )}
+              )}
+
+              {/* Key Terms - Biblical terms */}
+              {Object.keys(keyTerms).length > 0 && (
+                <div className='glossary-section'>
+                  <h4>Key Biblical Terms</h4>
+                  <div className='terms-list'>
+                    {Object.entries(keyTerms).map(([term, data]) => (
+                      <div key={term} className='term-item'>
+                        <div className='term-header'>
+                          <strong>{term}</strong>
+                          {data.verse && <span className='verse-ref'>{data.verse}</span>}
+                        </div>
+                        <p className='definition'>{data.definition || data}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+        </div>
       </div>
-      <button
-        className='add-button'
-        onClick={() => {
-          const term = prompt("Enter term:");
-          if (term) {
-            const definition = prompt("Enter definition:");
-            if (definition) {
-              addGlossaryTerm(term, definition);
-            }
-          }
-        }}
-      >
-        + Add Term
-      </button>
-    </div>
-  );
+    );
+  };
 
   const renderScripture = () => (
     <div className='canvas-section'>

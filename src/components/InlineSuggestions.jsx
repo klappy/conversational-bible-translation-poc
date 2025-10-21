@@ -17,15 +17,16 @@ const InlineSuggestions = ({ suggestions, onSelect, messageId }) => {
 
   return (
     <div className='inline-suggestions'>
-      <div className='suggestions-label'>QUICK RESPONSES:</div>
-      {/* Render as copyable text */}
-      <div className='suggestions-copyable-text'>
-        {suggestions.map((s, i) => (
-          <span key={i} className='suggestion-text-item'>
-            {i > 0 && " | "}
-            {s}
-          </span>
-        ))}
+      {/* Make suggestions copy-pasteable as plain text */}
+      <div className='suggestions-copyable-area'>
+        <div className='suggestions-label'>QUICK RESPONSES:</div>
+        <div className='suggestions-text-list'>
+          {suggestions.map((s, i) => (
+            <div key={i} className='suggestion-text-line'>
+              • {s}
+            </div>
+          ))}
+        </div>
       </div>
       {/* Interactive buttons */}
       <div className='suggestions-list'>
