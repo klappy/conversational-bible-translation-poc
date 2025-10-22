@@ -4,8 +4,15 @@
 
 An AI-powered conversational Bible translation tool implementing the FIA (Familiarization, Internalization, Articulation) methodology for church-based Bible translation.
 
-> **Status:** Working (75% success rate, improvements underway)
+> **Status:** Working (88% workshop success rate, improvements underway)  
 > **See:** [SYSTEM_DESIGN.md](./SYSTEM_DESIGN.md) for complete system documentation
+
+## 📊 Development Resources
+
+- **🤖 AI Development Guide:** [`docs/AI_DEVELOPMENT_GUIDE.md`](docs/AI_DEVELOPMENT_GUIDE.md) - **Start here if you're an AI assistant**
+- **📈 Status Dashboard:** [`docs/WORKSHOP_STATUS_DASHBOARD.md`](docs/WORKSHOP_STATUS_DASHBOARD.md) - Current project health
+- **📋 Stage Report:** [`docs/STAGE_COMPLETION_REPORT.md`](docs/STAGE_COMPLETION_REPORT.md) - Detailed stage analysis
+- **🧪 Testing Docs:** [`test/README.md`](test/README.md) - Agentic testing approach
 
 ## Features
 
