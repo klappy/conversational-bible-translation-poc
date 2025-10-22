@@ -287,11 +287,20 @@ async function processConversation(userMessage, conversationHistory, sessionId, 
     console.log("State result agent info:", stateResult?.agent);
     console.log("State response:", stateResult?.response);
 
-    // Canvas Scribe should return JSON with:
-    // { "message": "Noted!", "updates": {...}, "summary": "..." }
-    // Or empty string to stay silent
+    // Handle errors from state agent (timeouts, API failures, etc.)
+    if (stateResult.error) {
+      console.error("🔴 Canvas Scribe error:", stateResult.error);
+      // Continue without state updates - don't crash the whole conversation
+      // The state will stay as-is, which is better than crashing
+    } else if (!stateResult.response) {
+      console.warn("⚠️ Canvas Scribe returned no response");
+      // Continue without state updates
+    } else {
+      // Canvas Scribe should return JSON with:
+      // { "message": "Noted!", "updates": {...}, "summary": "..." }
+      // Or empty string to stay silent
 
-    const responseText = stateResult.response.trim();
+      const responseText = stateResult.response.trim();
 
     // If empty response, scribe stays silent
     if (!responseText || responseText === "") {
@@ -325,15 +334,18 @@ async function processConversation(userMessage, conversationHistory, sessionId, 
             };
           }
         } else {
-          // No JSON found, just show the response as-is
-          console.log("Canvas Scribe simple acknowledgment:", responseText);
+          // No JSON found - Canvas Scribe violated format!
+          console.warn("⚠️ Canvas Scribe returned plain text instead of JSON!");
+          console.warn("Raw response:", responseText);
+          console.warn("This means state updates were NOT saved!");
+          // Show the response but log the violation
           responses.state = {
             ...stateResult,
             response: responseText,
           };
         }
       } catch (e) {
-        console.error("Error parsing Canvas Scribe JSON:", e);
+        console.error("🔴 Error parsing Canvas Scribe JSON:", e);
         console.error("Raw response was:", responseText);
         // If JSON parsing fails, treat whole response as acknowledgment
         responses.state = {
@@ -342,6 +354,7 @@ async function processConversation(userMessage, conversationHistory, sessionId, 
         };
       }
     }
+    } // Close the else block from error handling
   }
 
   // NOW call Suggestion Helper AFTER we have the Primary Agent's response
@@ -528,8 +541,10 @@ function mergeAgentResponses(responses) {
           console.log("ℹ️ No suggestions from primary agent");
         }
       }
-    } catch {
-      console.log("⚠️ Not valid JSON, treating as plain text message");
+    } catch (error) {
+      console.warn("⚠️ PRIMARY AGENT FORMAT VIOLATION: Not valid JSON!");
+      console.warn("Raw response:", responses.primary.response.substring(0, 200));
+      console.warn("Primary agent should ALWAYS return {\"message\": \"...\", \"suggestions\": [...]}");
       // Not JSON, use the raw response as the message
       // Keep existing suggestions if we have them from Suggestion Helper
     }
