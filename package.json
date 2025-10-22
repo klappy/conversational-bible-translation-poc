@@ -18,7 +18,9 @@
     "test:complete": "node test/run-all-tests.js complete",
     "test:report": "node test/run-all-tests.js report",
     "test:cleanup": "node test/cleanup-test-sessions.js clean",
-    "test:reset": "node test/cleanup-test-sessions.js reset"
+    "test:reset": "node test/cleanup-test-sessions.js reset",
+    "test:chaotic": "node test/chaotic-workshop-attendee.js 5",
+    "test:chaotic:50": "node test/chaotic-workshop-attendee.js 50"
   },
   "dependencies": {
     "@netlify/blobs": "^10.1.0",
