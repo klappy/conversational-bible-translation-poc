@@ -118,11 +118,13 @@ async function runWorkshopTest() {
       conversationHistory.push({ role: "user", content: setting.input });
 
       // Add assistant responses to history
-      response.messages.forEach((msg) => {
-        if (msg.role === "assistant" && msg.content) {
-          conversationHistory.push(msg);
-        }
-      });
+      if (response && response.messages) {
+        response.messages.forEach((msg) => {
+          if (msg.role === "assistant" && msg.content) {
+            conversationHistory.push(msg);
+          }
+        });
+      }
 
       log(`  Setting ${setting.description}: ${setting.input}`, "blue");
     }
@@ -157,11 +159,13 @@ async function runWorkshopTest() {
       response = await sendMessage(item.input, conversationHistory);
       conversationHistory.push({ role: "user", content: item.input });
 
-      response.messages.forEach((msg) => {
-        if (msg.role === "assistant" && msg.content) {
-          conversationHistory.push(msg);
-        }
-      });
+      if (response && response.messages) {
+        response.messages.forEach((msg) => {
+          if (msg.role === "assistant" && msg.content) {
+            conversationHistory.push(msg);
+          }
+        });
+      }
 
       log(`  Phrase "${item.phrase}": ${item.input}`, "blue");
     }

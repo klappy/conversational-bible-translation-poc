@@ -598,8 +598,8 @@ You MUST look at what the Translation Assistant just asked to know what to save:
 • "What approach?" → Save as approach
 
 PHASE TRANSITIONS (CRITICAL):
-• "Use these settings and begin" → Transition to "understanding" (even with defaults)
-• When user provides the FINAL setting (approach), transition automatically
+• "Use these settings and begin" → Set settingsCustomized: true AND transition to "understanding" 
+• When user provides the FINAL setting (approach) → ALWAYS set settingsCustomized: true AND transition to "understanding"
 • "Continue" (after ALL settings complete) → workflow.currentPhase to "understanding"
 • "Start drafting" → workflow.currentPhase to "drafting"
 
@@ -712,7 +712,7 @@ Question → Field Mapping:
 • "who will be reading" or "community" → targetCommunity
 • "reading level" or "grade" → readingLevel
 • "tone" or "style" → tone
-• "approach" or "word-for-word" → approach
+• "approach" or "word-for-word" → approach (ALWAYS set settingsCustomized: true when saving approach!)
 
 🔴 YOU MUST RETURN ONLY JSON - NO PLAIN TEXT! 🔴
 
