@@ -12,7 +12,9 @@
  * - Skipping things
  * - Non-linear navigation
  * 
- * NO HARDCODED SCRIPTS. Just probabilities and chaos.
+ * HYBRID APPROACH:
+ * - 60% probabilistic pools (fast, cheap)
+ * - 40% LLM-generated responses (natural, expensive)
  * 
  * Run with: node test/chaotic-workshop-attendee.js
  * Or: npm run test:chaotic
@@ -20,6 +22,16 @@
 
 import http from "http";
 import process from "process";
+import { config } from "dotenv";
+import OpenAI from "openai";
+
+// Load environment variables
+config();
+
+// Initialize OpenAI client
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
 const BASE_URL = "http://localhost:8888";
 
@@ -79,6 +91,9 @@ const BEHAVIOR_PROBABILITIES = {
   RANDOM_CLICK: 0.05             // 5% chance to click something random
 };
 
+// LLM usage probability
+const USE_LLM_PROBABILITY = 0.4;  // 40% of responses use LLM
+
 class ChaoticWorkshopAttendee {
   constructor(personaNumber) {
     this.personaNumber = personaNumber;
@@ -90,9 +105,12 @@ class ChaoticWorkshopAttendee {
     this.questionsAsked = 0;
     this.backwardsMoves = 0;
     this.settingsGiven = 0;
+    this.conversationContext = [];
     
     // Track what we've done (for analysis, not for scripting)
     this.actions = [];
+    this.llmCallsMade = 0;
+    this.poolResponsesUsed = 0;
   }
 
   randomChoice(array) {
@@ -198,7 +216,17 @@ class ChaoticWorkshopAttendee {
         "I'll come back to this later"
       ]);
     }
-    else if (hasSuggestions && roll < BEHAVIOR_PROBABILITIES.ASK_QUESTION + BEHAVIOR_PROBABILITIES.GO_BACKWARDS + BEHAVIOR_PROBABILITIES.SKIP_ATTEMPT + BEHAVIOR_PROBABILITIES.USE_SUGGESTION) {
+    else if (roll < BEHAVIOR_PROBABILITIES.ASK_QUESTION + BEHAVIOR_PROBABILITIES.GO_BACKWARDS + BEHAVIOR_PROBABILITIES.SKIP_ATTEMPT + BEHAVIOR_PROBABILITIES.RANDOM_CLICK) {
+      // Random click/action
+      this.actions.push("random_click");
+      return this.randomChoice([
+        "What does this button do?",
+        "Let me try this",
+        "Hmm...",
+        "Interesting"
+      ]);
+    }
+    else if (hasSuggestions && roll < BEHAVIOR_PROBABILITIES.ASK_QUESTION + BEHAVIOR_PROBABILITIES.GO_BACKWARDS + BEHAVIOR_PROBABILITIES.SKIP_ATTEMPT + BEHAVIOR_PROBABILITIES.RANDOM_CLICK + BEHAVIOR_PROBABILITIES.USE_SUGGESTION) {
       // Click a random suggestion
       this.actions.push("clicked_suggestion");
       return this.randomChoice(lastResponse.suggestions);
@@ -206,13 +234,23 @@ class ChaoticWorkshopAttendee {
     else {
       // Type their own response (generate contextually)
       this.actions.push("typed_own");
-      return this.generateContextualResponse(lastResponse);
+      return await this.generateContextualResponse(lastResponse);
     }
   }
 
   // Generate a response based on what the AI just asked
-  generateContextualResponse(lastResponse) {
+  async generateContextualResponse(lastResponse) {
     const content = lastResponse.messages?.[0]?.content?.toLowerCase() || "";
+    
+    // 40% of the time, use LLM for natural responses
+    const useLLM = this.randomFloat() < USE_LLM_PROBABILITY && process.env.OPENAI_API_KEY;
+    
+    if (useLLM) {
+      return await this.generateLLMResponse(lastResponse);
+    }
+    
+    // Otherwise use probabilistic pools (60% of the time)
+    this.poolResponsesUsed++;
     
     // Detect what's being asked and respond appropriately (but randomly)
     if (content.includes("name") && !this.settingsGiven) {
@@ -270,6 +308,51 @@ class ChaoticWorkshopAttendee {
     }
   }
 
+  // Use LLM to generate a natural response
+  async generateLLMResponse(lastResponse) {
+    this.llmCallsMade++;
+    this.actions.push("used_llm");
+
+    try {
+      const aiMessage = lastResponse.messages?.[0]?.content || "";
+      
+      // Build context from recent conversation
+      const recentContext = this.conversationContext.slice(-5).map(msg => {
+        return `${msg.role === 'user' ? 'Me' : 'Assistant'}: ${msg.content.substring(0, 150)}`;
+      }).join("\n");
+
+      const prompt = `You are ${this.name}, a somewhat confused but earnest workshop attendee learning to translate scripture. You're not an expert - you ask questions, sometimes misunderstand, and respond naturally like a real person would.
+
+Recent conversation:
+${recentContext}
+
+The assistant just said: "${aiMessage.substring(0, 300)}"
+
+Respond naturally as ${this.name}. Be brief (1-2 sentences). You might:
+- Answer the question if you understand it
+- Ask for clarification if confused
+- Show curiosity or uncertainty
+- Give a simple, natural response
+
+Your response:`;
+
+      const completion = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [{ role: "user", content: prompt }],
+        temperature: 0.9,
+        max_tokens: 100,
+      });
+
+      const response = completion.choices[0]?.message?.content?.trim() || "okay";
+      console.log(`  [LLM Generated: "${response}"]`);
+      return response;
+    } catch (error) {
+      console.error(`  [LLM Error: ${error.message}, falling back to pool]`);
+      this.poolResponsesUsed++;
+      return this.randomChoice(AFFIRMATIONS);
+    }
+  }
+
   async runChaoticWorkshop() {
     console.log(`\n${"=".repeat(60)}`);
     console.log(`🎭 CHAOTIC WORKSHOP ATTENDEE #${this.personaNumber}: ${this.name}`);
@@ -285,14 +368,24 @@ class ChaoticWorkshopAttendee {
       let response = await this.sendMessage("Hello!");
       
       // Continue having a chaotic conversation for a while
-      const MAX_EXCHANGES = Math.floor(Math.random() * 30) + 20; // 20-50 exchanges
+      const MAX_EXCHANGES = Math.floor(Math.random() * 31) + 20; // 20-50 exchanges
       
       for (let i = 0; i < MAX_EXCHANGES; i++) {
+        // Track conversation context
+        if (response && response.messages) {
+          response.messages.forEach(msg => {
+            if (msg.role === 'assistant' && msg.content) {
+              this.conversationContext.push({ role: 'assistant', content: msg.content });
+            }
+          });
+        }
+
         // Decide what to do next
         const nextMessage = await this.decideNextAction(response);
         
         // Send it
         response = await this.sendMessage(nextMessage);
+        this.conversationContext.push({ role: 'user', content: nextMessage });
         
         // Small random delay (humans don't respond instantly)
         await new Promise(resolve => setTimeout(resolve, Math.random() * 500 + 200));
@@ -354,6 +447,10 @@ class ChaoticWorkshopAttendee {
     console.log(`Glossary Phrases: ${analysis.glossaryPhrases}`);
     console.log(`Settings Customized: ${analysis.settingsCustomized ? "✅" : "❌"}`);
     console.log(`\n🎯 Experience Quality: ${analysis.experienceQuality}`);
+    console.log(`\n🤖 Response Generation:`);
+    console.log(`  - LLM calls: ${this.llmCallsMade}`);
+    console.log(`  - Pool responses: ${this.poolResponsesUsed}`);
+    console.log(`  - LLM percentage: ${Math.round((this.llmCallsMade / (this.llmCallsMade + this.poolResponsesUsed)) * 100)}%`);
     console.log(`\nAction Distribution:`);
     const actionCounts = {};
     this.actions.forEach(a => actionCounts[a] = (actionCounts[a] || 0) + 1);

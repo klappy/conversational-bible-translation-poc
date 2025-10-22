@@ -12,12 +12,26 @@ Instead of hardcoded test scripts that expect users to follow a specific path, t
 
 ## How It Works
 
-### 1. **No Hardcoded Responses**
+### 1. **Hybrid Response Generation**
 
-The test doesn't have a script. Instead, it has:
-- A pool of possible names (picks randomly)
-- A pool of possible settings (picks randomly)
-- A pool of possible questions (picks randomly)
+The test uses a combination of two approaches:
+
+**60% Probabilistic Pools (Fast & Cheap):**
+- Pool of possible names (picks randomly)
+- Pool of possible settings (picks randomly)
+- Pool of possible questions (picks randomly)
+- Contextual response selection
+
+**40% LLM-Generated (Natural & Expensive):**
+- Uses GPT-4o-mini to generate truly natural responses
+- Maintains conversation context
+- Responds with authentic confusion, curiosity, and uncertainty
+- Adapts to the actual conversation flow
+
+**Why Hybrid?**
+- Best of both worlds: speed + naturalness
+- Manages API costs while maximizing realism
+- Provides statistical variety + authentic language
 - Probability weights for different behaviors
 
 ### 2. **Probabilistic Behavior**
@@ -33,20 +47,26 @@ On each turn, the test randomly decides what to do:
 | Skip Attempt | 5% | Tries to skip the current step |
 | Random Click | 5% | Clicks something random |
 
-### 3. **Contextual But Not Scripted**
+### 3. **Contextual Response Generation**
 
-The test reads what the AI asks and generates an appropriate response, but:
-- **Not** from a hardcoded lookup table
-- **Yes** from a pool of natural variations
-- **Yes** with random selection from that pool
+The test reads what the AI asks and generates an appropriate response:
 
-Example: If AI asks for tone, it randomly picks from:
-- "Friendly and warm"
-- "Casual and fun" 
-- "Respectful and clear"
-- etc...
+**When using pools (60%):**
+- Selects from context-appropriate response pools
+- No hardcoded lookup tables
+- Random selection from natural variations
 
-No predetermined "correct" answer. Just natural variety.
+**When using LLM (40%):**
+- Builds conversation context from recent exchanges
+- Generates persona-specific responses
+- Introduces authentic confusion, questions, and natural language
+- No two responses are ever the same
+
+Example: If AI asks for tone:
+- **Pool**: Randomly picks "Friendly and warm" or "Casual and fun"
+- **LLM**: Might say "Hmm, I think I want something warm but not too formal... friendly?" or "Can you give me examples of different tones?"
+
+No predetermined "correct" answer. Just authentic variety.
 
 ### 4. **Natural Human Delays**
 
@@ -84,16 +104,33 @@ After running multiple attendees, we look at:
 
 ## Running Tests
 
+### Setup
+
+First, ensure you have an OpenAI API key in your `.env` file:
+
 ```bash
-# Test with 5 chaotic attendees (quick)
+OPENAI_API_KEY=your-key-here
+```
+
+**Note:** The test will still work without an API key, but will fall back to 100% pool responses.
+
+### Running
+
+```bash
+# Test with 5 chaotic attendees (quick, ~5-10 min)
 npm run test:chaotic
 
-# Test with 50 chaotic attendees (comprehensive)
+# Test with 50 chaotic attendees (comprehensive, ~1-2 hours)
 npm run test:chaotic:50
 
 # Test with custom number
 node test/chaotic-workshop-attendee.js 25
 ```
+
+**Cost Estimate:** With the 60/40 hybrid:
+- 5 attendees: ~$0.05-0.15
+- 50 attendees: ~$0.50-1.50
+- Uses GPT-4o-mini (cheapest model with good quality)
 
 ## Example Output
 
@@ -204,7 +241,17 @@ const BEHAVIOR_PROBABILITIES = {
   SKIP_ATTEMPT: 0.05,       // More or less skipping
   RANDOM_CLICK: 0.05        // More or less chaos
 };
+
+// Adjust LLM usage (higher = more natural, slower, more expensive)
+const USE_LLM_PROBABILITY = 0.4;  // 40% of responses use LLM
 ```
+
+**Tuning LLM Usage:**
+- **0.0** = No LLM, 100% pools (fastest, cheapest)
+- **0.2** = 20% LLM (still fast, very cheap)
+- **0.4** = 40% LLM (balanced, default)
+- **0.6** = 60% LLM (more natural, slower)
+- **1.0** = 100% LLM (most natural, slowest, expensive)
 
 ## Future Enhancements
 

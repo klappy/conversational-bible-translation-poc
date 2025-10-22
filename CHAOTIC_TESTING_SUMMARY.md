@@ -9,7 +9,8 @@ I created a new testing approach that simulates **natural human chaos** instead 
 ### 1. New Test File: `test/chaotic-workshop-attendee.js`
 
 **What makes it different:**
-- ❌ **NO hardcoded responses** - Everything is probabilistic
+- ❌ **NO hardcoded scripts** - Everything is probabilistic or LLM-generated
+- ✅ **Hybrid approach** - 60% pools + 40% LLM for natural responses
 - ✅ **Random behavior** - Each user acts unpredictably
 - ✅ **Natural chaos** - Questions, going backwards, skipping, confusion
 - ✅ **Statistical analysis** - Runs many attendees and measures aggregate experience
@@ -22,11 +23,20 @@ I created a new testing approach that simulates **natural human chaos** instead 
 - 5% chance to try skipping
 - 5% chance to do something random
 
-**Responses are NOT scripted:**
+**Responses are HYBRID:**
+
+**60% Pool-Based (Fast):**
 - Names: Randomly selected from a pool of 15 names
 - Settings: Randomly selected from pools of realistic options
 - Explanations: Randomly selected from pools of natural phrasings
-- No predetermined "correct path" through the workshop
+
+**40% LLM-Generated (Natural):**
+- Uses GPT-4o-mini to generate contextual responses
+- Maintains conversation history for coherent responses
+- Introduces authentic confusion and natural language
+- Never generates the same response twice
+
+No predetermined "correct path" through the workshop
 
 ### 2. Added Test Commands
 
@@ -105,7 +115,7 @@ The system handles chaotic, natural user behavior well!
 ## Why This Addresses Your Concerns
 
 ### Your Concern: "Hardcoding and scripting things too tightly"
-**Solution:** Zero hardcoded conversation paths. Everything is probabilistic pools and random selection.
+**Solution:** Zero hardcoded conversation paths. 60% probabilistic pools + 40% LLM-generated natural language.
 
 ### Your Concern: "Risk inconsistencies in testing"
 **Solution:** Embraces inconsistencies! Each run is different. Statistical confidence comes from running many attendees.
@@ -130,17 +140,22 @@ The system handles chaotic, natural user behavior well!
 
 ## Testing Instructions
 
-1. **Start the dev server:**
+1. **Ensure OPENAI_API_KEY is in .env:**
+   ```bash
+   OPENAI_API_KEY=your-key-here
+   ```
+   
+2. **Start the dev server:**
    ```bash
    npm run dev:netlify
    ```
 
-2. **In another terminal, run the test:**
+3. **In another terminal, run the test:**
    ```bash
-   # Quick test (5 attendees)
+   # Quick test (5 attendees, ~$0.10)
    npm run test:chaotic
    
-   # Full workshop simulation (50 attendees)
+   # Full workshop simulation (50 attendees, ~$1.00)
    npm run test:chaotic:50
    ```
 
