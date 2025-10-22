@@ -4,16 +4,17 @@
 
 This testing framework provides intelligent, conversational testing of the Bible Translation Assistant. Instead of rigid scripts, our AI-powered tests actually **converse naturally** with the translation assistant, simulating real workshop attendees.
 
-## 🎭 Intelligent Testing Approach
+## 🎭 Agentic Testing Approach
 
-Our tests don't just send pre-scripted messages. They:
+Our tests simulate real workshop attendees through **persona-driven, context-aware conversations**:
 
-- Read and understand AI responses
-- Ask clarifying questions when appropriate
-- Use suggestions intelligently (not always)
-- Simulate different user personas
-- Complete full translation workflows naturally
-- Verify the system works end-to-end
+- **Read & Respond**: Tests read AI responses and respond naturally as specific personas
+- **Context Awareness**: Understand what phase they're in and respond appropriately  
+- **Adaptive Behavior**: Decide whether to use suggestions or type manually
+- **Realistic Variations**: Ask clarifying questions, change minds, show confusion
+- **Natural Flow**: Complete full translation workflows like real users would
+
+**Key Principle**: Tests think and adapt like humans, not rigid scripts.
 
 ## Test Personas
 
@@ -105,24 +106,105 @@ Our tests don't just send pre-scripted messages. They:
 
 **Run:** `node test/regression-test-suite.js`
 
+## 🚀 NEW: Comprehensive 5-Verse Testing
+
+### `complete-5-verse-workshop.js`
+
+**Purpose:** Test complete workshop through all 5 verses of Ruth  
+**What it tests:**
+
+- Full journey: Planning → Understanding (all 5 verses) → Drafting (all 5 verses)
+- ~60-80 conversational turns
+- Glossary accumulation across verses
+- Draft persistence for all verses
+- Natural conversation flow throughout
+- Data integrity across long sessions
+
+**Run:** `npm run test:5verse`
+
+### `multi-persona-spot-check.js`
+
+**Purpose:** Test different user types with same verse  
+**What it tests:**
+
+- Youth pastor (casual, modern)
+- ESL teacher (simple, clear)  
+- Traditional minister (formal, reverent)
+- Settings persistence for different preferences
+- Quick responses adapt to different tones
+
+**Run:** `npm run test:personas`
+
+### `session-resumption-test.js`
+
+**Purpose:** Test pause/resume functionality  
+**What it tests:**
+
+- Complete verses 1-2, then "close browser"
+- Resume session and continue with verse 3
+- All glossary entries preserved
+- Previous drafts still saved
+- Settings maintained
+- Conversation context appropriate
+
+**Run:** `npm run test:resume`
+
+### `stage-completion-report.js`
+
+**Purpose:** Generate comprehensive stage analysis  
+**What it tests:**
+
+- Current state of all 6 stages (Plan ✅, Understand ✅, Draft ✅, Check ⚠️, Share ⚠️, Publish ⚠️)
+- What works in each implemented stage
+- What's missing for unimplemented stages
+- Recommendations for building Check/Share/Publish stages
+- Outputs markdown report: `docs/STAGE_COMPLETION_REPORT.md`
+
+**Run:** `npm run test:report`
+
 ## 🚦 Testing Strategy
 
 1. **Before Every Commit:** Run regression suite (< 1 minute)
 
    ```bash
-   node test/regression-test-suite.js
+   npm run test:quick
    ```
 
 2. **After Feature Changes:** Run workshop flow test (~ 2 minutes)
 
    ```bash
-   node test/workshop-flow-test.js
+   npm run test:full
    ```
 
-3. **Before Deployment:** Run everything
+3. **Before Major Releases:** Run comprehensive tests (~ 10 minutes)
+
    ```bash
-   node test/regression-test-suite.js && node test/workshop-flow-test.js
+   npm run test:complete
    ```
+
+4. **Generate Stage Report:** Analyze current state
+
+   ```bash
+   npm run test:report
+   ```
+
+## 🎯 New Test Commands
+
+```bash
+# Individual comprehensive tests
+npm run test:5verse      # Complete 5-verse workshop test
+npm run test:personas    # Multi-persona variety test  
+npm run test:resume      # Session resumption test
+npm run test:report      # Generate stage completion report
+
+# Run all comprehensive tests
+npm run test:complete    # All tests including new ones
+
+# Quick tests (existing)
+npm run test:quick       # Regression tests only
+npm run test:full        # Workshop flow test only
+npm test                 # All tests (default)
+```
 
 ## Running Tests
 

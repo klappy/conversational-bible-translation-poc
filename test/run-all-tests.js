@@ -9,6 +9,11 @@
  *   npm test           - Run all tests
  *   npm run test:quick - Run regression tests only
  *   npm run test:full  - Run complete workshop test
+ *   npm run test:5verse - Run 5-verse comprehensive test
+ *   npm run test:personas - Run multi-persona test
+ *   npm run test:resume - Run session resumption test
+ *   npm run test:complete - Run all comprehensive tests
+ *   npm run test:report - Generate stage completion report
  */
 
 import { spawn } from 'child_process';
@@ -62,8 +67,42 @@ async function main() {
     // Full workshop test only
     const passed = await runTest('test/workshop-flow-test.js', 'Workshop Flow Test');
     results.push(passed);
+  } else if (mode === '5verse') {
+    // 5-verse comprehensive test
+    const passed = await runTest('test/complete-5-verse-workshop.js', '5-Verse Workshop Test');
+    results.push(passed);
+  } else if (mode === 'personas') {
+    // Multi-persona test
+    const passed = await runTest('test/multi-persona-spot-check.js', 'Multi-Persona Test');
+    results.push(passed);
+  } else if (mode === 'resume') {
+    // Session resumption test
+    const passed = await runTest('test/session-resumption-test.js', 'Session Resumption Test');
+    results.push(passed);
+  } else if (mode === 'complete') {
+    // All comprehensive tests
+    log("\nRunning all comprehensive tests...", "yellow");
+    
+    const regression = await runTest('test/regression-test-suite.js', 'Regression Tests');
+    results.push(regression);
+    
+    const workshop = await runTest('test/workshop-flow-test.js', 'Workshop Flow Test');
+    results.push(workshop);
+    
+    const fiveVerse = await runTest('test/complete-5-verse-workshop.js', '5-Verse Workshop Test');
+    results.push(fiveVerse);
+    
+    const personas = await runTest('test/multi-persona-spot-check.js', 'Multi-Persona Test');
+    results.push(personas);
+    
+    const resume = await runTest('test/session-resumption-test.js', 'Session Resumption Test');
+    results.push(resume);
+  } else if (mode === 'report') {
+    // Generate stage completion report
+    const passed = await runTest('test/stage-completion-report.js', 'Stage Completion Report');
+    results.push(passed);
   } else {
-    // Run all tests
+    // Run all tests (default)
     log("\nRunning all tests...", "yellow");
     
     // First run regression tests (quick)
