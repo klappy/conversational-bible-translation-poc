@@ -4,17 +4,22 @@
 
 This testing framework provides intelligent, conversational testing of the Bible Translation Assistant. Instead of rigid scripts, our AI-powered tests actually **converse naturally** with the translation assistant, simulating real workshop attendees.
 
-## 🎭 Agentic Testing Approach
+## 🎭 Two Testing Approaches
 
-Our tests simulate real workshop attendees through **persona-driven, context-aware conversations**:
-
+### 1. **Structured Persona Testing** (Original)
+Tests with predefined personas that follow generally expected paths:
 - **Read & Respond**: Tests read AI responses and respond naturally as specific personas
 - **Context Awareness**: Understand what phase they're in and respond appropriately
 - **Adaptive Behavior**: Decide whether to use suggestions or type manually
-- **Realistic Variations**: Ask clarifying questions, change minds, show confusion
-- **Natural Flow**: Complete full translation workflows like real users would
 
-**Key Principle**: Tests think and adapt like humans, not rigid scripts.
+### 2. **Chaotic Workshop Simulation** (New - Recommended)
+Tests with completely unpredictable, natural human behavior:
+- **No Scripts**: Probabilistic behavior instead of hardcoded responses
+- **Random Actions**: Randomly decides to click buttons, ask questions, go backwards
+- **Natural Chaos**: Simulates real workshop attendees who don't follow instructions
+- **Statistical Analysis**: Runs 50+ attendees and measures experience quality
+
+**Key Principle**: Real workshops are chaotic. Tests should reflect that.
 
 ## Test Personas
 
@@ -106,7 +111,40 @@ Our tests simulate real workshop attendees through **persona-driven, context-awa
 
 **Run:** `node test/regression-test-suite.js`
 
-## 🚀 NEW: Comprehensive 5-Verse Testing
+## 🎪 NEW: Chaotic Workshop Testing
+
+### `chaotic-workshop-attendee.js`
+
+**Purpose:** Simulate real human chaos and unpredictability  
+**What it tests:**
+
+- Random behavior patterns (clicking, typing, asking questions, going backwards)
+- Non-linear navigation (forward, backward, skipping)
+- Natural confusion and clarification
+- Probabilistic decision making (not scripted)
+- Aggregate experience quality across many attendees
+
+**Key difference:** No hardcoded responses. Each attendee behaves uniquely and unpredictably.
+
+**Run:**
+```bash
+# Quick test with 5 chaotic attendees
+npm run test:chaotic
+
+# Comprehensive test with 50 attendees (simulates real workshop)
+npm run test:chaotic:50
+
+# Custom number
+node test/chaotic-workshop-attendee.js 25
+```
+
+**Success Criteria:** 70%+ of attendees have "decent" or better experience
+
+**Read more:** See `docs/CHAOTIC_TESTING_APPROACH.md` for full details
+
+---
+
+## 🚀 Comprehensive 5-Verse Testing (Structured)
 
 ### `complete-5-verse-workshop.js`
 
