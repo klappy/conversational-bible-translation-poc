@@ -9,7 +9,7 @@ This testing framework provides intelligent, conversational testing of the Bible
 Our tests simulate real workshop attendees through **persona-driven, context-aware conversations**:
 
 - **Read & Respond**: Tests read AI responses and respond naturally as specific personas
-- **Context Awareness**: Understand what phase they're in and respond appropriately  
+- **Context Awareness**: Understand what phase they're in and respond appropriately
 - **Adaptive Behavior**: Decide whether to use suggestions or type manually
 - **Realistic Variations**: Ask clarifying questions, change minds, show confusion
 - **Natural Flow**: Complete full translation workflows like real users would
@@ -128,7 +128,7 @@ Our tests simulate real workshop attendees through **persona-driven, context-awa
 **What it tests:**
 
 - Youth pastor (casual, modern)
-- ESL teacher (simple, clear)  
+- ESL teacher (simple, clear)
 - Traditional minister (formal, reverent)
 - Settings persistence for different preferences
 - Quick responses adapt to different tones
@@ -193,7 +193,7 @@ Our tests simulate real workshop attendees through **persona-driven, context-awa
 ```bash
 # Individual comprehensive tests
 npm run test:5verse      # Complete 5-verse workshop test
-npm run test:personas    # Multi-persona variety test  
+npm run test:personas    # Multi-persona variety test
 npm run test:resume      # Session resumption test
 npm run test:report      # Generate stage completion report
 

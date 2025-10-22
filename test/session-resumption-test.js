@@ -10,7 +10,7 @@ class SessionResumptionTest {
     this.testResults = {
       passed: 0,
       failed: 0,
-      errors: []
+      errors: [],
     };
     this.sessionId = null;
   }
@@ -19,18 +19,18 @@ class SessionResumptionTest {
     return new Promise((resolve, reject) => {
       // Convert API paths to Netlify function paths
       let netlifyPath = path;
-      if (path.startsWith('/api/')) {
-        netlifyPath = path.replace('/api/', '/.netlify/functions/');
-      } else if (!path.startsWith('/.netlify/functions/')) {
+      if (path.startsWith("/api/")) {
+        netlifyPath = path.replace("/api/", "/.netlify/functions/");
+      } else if (!path.startsWith("/.netlify/functions/")) {
         netlifyPath = `/.netlify/functions${path}`;
       }
-      
+
       const options = {
         hostname: "localhost",
         port: 8888,
         path: netlifyPath,
         method: data ? "POST" : "GET",
-        headers: data ? { "Content-Type": "application/json" } : {}
+        headers: data ? { "Content-Type": "application/json" } : {},
       };
 
       const req = http.request(options, (res) => {
@@ -47,7 +47,7 @@ class SessionResumptionTest {
       });
 
       req.on("error", reject);
-      
+
       if (data) {
         req.write(JSON.stringify(data));
       }
@@ -58,13 +58,15 @@ class SessionResumptionTest {
   async sendMessage(message, sessionId = null) {
     const response = await this.makeRequest("/api/conversation", {
       message,
-      sessionId: sessionId || this.sessionId
+      sessionId: sessionId || this.sessionId,
     });
     return response;
   }
 
   async getCanvasState(sessionId = null) {
-    const response = await this.makeRequest(`/api/canvas-state?sessionId=${sessionId || this.sessionId}`);
+    const response = await this.makeRequest(
+      `/api/canvas-state?sessionId=${sessionId || this.sessionId}`
+    );
     return response;
   }
 
@@ -92,31 +94,34 @@ class SessionResumptionTest {
     console.log("\n📋 Completing Planning Phase...");
     let response = await this.sendMessage("Hello!");
     await this.assert(
-      response.messages.some(msg => msg.content.includes("name")),
+      response.messages.some((msg) => msg.content.includes("name")),
       "Asks for user's name"
     );
 
     response = await this.sendMessage("Sarah");
     await this.assert(
-      response.messages.some(msg => msg.content.includes("Sarah")),
+      response.messages.some((msg) => msg.content.includes("Sarah")),
       "Greets user by name"
     );
 
     // Collect all settings
     const settings = [
       "English", // conversation language
-      "English", // source language  
+      "English", // source language
       "English", // target language
       "Grade 5", // reading level
       "Friendly and encouraging", // tone
       "Meaning-based", // philosophy
-      "Dynamic" // approach
+      "Dynamic", // approach
     ];
 
     for (const setting of settings) {
       response = await this.sendMessage(setting);
       await this.assert(
-        response.messages.some(msg => msg.content.toLowerCase().includes("next") || msg.content.toLowerCase().includes("what")),
+        response.messages.some(
+          (msg) =>
+            msg.content.toLowerCase().includes("next") || msg.content.toLowerCase().includes("what")
+        ),
         `Collects setting: ${setting}`
       );
     }
@@ -124,7 +129,11 @@ class SessionResumptionTest {
     // Start understanding phase
     response = await this.sendMessage("Use these settings and begin");
     await this.assert(
-      response.messages.some(msg => msg.content.toLowerCase().includes("understanding") || msg.content.toLowerCase().includes("verse")),
+      response.messages.some(
+        (msg) =>
+          msg.content.toLowerCase().includes("understanding") ||
+          msg.content.toLowerCase().includes("verse")
+      ),
       "Transitions to understanding phase"
     );
 
@@ -135,22 +144,30 @@ class SessionResumptionTest {
       "there was a famine in the land",
       "And a certain man from Bethlehem in Judah",
       "with his wife and two sons",
-      "went to reside in the land of Moab"
+      "went to reside in the land of Moab",
     ];
 
     for (const phrase of verse1Phrases) {
       response = await this.sendMessage(`This means ${phrase.toLowerCase()}`);
       await this.assert(
-        response.messages.some(msg => msg.content.toLowerCase().includes("next") || msg.content.toLowerCase().includes("good")),
+        response.messages.some(
+          (msg) =>
+            msg.content.toLowerCase().includes("next") || msg.content.toLowerCase().includes("good")
+        ),
         `Processes phrase: ${phrase}`
       );
     }
 
     // Draft verse 1
     console.log("\n✍️ Drafting Verse 1...");
-    response = await this.sendMessage("Long ago, when judges ruled, there was no food. A man from Bethlehem took his family to Moab.");
+    response = await this.sendMessage(
+      "Long ago, when judges ruled, there was no food. A man from Bethlehem took his family to Moab."
+    );
     await this.assert(
-      response.messages.some(msg => msg.content.toLowerCase().includes("draft") || msg.content.toLowerCase().includes("saved")),
+      response.messages.some(
+        (msg) =>
+          msg.content.toLowerCase().includes("draft") || msg.content.toLowerCase().includes("saved")
+      ),
       "Saves verse 1 draft"
     );
 
@@ -158,25 +175,33 @@ class SessionResumptionTest {
     console.log("\n📖 Completing Verse 2 Understanding...");
     const verse2Phrases = [
       "The man's name was Elimelech",
-      "his wife's name was Naomi", 
+      "his wife's name was Naomi",
       "and the names of his two sons were Mahlon and Chilion",
       "They were Ephrathites from Bethlehem in Judah",
-      "and they entered the land of Moab and settled there"
+      "and they entered the land of Moab and settled there",
     ];
 
     for (const phrase of verse2Phrases) {
       response = await this.sendMessage(`This means ${phrase.toLowerCase()}`);
       await this.assert(
-        response.messages.some(msg => msg.content.toLowerCase().includes("next") || msg.content.toLowerCase().includes("good")),
+        response.messages.some(
+          (msg) =>
+            msg.content.toLowerCase().includes("next") || msg.content.toLowerCase().includes("good")
+        ),
         `Processes phrase: ${phrase}`
       );
     }
 
     // Draft verse 2
     console.log("\n✍️ Drafting Verse 2...");
-    response = await this.sendMessage("The man was Elimelech, his wife Naomi, and their sons Mahlon and Chilion. They were from Bethlehem and moved to Moab.");
+    response = await this.sendMessage(
+      "The man was Elimelech, his wife Naomi, and their sons Mahlon and Chilion. They were from Bethlehem and moved to Moab."
+    );
     await this.assert(
-      response.messages.some(msg => msg.content.toLowerCase().includes("draft") || msg.content.toLowerCase().includes("saved")),
+      response.messages.some(
+        (msg) =>
+          msg.content.toLowerCase().includes("draft") || msg.content.toLowerCase().includes("saved")
+      ),
       "Saves verse 2 draft"
     );
 
@@ -188,10 +213,7 @@ class SessionResumptionTest {
     console.log(`   - Drafts: ${Object.keys(state.scriptureCanvas?.verses || {}).length} verses`);
     console.log(`   - Glossary: ${Object.keys(state.glossary?.userPhrases || {}).length} phrases`);
 
-    await this.assert(
-      state.styleGuide.userName === "Sarah",
-      "User name preserved"
-    );
+    await this.assert(state.styleGuide.userName === "Sarah", "User name preserved");
     await this.assert(
       Object.keys(state.scriptureCanvas?.verses || {}).length >= 2,
       "Both verse drafts saved"
@@ -213,9 +235,15 @@ class SessionResumptionTest {
     const resumedState = await this.getCanvasState();
     console.log("\n📊 Resumed state:");
     console.log(`   - User: ${resumedState.styleGuide.userName}`);
-    console.log(`   - Settings: ${resumedState.styleGuide.tone}, ${resumedState.styleGuide.readingLevel}`);
-    console.log(`   - Drafts: ${Object.keys(resumedState.scriptureCanvas?.verses || {}).length} verses`);
-    console.log(`   - Glossary: ${Object.keys(resumedState.glossary?.userPhrases || {}).length} phrases`);
+    console.log(
+      `   - Settings: ${resumedState.styleGuide.tone}, ${resumedState.styleGuide.readingLevel}`
+    );
+    console.log(
+      `   - Drafts: ${Object.keys(resumedState.scriptureCanvas?.verses || {}).length} verses`
+    );
+    console.log(
+      `   - Glossary: ${Object.keys(resumedState.glossary?.userPhrases || {}).length} phrases`
+    );
 
     await this.assert(
       resumedState.styleGuide.userName === "Sarah",
@@ -242,7 +270,11 @@ class SessionResumptionTest {
     console.log("\n💬 Testing conversation continuation...");
     let response = await this.sendMessage("Let's continue with verse 3");
     await this.assert(
-      response.messages.some(msg => msg.content.toLowerCase().includes("verse") || msg.content.toLowerCase().includes("understanding")),
+      response.messages.some(
+        (msg) =>
+          msg.content.toLowerCase().includes("verse") ||
+          msg.content.toLowerCase().includes("understanding")
+      ),
       "Continues conversation naturally"
     );
 
@@ -250,13 +282,16 @@ class SessionResumptionTest {
     console.log("\n📖 Completing Verse 3 Understanding...");
     const verse3Phrases = [
       "Then Naomi's husband Elimelech died",
-      "and she was left with her two sons"
+      "and she was left with her two sons",
     ];
 
     for (const phrase of verse3Phrases) {
       response = await this.sendMessage(`This means ${phrase.toLowerCase()}`);
       await this.assert(
-        response.messages.some(msg => msg.content.toLowerCase().includes("next") || msg.content.toLowerCase().includes("good")),
+        response.messages.some(
+          (msg) =>
+            msg.content.toLowerCase().includes("next") || msg.content.toLowerCase().includes("good")
+        ),
         `Processes phrase: ${phrase}`
       );
     }
@@ -265,7 +300,10 @@ class SessionResumptionTest {
     console.log("\n✍️ Drafting Verse 3...");
     response = await this.sendMessage("Then Elimelech died, leaving Naomi with her two sons.");
     await this.assert(
-      response.messages.some(msg => msg.content.toLowerCase().includes("draft") || msg.content.toLowerCase().includes("saved")),
+      response.messages.some(
+        (msg) =>
+          msg.content.toLowerCase().includes("draft") || msg.content.toLowerCase().includes("saved")
+      ),
       "Saves verse 3 draft"
     );
 
@@ -281,8 +319,12 @@ class SessionResumptionTest {
     );
 
     console.log("\n📊 Final state after resumption:");
-    console.log(`   - Total drafts: ${Object.keys(finalState.scriptureCanvas?.verses || {}).length}`);
-    console.log(`   - Total phrases: ${Object.keys(finalState.glossary?.userPhrases || {}).length}`);
+    console.log(
+      `   - Total drafts: ${Object.keys(finalState.scriptureCanvas?.verses || {}).length}`
+    );
+    console.log(
+      `   - Total phrases: ${Object.keys(finalState.glossary?.userPhrases || {}).length}`
+    );
     console.log(`   - Total terms: ${Object.keys(finalState.glossary?.keyTerms || {}).length}`);
   }
 
@@ -297,7 +339,6 @@ class SessionResumptionTest {
 
       // Phase 2: Simulate "closing browser" and resuming
       await this.testSessionResumption();
-
     } catch (error) {
       console.error("❌ Session resumption test failed:", error);
       this.testResults.failed++;
@@ -310,8 +351,12 @@ class SessionResumptionTest {
     console.log("=" * 40);
     console.log(`✅ Passed: ${this.testResults.passed}`);
     console.log(`❌ Failed: ${this.testResults.failed}`);
-    console.log(`📈 Success Rate: ${Math.round((this.testResults.passed / (this.testResults.passed + this.testResults.failed)) * 100)}%`);
-    
+    console.log(
+      `📈 Success Rate: ${Math.round(
+        (this.testResults.passed / (this.testResults.passed + this.testResults.failed)) * 100
+      )}%`
+    );
+
     if (this.testResults.errors.length > 0) {
       console.log("\n❌ ERRORS:");
       this.testResults.errors.forEach((error, i) => {
@@ -320,7 +365,9 @@ class SessionResumptionTest {
     }
 
     const success = this.testResults.failed === 0;
-    console.log(`\n${success ? "🎉 SESSION RESUMPTION WORKS!" : "⚠️ SESSION RESUMPTION ISSUES FOUND"}`);
+    console.log(
+      `\n${success ? "🎉 SESSION RESUMPTION WORKS!" : "⚠️ SESSION RESUMPTION ISSUES FOUND"}`
+    );
     return success;
   }
 }
@@ -329,10 +376,10 @@ class SessionResumptionTest {
 async function main() {
   console.log("🧪 Starting Session Resumption Test");
   console.log("Testing pause/resume functionality");
-  
+
   const test = new SessionResumptionTest();
   await test.testCompleteResumption();
-  
+
   const success = test.printResults();
   process.exit(success ? 0 : 1);
 }

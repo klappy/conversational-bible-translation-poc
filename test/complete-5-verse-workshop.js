@@ -10,14 +10,14 @@ const PASTOR_AMY_RESPONSES = {
   // Planning phase responses
   name: "Amy",
   conversationLanguage: "English",
-  sourceLanguage: "English", 
+  sourceLanguage: "English",
   targetLanguage: "English",
   readingLevel: "Grade 3",
   tone: "Fun and engaging",
   philosophy: "Meaning-based",
   approach: "Dynamic",
   targetCommunity: "Children",
-  
+
   // Understanding phase responses (phrase explanations)
   phraseExplanations: {
     "In the days when the judges ruled": "Back when there were leaders before kings",
@@ -38,17 +38,20 @@ const PASTOR_AMY_RESPONSES = {
     "And after they had lived in Moab about ten years": "They lived there for about ten years",
     "both Mahlon and Chilion also died": "Sadly, both boys died too",
     "and Naomi was left without her two sons": "Naomi lost her sons",
-    "and without her husband": "And her husband was gone too"
+    "and without her husband": "And her husband was gone too",
   },
-  
+
   // Drafting phase responses
   drafts: {
-    "Ruth 1:1": "Long ago, before Israel had kings, there wasn't enough food. So a man from Bethlehem took his wife and two sons to live in Moab.",
-    "Ruth 1:2": "The man was named Elimelech, his wife was Naomi, and their sons were Mahlon and Chilion. They were from Bethlehem and moved to Moab.",
+    "Ruth 1:1":
+      "Long ago, before Israel had kings, there wasn't enough food. So a man from Bethlehem took his wife and two sons to live in Moab.",
+    "Ruth 1:2":
+      "The man was named Elimelech, his wife was Naomi, and their sons were Mahlon and Chilion. They were from Bethlehem and moved to Moab.",
     "Ruth 1:3": "Then Elimelech died, leaving Naomi with her two sons.",
-    "Ruth 1:4": "The sons married Moabite women named Orpah and Ruth. They lived in Moab for about ten years.",
-    "Ruth 1:5": "Then both sons died too, leaving Naomi alone without her husband or sons."
-  }
+    "Ruth 1:4":
+      "The sons married Moabite women named Orpah and Ruth. They lived in Moab for about ten years.",
+    "Ruth 1:5": "Then both sons died too, leaving Naomi alone without her husband or sons.",
+  },
 };
 
 class FiveVerseWorkshopTest {
@@ -58,7 +61,7 @@ class FiveVerseWorkshopTest {
     this.testResults = {
       passed: 0,
       failed: 0,
-      errors: []
+      errors: [],
     };
   }
 
@@ -66,18 +69,18 @@ class FiveVerseWorkshopTest {
     return new Promise((resolve, reject) => {
       // Convert API paths to Netlify function paths
       let netlifyPath = path;
-      if (path.startsWith('/api/')) {
-        netlifyPath = path.replace('/api/', '/.netlify/functions/');
-      } else if (!path.startsWith('/.netlify/functions/')) {
+      if (path.startsWith("/api/")) {
+        netlifyPath = path.replace("/api/", "/.netlify/functions/");
+      } else if (!path.startsWith("/.netlify/functions/")) {
         netlifyPath = `/.netlify/functions${path}`;
       }
-      
+
       const options = {
         hostname: "localhost",
         port: 8888,
         path: netlifyPath,
         method: data ? "POST" : "GET",
-        headers: data ? { "Content-Type": "application/json" } : {}
+        headers: data ? { "Content-Type": "application/json" } : {},
       };
 
       const req = http.request(options, (res) => {
@@ -94,7 +97,7 @@ class FiveVerseWorkshopTest {
       });
 
       req.on("error", reject);
-      
+
       if (data) {
         req.write(JSON.stringify(data));
       }
@@ -104,10 +107,10 @@ class FiveVerseWorkshopTest {
 
   async sendMessage(message) {
     console.log(`👤 Sending: ${message}`);
-    
+
     const response = await this.makeRequest("/api/conversation", {
       message,
-      sessionId: this.sessionId
+      sessionId: this.sessionId,
     });
 
     if (response && response.messages) {
@@ -145,14 +148,14 @@ class FiveVerseWorkshopTest {
     // Test 1: Name collection
     let response = await this.sendMessage("Hello!");
     await this.assert(
-      response.messages.some(msg => msg.content.includes("name")),
+      response.messages.some((msg) => msg.content.includes("name")),
       "Asks for user's name"
     );
 
     // Test 2: Name response
     response = await this.sendMessage(PASTOR_AMY_RESPONSES.name);
     await this.assert(
-      response.messages.some(msg => msg.content.includes(PASTOR_AMY_RESPONSES.name)),
+      response.messages.some((msg) => msg.content.includes(PASTOR_AMY_RESPONSES.name)),
       "Greets user by name"
     );
 
@@ -164,13 +167,16 @@ class FiveVerseWorkshopTest {
       { question: "reading level", answer: PASTOR_AMY_RESPONSES.readingLevel },
       { question: "tone", answer: PASTOR_AMY_RESPONSES.tone },
       { question: "philosophy", answer: PASTOR_AMY_RESPONSES.philosophy },
-      { question: "approach", answer: PASTOR_AMY_RESPONSES.approach }
+      { question: "approach", answer: PASTOR_AMY_RESPONSES.approach },
     ];
 
     for (const setting of settings) {
       response = await this.sendMessage(setting.answer);
       await this.assert(
-        response.messages.some(msg => msg.content.toLowerCase().includes("next") || msg.content.toLowerCase().includes("what")),
+        response.messages.some(
+          (msg) =>
+            msg.content.toLowerCase().includes("next") || msg.content.toLowerCase().includes("what")
+        ),
         `Collects ${setting.question} setting`
       );
     }
@@ -178,7 +184,11 @@ class FiveVerseWorkshopTest {
     // Test 10: Final settings confirmation
     response = await this.sendMessage("Use these settings and begin");
     await this.assert(
-      response.messages.some(msg => msg.content.toLowerCase().includes("understanding") || msg.content.toLowerCase().includes("verse")),
+      response.messages.some(
+        (msg) =>
+          msg.content.toLowerCase().includes("understanding") ||
+          msg.content.toLowerCase().includes("verse")
+      ),
       "Transitions to understanding phase"
     );
 
@@ -199,9 +209,11 @@ class FiveVerseWorkshopTest {
     console.log("=" * 50);
 
     // Get phrases for this verse from the data
-    const verseData = await this.makeRequest("/.netlify/functions/resources?type=bible&id=bsb-ruth-1");
-    const verse = verseData.verses.find(v => v.verse === verseNumber);
-    
+    const verseData = await this.makeRequest(
+      "/.netlify/functions/resources?type=bible&id=bsb-ruth-1"
+    );
+    const verse = verseData.verses.find((v) => v.verse === verseNumber);
+
     if (!verse) {
       console.log(`⚠️ No data found for verse ${verseNumber}`);
       return;
@@ -212,13 +224,17 @@ class FiveVerseWorkshopTest {
     // Test each phrase
     for (const phrase of verse.phrases) {
       console.log(`\n🔍 Testing phrase: "${phrase}"`);
-      
+
       // Send explanation
       const explanation = PASTOR_AMY_RESPONSES.phraseExplanations[phrase];
       if (explanation) {
         const response = await this.sendMessage(explanation);
         await this.assert(
-          response.messages.some(msg => msg.content.toLowerCase().includes("next") || msg.content.toLowerCase().includes("good")),
+          response.messages.some(
+            (msg) =>
+              msg.content.toLowerCase().includes("next") ||
+              msg.content.toLowerCase().includes("good")
+          ),
           `Processes explanation for: "${phrase}"`
         );
       }
@@ -228,13 +244,17 @@ class FiveVerseWorkshopTest {
     const updatedState = await this.getCanvasState();
     const userPhrases = updatedState.glossary?.userPhrases || {};
     const keyTerms = updatedState.glossary?.keyTerms || {};
-    
+
     await this.assert(
       Object.keys(userPhrases).length > 0,
       `Glossary has user phrase entries (${Object.keys(userPhrases).length} found)`
     );
-    
-    console.log(`📚 Glossary now has ${Object.keys(userPhrases).length} user phrases and ${Object.keys(keyTerms).length} key terms`);
+
+    console.log(
+      `📚 Glossary now has ${Object.keys(userPhrases).length} user phrases and ${
+        Object.keys(keyTerms).length
+      } key terms`
+    );
   }
 
   async testDraftingPhase(verseNumber) {
@@ -250,19 +270,24 @@ class FiveVerseWorkshopTest {
     // Send draft
     const response = await this.sendMessage(draft);
     await this.assert(
-      response.messages.some(msg => msg.content.toLowerCase().includes("draft") || msg.content.toLowerCase().includes("saved") || msg.content.toLowerCase().includes("recorded")),
+      response.messages.some(
+        (msg) =>
+          msg.content.toLowerCase().includes("draft") ||
+          msg.content.toLowerCase().includes("saved") ||
+          msg.content.toLowerCase().includes("recorded")
+      ),
       `Draft saved for verse ${verseNumber}`
     );
 
     // Verify draft saved to canvas
     const state = await this.getCanvasState();
     const savedDraft = state.scriptureCanvas?.verses?.[`Ruth 1:${verseNumber}`];
-    
+
     await this.assert(
       savedDraft && savedDraft.draft,
       `Draft exists in canvas for Ruth 1:${verseNumber}`
     );
-    
+
     if (savedDraft) {
       console.log(`📝 Draft saved: "${savedDraft.draft.substring(0, 50)}..."`);
     }
@@ -285,17 +310,17 @@ class FiveVerseWorkshopTest {
       for (let verse = 1; verse <= 5; verse++) {
         await this.testUnderstandingPhase(verse);
         await this.testDraftingPhase(verse);
-        
+
         // Small delay between verses
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 1000));
       }
 
       // Final verification
       console.log("\n🔍 FINAL VERIFICATION");
       console.log("=" * 30);
-      
+
       const finalState = await this.getCanvasState();
-      
+
       // Check all drafts saved
       const savedVerses = Object.keys(finalState.scriptureCanvas?.verses || {});
       await this.assert(
@@ -306,23 +331,16 @@ class FiveVerseWorkshopTest {
       // Check glossary accumulation
       const totalUserPhrases = Object.keys(finalState.glossary?.userPhrases || {}).length;
       const totalKeyTerms = Object.keys(finalState.glossary?.keyTerms || {}).length;
-      
-      await this.assert(
-        totalUserPhrases > 0,
-        `User phrases collected (${totalUserPhrases} found)`
-      );
-      
-      await this.assert(
-        totalKeyTerms > 0,
-        `Key terms collected (${totalKeyTerms} found)`
-      );
+
+      await this.assert(totalUserPhrases > 0, `User phrases collected (${totalUserPhrases} found)`);
+
+      await this.assert(totalKeyTerms > 0, `Key terms collected (${totalKeyTerms} found)`);
 
       // Check conversation flow
       await this.assert(
         this.conversationHistory.length > 50,
         `Natural conversation flow (${this.conversationHistory.length} messages)`
       );
-
     } catch (error) {
       console.error("❌ Test failed with error:", error);
       this.testResults.failed++;
@@ -335,8 +353,12 @@ class FiveVerseWorkshopTest {
     console.log("=" * 30);
     console.log(`✅ Passed: ${this.testResults.passed}`);
     console.log(`❌ Failed: ${this.testResults.failed}`);
-    console.log(`📈 Success Rate: ${Math.round((this.testResults.passed / (this.testResults.passed + this.testResults.failed)) * 100)}%`);
-    
+    console.log(
+      `📈 Success Rate: ${Math.round(
+        (this.testResults.passed / (this.testResults.passed + this.testResults.failed)) * 100
+      )}%`
+    );
+
     if (this.testResults.errors.length > 0) {
       console.log("\n❌ ERRORS:");
       this.testResults.errors.forEach((error, i) => {
@@ -354,10 +376,10 @@ class FiveVerseWorkshopTest {
 async function main() {
   console.log("🧪 Starting 5-Verse Workshop Test");
   console.log("Testing complete workshop experience through all 5 verses of Ruth");
-  
+
   const test = new FiveVerseWorkshopTest();
   await test.testCompleteWorkshop();
-  
+
   const success = test.printResults();
   process.exit(success ? 0 : 1);
 }
