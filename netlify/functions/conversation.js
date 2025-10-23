@@ -611,7 +611,8 @@ const handler = async (req, context) => {
 
     // Get session ID from headers (try both .get() and direct access)
     const sessionId = req.headers.get?.("x-session-id") || req.headers["x-session-id"] || "default";
-    console.log("Session ID from header:", sessionId);
+    console.log("📥 Session ID from header:", sessionId);
+    console.log("📝 Message history length:", history.length);
 
     // Initialize OpenAI client with API key from Netlify environment
     const openai = new OpenAI({
@@ -649,6 +650,7 @@ const handler = async (req, context) => {
           return acc;
         }, {}),
         canvasState,
+        sessionId, // Include session ID in response for client debugging
         timestamp: new Date().toISOString(),
       }),
       {
