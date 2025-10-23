@@ -33,7 +33,7 @@ Users can always ask for more detail if needed.
 export const agentRegistry = {
   suggestions: {
     id: "suggestions",
-    model: "gpt-3.5-turbo",
+    model: "gpt-4o-mini",
     active: true,
     role: "Quick Response Generator",
     visual: {
@@ -579,7 +579,7 @@ CRITICAL: You LEAD this process - don't wait for user to choose phrases!
 
   state: {
     id: "state",
-    model: "gpt-3.5-turbo",
+    model: "gpt-4o-mini",
     active: true,
     role: "Canvas Scribe",
     visual: {
@@ -941,7 +941,7 @@ Only speak when you have something concrete to track.
 
   validator: {
     id: "validator",
-    model: "gpt-3.5-turbo",
+    model: "gpt-4o-mini",
     active: false, // Activated only during checking phase
     role: "Quality Checker",
     visual: {
@@ -979,7 +979,7 @@ Be constructive - offer solutions, not just problems.`,
 
   resource: {
     id: "resource",
-    model: "gpt-3.5-turbo",
+    model: "gpt-4o-mini",
     active: false, // Activated when biblical resources are needed
     role: "Resource Librarian",
     visual: {

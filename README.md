@@ -39,8 +39,7 @@ An AI-powered conversational Bible translation tool implementing the FIA (Famili
 - **Frontend**: React with Vite
 - **Backend**: Netlify Functions (serverless)
 - **AI**: Multi-Agent System
-  - GPT-4o-mini (Primary Translator, Orchestrator)
-  - GPT-3.5-turbo (State Manager, Validator, Resources)
+  - GPT-4o-mini (All agents: Primary Translator, Orchestrator, State Manager, Validator, Resources, Suggestions)
 - **State Management**: Server-side with polling
 - **Styling**: Custom CSS with mobile-first approach
 - **PWA**: Installable web app with offline capability

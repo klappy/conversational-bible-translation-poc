@@ -59,7 +59,7 @@ Translator]              ↓                     ↓
 
 - **Role**: Canvas Scribe
 - **Color**: Green (#10B981)
-- **Model**: GPT-3.5-turbo (cost-optimized)
+- **Model**: GPT-4o-mini
 - **Responsibilities**:
   - Monitors all conversations
   - Extracts state updates
@@ -71,7 +71,7 @@ Translator]              ↓                     ↓
 
 - **Role**: Quality Checker
 - **Color**: Orange (#F97316)
-- **Model**: GPT-3.5-turbo
+- **Model**: GPT-4o-mini
 - **Responsibilities**:
   - Checks glossary consistency
   - Verifies reading level compliance
@@ -83,7 +83,7 @@ Translator]              ↓                     ↓
 
 - **Role**: Resource Librarian
 - **Color**: Indigo (#6366F1)
-- **Model**: GPT-3.5-turbo
+- **Model**: GPT-4o-mini
 - **Responsibilities**:
   - Provides original language insights
   - Supplies cultural/historical context
@@ -174,11 +174,11 @@ Translator]              ↓                     ↓
 - No modification of existing agents required
 - Plug-and-play architecture
 
-### 3. Cost Optimization
+### 3. Consistency and Reliability
 
-- Use expensive models only where needed
-- GPT-3.5 for utility tasks
-- GPT-4 for critical translation
+- All agents use GPT-4o-mini for consistent behavior
+- Standardized model selection prevents blocking issues
+- Better quality responses across all agent types
 
 ### 4. Clear Responsibilities
 
@@ -202,7 +202,7 @@ To add a new agent:
 // netlify/functions/agents/registry.js
 newAgent: {
   id: 'newAgent',
-  model: 'gpt-3.5-turbo',
+  model: 'gpt-4o-mini',
   role: 'Specific Role',
   visual: {
     icon: '🆕',
