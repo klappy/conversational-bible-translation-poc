@@ -56,7 +56,7 @@ const PASTOR_AMY_RESPONSES = {
 
 class FiveVerseWorkshopTest {
   constructor() {
-    this.sessionId = null;
+    this.sessionId = `test_5verse_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
     this.conversationHistory = [];
     this.testResults = {
       passed: 0,
@@ -80,7 +80,10 @@ class FiveVerseWorkshopTest {
         port: 8888,
         path: netlifyPath,
         method: data ? "POST" : "GET",
-        headers: data ? { "Content-Type": "application/json" } : {},
+        headers: {
+          "Content-Type": "application/json",
+          "X-Session-ID": this.sessionId,
+        },
       };
 
       const req = http.request(options, (res) => {
@@ -296,13 +299,9 @@ class FiveVerseWorkshopTest {
   async testCompleteWorkshop() {
     console.log("\n🚀 STARTING COMPLETE 5-VERSE WORKSHOP TEST");
     console.log("=" * 60);
+    console.log(`📱 Session ID: ${this.sessionId}`);
 
     try {
-      // Initialize session
-      const initResponse = await this.makeRequest("/api/canvas-state");
-      this.sessionId = initResponse.sessionId;
-      console.log(`📱 Session ID: ${this.sessionId}`);
-
       // Test Planning Phase
       await this.testPlanningPhase();
 

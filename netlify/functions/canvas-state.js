@@ -69,13 +69,15 @@ function getBlobStore(context) {
 /**
  * Get session-specific state key
  */
-function getStateKey(req) {
-  // Check for session ID in headers or query params
+function getStateKey(req, body = null) {
+  // Check for session ID in headers, query params, or body (in that order)
   const url = new URL(req.url);
   const sessionId =
     req.headers.get?.("x-session-id") ||
     req.headers["x-session-id"] ||
-    url.searchParams.get("session");
+    url.searchParams.get("session") ||
+    url.searchParams.get("sessionId") ||
+    body?.sessionId;
 
   // Use session-specific key if provided, otherwise use default
   // Don't double-prefix if session ID already starts with "session_"
@@ -246,8 +248,18 @@ const handler = async (req, context) => {
     // Get the Blobs store
     const store = getBlobStore(context);
 
+    // Parse body if it exists (for POST requests)
+    let body = null;
+    if (req.method === "POST") {
+      try {
+        body = await req.json();
+      } catch (e) {
+        // No body or invalid JSON, that's fine
+      }
+    }
+
     // Get the state key (session-specific or default)
-    const stateKey = getStateKey(req);
+    const stateKey = getStateKey(req, body);
 
     const url = new URL(req.url);
     const path = url.pathname.replace("/.netlify/functions/canvas-state", "");
@@ -318,8 +330,7 @@ const handler = async (req, context) => {
 
     // POST /update - Update state
     if (req.method === "POST" && path === "/update") {
-      const body = await req.json();
-      const { updates, agentId } = body;
+      const { updates, agentId } = body || {};
 
       const result = await updateState(store, stateKey, updates, agentId);
 

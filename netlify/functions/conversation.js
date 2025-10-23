@@ -113,16 +113,23 @@ async function callAgent(agent, message, context, openaiClient) {
  */
 async function getCanvasState(sessionId = "default") {
   try {
-    // In Netlify Functions, we need full localhost URL for internal calls
-    const baseUrl = "http://localhost:8888";
-    const stateUrl = `${baseUrl}/.netlify/functions/canvas-state`;
-
-    const response = await fetch(stateUrl, {
+    // Import canvas-state handler directly for function-to-function calls
+    const { default: canvasStateHandler } = await import("./canvas-state.js");
+    
+    // Create a mock request object for the canvas-state handler
+    const mockRequest = {
+      method: "GET",
+      url: `http://localhost/.netlify/functions/canvas-state`,
       headers: {
-        "X-Session-ID": sessionId,
+        get: (name) => name.toLowerCase() === "x-session-id" ? sessionId : null,
+        "x-session-id": sessionId,
       },
-    });
-    if (response.ok) {
+    };
+
+    // Call the canvas-state handler directly
+    const response = await canvasStateHandler(mockRequest, {});
+    
+    if (response.status === 200) {
       return await response.json();
     }
   } catch (error) {
@@ -143,31 +150,31 @@ async function getCanvasState(sessionId = "default") {
  */
 async function updateCanvasState(updates, agentId = "system", sessionId = "default") {
   try {
-    // In Netlify Functions, we need full localhost URL for internal calls
-    const baseUrl = "http://localhost:8888";
-    const stateUrl = `${baseUrl}/.netlify/functions/canvas-state/update`;
-
+    // Import canvas-state handler directly for function-to-function calls
+    // This avoids HTTP overhead and works in both dev and production
+    const { default: canvasStateHandler } = await import("./canvas-state.js");
+    
     console.log("🔵 updateCanvasState called with:", JSON.stringify(updates, null, 2));
     console.log("🔵 Session ID:", sessionId);
-    console.log("🔵 Sending to:", stateUrl);
 
-    const payload = { updates, agentId };
-    console.log("🔵 Payload:", JSON.stringify(payload, null, 2));
-
-    const response = await fetch(stateUrl, {
+    // Create a mock request object for the canvas-state handler
+    const mockRequest = {
       method: "POST",
+      url: `http://localhost/.netlify/functions/canvas-state/update`,
       headers: {
-        "Content-Type": "application/json",
-        "X-Session-ID": sessionId, // ADD SESSION HEADER!
+        get: (name) => name.toLowerCase() === "x-session-id" ? sessionId : null,
+        "content-type": "application/json",
+        "x-session-id": sessionId,
       },
-      body: JSON.stringify(payload),
-    });
+      json: async () => ({ updates, agentId }),
+    };
 
-    console.log("🔵 Update response status:", response.status);
-
-    if (response.ok) {
+    // Call the canvas-state handler directly
+    const response = await canvasStateHandler(mockRequest, {});
+    
+    if (response.status === 200) {
       const result = await response.json();
-      console.log("🔵 Update result:", JSON.stringify(result, null, 2));
+      console.log("🔵 Update successful");
       return result;
     } else {
       console.error("🔴 Update failed with status:", response.status);
@@ -601,12 +608,17 @@ const handler = async (req, context) => {
 
   try {
     console.log("Conversation endpoint called");
-    const { message, history = [] } = await req.json();
+    const body = await req.json();
+    const { message, history = [], sessionId: bodySessionId } = body;
     console.log("Received message:", message);
 
-    // Get session ID from headers (try both .get() and direct access)
-    const sessionId = req.headers.get?.("x-session-id") || req.headers["x-session-id"] || "default";
-    console.log("Session ID from header:", sessionId);
+    // Get session ID from headers, body, or default (in that order of priority)
+    const sessionId = 
+      req.headers.get?.("x-session-id") || 
+      req.headers["x-session-id"] || 
+      bodySessionId || 
+      "default";
+    console.log("Session ID resolved to:", sessionId);
 
     // Initialize OpenAI client with API key from Netlify environment
     const openai = new OpenAI({

@@ -12,10 +12,10 @@ class SessionResumptionTest {
       failed: 0,
       errors: [],
     };
-    this.sessionId = null;
+    this.sessionId = `test_resumption_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
   }
 
-  async makeRequest(path, data = null) {
+  async makeRequest(path, data = null, sessionId = null) {
     return new Promise((resolve, reject) => {
       // Convert API paths to Netlify function paths
       let netlifyPath = path;
@@ -25,12 +25,17 @@ class SessionResumptionTest {
         netlifyPath = `/.netlify/functions${path}`;
       }
 
+      const headers = { "Content-Type": "application/json" };
+      if (sessionId) {
+        headers["X-Session-ID"] = sessionId;
+      }
+
       const options = {
         hostname: "localhost",
         port: 8888,
         path: netlifyPath,
         method: data ? "POST" : "GET",
-        headers: data ? { "Content-Type": "application/json" } : {},
+        headers,
       };
 
       const req = http.request(options, (res) => {
@@ -59,13 +64,15 @@ class SessionResumptionTest {
     const response = await this.makeRequest("/api/conversation", {
       message,
       sessionId: sessionId || this.sessionId,
-    });
+    }, sessionId || this.sessionId);
     return response;
   }
 
   async getCanvasState(sessionId = null) {
     const response = await this.makeRequest(
-      `/api/canvas-state?sessionId=${sessionId || this.sessionId}`
+      `/api/canvas-state`,
+      null,
+      sessionId || this.sessionId
     );
     return response;
   }
@@ -84,10 +91,6 @@ class SessionResumptionTest {
   async testInitialSession() {
     console.log("\n📱 TESTING INITIAL SESSION SETUP");
     console.log("=" * 50);
-
-    // Initialize session
-    const initResponse = await this.makeRequest("/api/canvas-state");
-    this.sessionId = initResponse.sessionId;
     console.log(`📱 Session ID: ${this.sessionId}`);
 
     // Complete planning phase
