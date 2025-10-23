@@ -226,13 +226,13 @@ User: [confused - still trying to set up]
 
 ### Agent Profiles
 
-| Agent                 | ID              | Model         | Role                         | When Active                  |
-| --------------------- | --------------- | ------------- | ---------------------------- | ---------------------------- |
-| Orchestrator          | 🎭 orchestrator | GPT-4o-mini   | Decides which agents respond | Always                       |
-| Translation Assistant | 📖 primary      | GPT-4o-mini   | Guides FIA workflow          | Always                       |
-| Canvas Scribe         | 📝 state        | GPT-3.5-turbo | Records state updates        | When data to save            |
-| Resource Librarian    | 📚 resource     | GPT-3.5-turbo | Presents scripture           | When biblical content needed |
-| Suggestion Helper     | 💡 suggestions  | GPT-3.5-turbo | Generates quick responses    | Always (async)               |
+| Agent                 | ID              | Model       | Role                         | When Active                  |
+| --------------------- | --------------- | ----------- | ---------------------------- | ---------------------------- |
+| Orchestrator          | 🎭 orchestrator | GPT-4o-mini | Decides which agents respond | Always                       |
+| Translation Assistant | 📖 primary      | GPT-4o-mini | Guides FIA workflow          | Always                       |
+| Canvas Scribe         | 📝 state        | GPT-4o-mini | Records state updates        | When data to save            |
+| Resource Librarian    | 📚 resource     | GPT-4o-mini | Presents scripture           | When biblical content needed |
+| Suggestion Helper     | 💡 suggestions  | GPT-4o-mini | Generates quick responses    | Always (async)               |
 
 **Design Philosophy:** Each agent has ONE job and does it well. No agent knows about others' implementation details (antifragile design).
 
@@ -404,8 +404,7 @@ All answered → Move to Understanding
 
 - **Runtime:** Netlify Functions (serverless Node.js)
 - **AI:** OpenAI API
-  - GPT-4o-mini: Primary, Orchestrator (more capable)
-  - GPT-3.5-turbo: State, Resource, Suggestions (cost-optimized)
+  - GPT-4o-mini: All agents (Primary, Orchestrator, State, Resource, Suggestions, Validator)
 - **Storage:** Netlify Blobs (key-value store)
 - **Session Management:** URL parameters + localStorage
 
