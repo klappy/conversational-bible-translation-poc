@@ -168,37 +168,17 @@ const ChatInterfaceMultiAgent = () => {
         setActiveAgents(Object.keys(result.agentResponses));
       }
 
-      // Add agent messages to conversation
-      console.log("🔴 ABOUT TO PROCESS MESSAGES:", result.messages?.length);
-      if (result.messages && result.messages.length > 0) {
-        console.log("🔴 INSIDE MESSAGE PROCESSING BLOCK");
-        result.messages.forEach((msg) => {
-          addMessage({
-            ...msg,
-            id: generateUniqueId("msg"),
-            timestamp: new Date(),
-          });
-        });
-
-        // Add suggestions as inline message in conversation history
-        const suggestions = result.suggestions || [];
-        if (suggestions && suggestions.length > 0) {
-          const suggestionMessage = {
-            id: generateUniqueId("sug"),
-            role: "system",
-            type: "suggestions",
-            content: suggestions,
-            timestamp: new Date(),
-          };
-          addMessage(suggestionMessage);
-        }
-      }
-
-      // Update canvas state if provided
-      if (result.canvasState) {
-        setCanvasState(result.canvasState);
-        if (updateFromServerState) {
-          updateFromServerState(result.canvasState);
+      // Server has already saved conversation history
+      // Replace local state with server's authoritative history
+      if (result.conversationHistory && Array.isArray(result.conversationHistory)) {
+        console.log("✅ Replacing local conversation with server history");
+        // The TranslationContext will handle this via updateFromServerState
+        // Just update canvas state, which includes conversation history
+        if (result.canvasState) {
+          setCanvasState(result.canvasState);
+          if (updateFromServerState) {
+            updateFromServerState(result.canvasState);
+          }
         }
       }
     } catch (error) {

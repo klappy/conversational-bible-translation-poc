@@ -266,6 +266,15 @@ export const TranslationProvider = ({ children }) => {
         ...serverState.workflow,
       }));
     }
+
+    // Sync conversation history from server (server = source of truth)
+    if (serverState.conversationHistory && Array.isArray(serverState.conversationHistory)) {
+      setMessages(serverState.conversationHistory.map((msg, index) => ({
+        ...msg,
+        id: msg.id || generateUniqueId(`msg-${index}`),
+        timestamp: msg.timestamp ? new Date(msg.timestamp) : new Date(),
+      })));
+    }
   }, []);
 
   const value = {

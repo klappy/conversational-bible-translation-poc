@@ -638,7 +638,39 @@ const handler = async (req, context) => {
     console.log("State message agent info:", stateMsg?.agent);
     console.log("Quick suggestions:", suggestions);
 
-    // Get updated canvas state
+    // Save conversation history to canvas state (server = source of truth)
+    // Build the complete conversation history including this turn
+    const updatedHistory = [
+      ...history,
+      { 
+        role: "user", 
+        content: message, 
+        timestamp: new Date().toISOString() 
+      },
+      ...messages.map(msg => ({
+        role: msg.role,
+        content: msg.content,
+        agent: msg.agent,
+        timestamp: msg.timestamp || new Date().toISOString()
+      })),
+      // Include suggestion messages if present
+      ...(suggestions && suggestions.length > 0 ? [{
+        role: "system",
+        type: "suggestions",
+        content: suggestions,
+        timestamp: new Date().toISOString()
+      }] : [])
+    ];
+
+    // Save to server (single source of truth)
+    await updateCanvasState(
+      { conversationHistory: updatedHistory },
+      "conversation",
+      sessionId
+    );
+    console.log("✅ Conversation history saved to server");
+
+    // Get updated canvas state (includes conversation history)
     const canvasState = await getCanvasState(sessionId);
 
     // Return response with agent attribution
@@ -646,6 +678,7 @@ const handler = async (req, context) => {
       JSON.stringify({
         messages,
         suggestions, // Include dynamic suggestions from agents
+        conversationHistory: canvasState.conversationHistory || [], // Return server's conversation history
         agentResponses: Object.keys(agentResponses).reduce((acc, key) => {
           if (agentResponses[key] && !agentResponses[key].error) {
             acc[key] = {
