@@ -87,6 +87,11 @@ async function callAgent(agent, message, context, openaiClient) {
       messages: messages,
       temperature: agent.id === "state" ? 0.1 : 0.7, // Lower temp for state extraction
       max_tokens: agent.id === "state" ? 500 : 2000,
+      // Force JSON mode for agents that must return JSON objects
+      // Note: suggestions agent returns an array, so it can't use JSON mode (which requires objects)
+      ...((agent.id === "state" || agent.id === "primary" || agent.id === "orchestrator") && {
+        response_format: { type: "json_object" },
+      }),
     });
 
     const completion = await Promise.race([completionPromise, timeoutPromise]);
