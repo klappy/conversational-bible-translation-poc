@@ -6,25 +6,49 @@
 /**
  * Get or create a session ID
  * First checks URL params, then localStorage, then generates new
+ * Falls back to memory-only storage if localStorage is unavailable (Safari private mode, etc.)
  */
+let memorySessionId = null; // Fallback for when localStorage is unavailable
+
 export function getSessionId() {
   // Check URL params first (for workshop attendees with specific links)
   const urlParams = new URLSearchParams(window.location.search);
   const urlSession = urlParams.get("session");
 
   if (urlSession) {
-    // Save URL session to localStorage for persistence
-    localStorage.setItem("sessionId", urlSession);
+    // Try to save URL session to localStorage for persistence
+    try {
+      localStorage.setItem("sessionId", urlSession);
+    } catch (e) {
+      console.warn("localStorage unavailable (private browsing?), using memory storage:", e.message);
+      memorySessionId = urlSession;
+    }
     return urlSession;
   }
 
-  // Check localStorage for existing session
-  let sessionId = localStorage.getItem("sessionId");
+  // Try to check localStorage for existing session
+  let sessionId = null;
+  try {
+    sessionId = localStorage.getItem("sessionId");
+  } catch (e) {
+    console.warn("localStorage unavailable (private browsing?), using memory storage:", e.message);
+    // Fall back to memory storage
+    if (memorySessionId) {
+      return memorySessionId;
+    }
+  }
 
   if (!sessionId) {
     // Generate new session ID
     sessionId = generateSessionId();
-    localStorage.setItem("sessionId", sessionId);
+    
+    // Try to save to localStorage
+    try {
+      localStorage.setItem("sessionId", sessionId);
+    } catch (e) {
+      console.warn("localStorage unavailable (private browsing?), using memory storage:", e.message);
+      memorySessionId = sessionId;
+    }
   }
 
   return sessionId;
@@ -43,7 +67,12 @@ export function generateSessionId() {
  * Clear the current session
  */
 export function clearSession() {
-  localStorage.removeItem("sessionId");
+  try {
+    localStorage.removeItem("sessionId");
+  } catch (e) {
+    console.warn("localStorage unavailable, clearing memory storage instead");
+  }
+  memorySessionId = null;
   // Optionally reload to get fresh state
   window.location.href = window.location.pathname;
 }
@@ -53,6 +82,7 @@ export function clearSession() {
  */
 export function getSessionHeaders() {
   const sessionId = getSessionId();
+  console.log("📤 Sending API request with session ID:", sessionId);
   return {
     "X-Session-ID": sessionId,
   };

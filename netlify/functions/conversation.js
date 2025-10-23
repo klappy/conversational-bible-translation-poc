@@ -87,6 +87,11 @@ async function callAgent(agent, message, context, openaiClient) {
       messages: messages,
       temperature: agent.id === "state" ? 0.1 : 0.7, // Lower temp for state extraction
       max_tokens: agent.id === "state" ? 500 : 2000,
+      // Force JSON mode for agents that must return JSON objects
+      // Note: suggestions agent returns an array, so it can't use JSON mode (which requires objects)
+      ...((agent.id === "state" || agent.id === "primary" || agent.id === "orchestrator") && {
+        response_format: { type: "json_object" },
+      }),
     });
 
     const completion = await Promise.race([completionPromise, timeoutPromise]);
@@ -606,7 +611,8 @@ const handler = async (req, context) => {
 
     // Get session ID from headers (try both .get() and direct access)
     const sessionId = req.headers.get?.("x-session-id") || req.headers["x-session-id"] || "default";
-    console.log("Session ID from header:", sessionId);
+    console.log("📥 Session ID from header:", sessionId);
+    console.log("📝 Message history length:", history.length);
 
     // Initialize OpenAI client with API key from Netlify environment
     const openai = new OpenAI({
@@ -644,6 +650,7 @@ const handler = async (req, context) => {
           return acc;
         }, {}),
         canvasState,
+        sessionId, // Include session ID in response for client debugging
         timestamp: new Date().toISOString(),
       }),
       {

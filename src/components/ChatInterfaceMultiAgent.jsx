@@ -156,6 +156,7 @@ const ChatInterfaceMultiAgent = () => {
 
       const result = await response.json();
       console.log("Got result:", result);
+      console.log("🔍 Server session ID:", result.sessionId);
       console.log("🚨 CRITICAL CHECK - result.suggestions:", result.suggestions);
       console.log("🚨 CRITICAL CHECK - Is Array?:", Array.isArray(result.suggestions));
       console.log("🚨 CRITICAL CHECK - Length:", result.suggestions?.length);
