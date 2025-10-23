@@ -87,7 +87,7 @@ class MultiPersonaTest {
     };
   }
 
-  async makeRequest(path, data = null) {
+  async makeRequest(path, data = null, sessionId = null) {
     return new Promise((resolve, reject) => {
       // Convert API paths to Netlify function paths
       let netlifyPath = path;
@@ -97,12 +97,17 @@ class MultiPersonaTest {
         netlifyPath = `/.netlify/functions${path}`;
       }
 
+      const headers = { "Content-Type": "application/json" };
+      if (sessionId) {
+        headers["X-Session-ID"] = sessionId;
+      }
+
       const options = {
         hostname: "localhost",
         port: 8888,
         path: netlifyPath,
         method: data ? "POST" : "GET",
-        headers: data ? { "Content-Type": "application/json" } : {},
+        headers,
       };
 
       const req = http.request(options, (res) => {
@@ -131,12 +136,12 @@ class MultiPersonaTest {
     const response = await this.makeRequest("/api/conversation", {
       message,
       sessionId,
-    });
+    }, sessionId);
     return response;
   }
 
   async getCanvasState(sessionId) {
-    const response = await this.makeRequest(`/api/canvas-state?sessionId=${sessionId}`);
+    const response = await this.makeRequest(`/api/canvas-state`, null, sessionId);
     return response;
   }
 
@@ -156,9 +161,8 @@ class MultiPersonaTest {
     console.log("=" * 50);
 
     try {
-      // Initialize new session for this persona
-      const initResponse = await this.makeRequest("/api/canvas-state");
-      const sessionId = initResponse.sessionId;
+      // Generate unique session ID for this persona
+      const sessionId = `test_persona_${personaName}_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
       console.log(`📱 Session ID: ${sessionId}`);
 
       // Test name collection

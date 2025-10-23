@@ -97,7 +97,7 @@ const USE_LLM_PROBABILITY = 0.4;  // 40% of responses use LLM
 class ChaoticWorkshopAttendee {
   constructor(personaNumber) {
     this.personaNumber = personaNumber;
-    this.sessionId = null;
+    this.sessionId = `test_chaotic_${personaNumber}_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
     this.conversationHistory = [];
     this.currentPhase = "planning";
     this.name = this.randomChoice(POSSIBLE_NAMES);
@@ -130,12 +130,17 @@ class ChaoticWorkshopAttendee {
         netlifyPath = `/.netlify/functions${path}`;
       }
 
+      const headers = { "Content-Type": "application/json" };
+      if (this.sessionId) {
+        headers["X-Session-ID"] = this.sessionId;
+      }
+
       const options = {
         hostname: "localhost",
         port: 8888,
         path: netlifyPath,
         method: data ? "POST" : "GET",
-        headers: data ? { "Content-Type": "application/json" } : {},
+        headers,
       };
 
       const req = http.request(options, (res) => {
@@ -178,7 +183,7 @@ class ChaoticWorkshopAttendee {
   }
 
   async getCanvasState() {
-    return await this.makeRequest(`/api/canvas-state?sessionId=${this.sessionId}`);
+    return await this.makeRequest(`/api/canvas-state`);
   }
 
   // Decide what to do next based on AI response and current context
@@ -359,9 +364,6 @@ Your response:`;
     console.log(`${"=".repeat(60)}`);
 
     try {
-      // Initialize session
-      const initResponse = await this.makeRequest("/api/canvas-state");
-      this.sessionId = initResponse.sessionId;
       console.log(`📱 Session ID: ${this.sessionId}`);
 
       // Start the conversation

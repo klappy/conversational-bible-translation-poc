@@ -287,7 +287,7 @@ const regressionTests = [
       } else {
         return {
           passed: false,
-          message: "Settings not properly saved",
+          message: `Settings not properly saved. Got userName="${state.styleGuide?.userName}" (expected "TestUserName"), conversationLanguage="${state.styleGuide?.conversationLanguage}" (expected "Spanish")`,
         };
       }
     },

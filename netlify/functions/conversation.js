@@ -601,12 +601,17 @@ const handler = async (req, context) => {
 
   try {
     console.log("Conversation endpoint called");
-    const { message, history = [] } = await req.json();
+    const body = await req.json();
+    const { message, history = [], sessionId: bodySessionId } = body;
     console.log("Received message:", message);
 
-    // Get session ID from headers (try both .get() and direct access)
-    const sessionId = req.headers.get?.("x-session-id") || req.headers["x-session-id"] || "default";
-    console.log("Session ID from header:", sessionId);
+    // Get session ID from headers, body, or default (in that order of priority)
+    const sessionId = 
+      req.headers.get?.("x-session-id") || 
+      req.headers["x-session-id"] || 
+      bodySessionId || 
+      "default";
+    console.log("Session ID resolved to:", sessionId);
 
     // Initialize OpenAI client with API key from Netlify environment
     const openai = new OpenAI({
