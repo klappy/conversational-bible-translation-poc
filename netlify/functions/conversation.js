@@ -198,7 +198,7 @@ async function processConversation(userMessage, conversationHistory, sessionId, 
   // Build context for agents
   const context = {
     canvasState,
-    conversationHistory: conversationHistory.slice(-10), // Last 10 messages
+    conversationHistory: conversationHistory.slice(-30), // Last 30 messages for better context
     timestamp: new Date().toISOString(),
   };
 
@@ -262,7 +262,8 @@ async function processConversation(userMessage, conversationHistory, sessionId, 
     console.log("Calling state manager...");
     console.log("State manager agent info:", stateManager?.visual);
 
-    // Pass the last question asked by the Translation Assistant
+    // Pass the PREVIOUS question asked by the Translation Assistant
+    // This is what the user is ANSWERING with their current message
     let lastAssistantQuestion = null;
     for (let i = context.conversationHistory.length - 1; i >= 0; i--) {
       const msg = context.conversationHistory[i];
@@ -278,6 +279,17 @@ async function processConversation(userMessage, conversationHistory, sessionId, 
       }
     }
 
+    // Also get the CURRENT primary response (the NEXT question being asked)
+    let currentPrimaryQuestion = null;
+    if (responses.primary?.response) {
+      try {
+        const parsed = JSON.parse(responses.primary.response);
+        currentPrimaryQuestion = parsed.message || responses.primary.response;
+      } catch {
+        currentPrimaryQuestion = responses.primary.response;
+      }
+    }
+
     const stateResult = await callAgent(
       stateManager,
       userMessage,
@@ -286,6 +298,7 @@ async function processConversation(userMessage, conversationHistory, sessionId, 
         primaryResponse: responses.primary?.response,
         resourceResponse: responses.resource?.response,
         lastAssistantQuestion,
+        currentPrimaryQuestion,
         orchestration,
       },
       openaiClient
