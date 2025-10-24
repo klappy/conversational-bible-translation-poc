@@ -71,10 +71,41 @@ const ChatInterfaceMultiAgent = () => {
       canvasState
     ) {
       const initialMsg = generateInitialMessage(canvasState);
+      // Add locally - will be synced to server on first user message
+      // Or we can save it immediately (see below)
       addMessage(initialMsg);
       initialMessageGenerated.current = true;
 
-      // Don't process suggestions here - backend handles everything now
+      // Save initial greeting to server immediately
+      const saveInitialGreeting = async () => {
+        try {
+          const apiUrl = import.meta.env.DEV
+            ? "http://localhost:9999/.netlify/functions/canvas-state/update"
+            : "/.netlify/functions/canvas-state/update";
+
+          await fetch(apiUrl, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              ...getSessionHeaders(),
+            },
+            body: JSON.stringify({
+              updates: {
+                conversationHistory: [
+                  {
+                    ...initialMsg,
+                    timestamp: initialMsg.timestamp.toISOString(),
+                  },
+                ],
+              },
+            }),
+          });
+          console.log("✅ Initial greeting saved to server");
+        } catch (error) {
+          console.error("Failed to save initial greeting:", error);
+        }
+      };
+      saveInitialGreeting();
     }
   }, [messages.length, generateInitialMessage, addMessage, canvasState]);
 
@@ -168,17 +199,13 @@ const ChatInterfaceMultiAgent = () => {
         setActiveAgents(Object.keys(result.agentResponses));
       }
 
-      // Server has already saved conversation history
-      // Replace local state with server's authoritative history
-      if (result.conversationHistory && Array.isArray(result.conversationHistory)) {
-        console.log("✅ Replacing local conversation with server history");
-        // The TranslationContext will handle this via updateFromServerState
-        // Just update canvas state, which includes conversation history
-        if (result.canvasState) {
-          setCanvasState(result.canvasState);
-          if (updateFromServerState) {
-            updateFromServerState(result.canvasState);
-          }
+      // ALWAYS update canvas state (workflow, glossary, etc.)
+      // Server is source of truth for ALL state, not just conversation
+      if (result.canvasState) {
+        console.log("✅ Updating canvas state from server");
+        setCanvasState(result.canvasState);
+        if (updateFromServerState) {
+          updateFromServerState(result.canvasState);
         }
       }
     } catch (error) {

@@ -6,6 +6,13 @@
 import { OpenAI } from "openai";
 import { getAgent } from "./agents/registry.js";
 
+// Simple ID generator for server-side (matches client-side pattern)
+let idCounter = 0;
+const generateUniqueId = (prefix) => {
+  idCounter++;
+  return `${prefix}_${Date.now()}_${idCounter}_${Math.random().toString(36).substr(2, 9)}`;
+};
+
 // OpenAI client will be initialized per request with context
 
 /**
@@ -643,18 +650,22 @@ const handler = async (req, context) => {
     const updatedHistory = [
       ...history,
       { 
+        id: generateUniqueId("user"),
         role: "user", 
         content: message, 
         timestamp: new Date().toISOString() 
       },
       ...messages.map(msg => ({
+        id: msg.id || generateUniqueId("msg"),
         role: msg.role,
         content: msg.content,
         agent: msg.agent,
+        type: msg.type,
         timestamp: msg.timestamp || new Date().toISOString()
       })),
       // Include suggestion messages if present
       ...(suggestions && suggestions.length > 0 ? [{
+        id: generateUniqueId("sug"),
         role: "system",
         type: "suggestions",
         content: suggestions,
