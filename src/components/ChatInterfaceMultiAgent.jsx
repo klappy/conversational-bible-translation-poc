@@ -28,6 +28,13 @@ const ChatInterfaceMultiAgent = () => {
   // Poll for canvas state updates
   useEffect(() => {
     const pollCanvasState = async () => {
+      // Don't sync from server while we're sending a message
+      // This prevents race conditions where local optimistic updates get overwritten
+      if (isLoading) {
+        console.log("Skipping poll - message in flight");
+        return;
+      }
+
       try {
         const apiUrl = import.meta.env.DEV
           ? "http://localhost:9999/.netlify/functions/canvas-state"
@@ -60,24 +67,25 @@ const ChatInterfaceMultiAgent = () => {
     return () => {
       clearInterval(intervalId);
     };
-  }, [updateFromServerState]); // Include dependency
+  }, [updateFromServerState, isLoading]); // Add isLoading to dependencies
 
   // Separate effect for initial message generation
   useEffect(() => {
-    if (
-      !initialMessageGenerated.current &&
-      messages.length === 0 &&
-      generateInitialMessage &&
-      canvasState
-    ) {
-      const initialMsg = generateInitialMessage(canvasState);
-      // Add locally - will be synced to server on first user message
-      // Or we can save it immediately (see below)
-      addMessage(initialMsg);
-      initialMessageGenerated.current = true;
+    const generateInitialGreetingIfNeeded = async () => {
+      // Only generate if we haven't already, local messages are empty, 
+      // AND server conversation history is also empty
+      if (
+        !initialMessageGenerated.current &&
+        messages.length === 0 &&
+        generateInitialMessage &&
+        canvasState &&
+        (!canvasState.conversationHistory || canvasState.conversationHistory.length === 0)
+      ) {
+        const initialMsg = generateInitialMessage(canvasState);
+        initialMessageGenerated.current = true;
 
-      // Save initial greeting to server immediately
-      const saveInitialGreeting = async () => {
+        // Save initial greeting to server immediately
+        // Don't add locally - let polling sync it back from server
         try {
           const apiUrl = import.meta.env.DEV
             ? "http://localhost:9999/.netlify/functions/canvas-state/update"
@@ -103,10 +111,13 @@ const ChatInterfaceMultiAgent = () => {
           console.log("✅ Initial greeting saved to server");
         } catch (error) {
           console.error("Failed to save initial greeting:", error);
+          // Fallback: add locally if server save fails
+          addMessage(initialMsg);
         }
-      };
-      saveInitialGreeting();
-    }
+      }
+    };
+
+    generateInitialGreetingIfNeeded();
   }, [messages.length, generateInitialMessage, addMessage, canvasState]);
 
   useEffect(() => {

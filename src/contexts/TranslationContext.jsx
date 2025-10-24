@@ -268,41 +268,13 @@ export const TranslationProvider = ({ children }) => {
     }
 
     // Sync conversation history from server (server = source of truth)
-    // BUT: Don't overwrite local messages that are newer (optimistic updates)
+    // Simply replace local state with server state - no merging, no complexity
     if (serverState.conversationHistory && Array.isArray(serverState.conversationHistory)) {
-      setMessages(prev => {
-        // If server has messages and local is empty, use server's
-        if (prev.length === 0) {
-          return serverState.conversationHistory.map((msg) => {
-            const stableId = msg.id || generateUniqueId(`msg-${msg.timestamp || Date.now()}`);
-            return {
-              ...msg,
-              id: stableId,
-              timestamp: msg.timestamp ? new Date(msg.timestamp) : new Date(),
-            };
-          });
-        }
-
-        // If local has messages, merge intelligently:
-        // - Keep local messages that aren't on server yet (optimistic)
-        // - Add server messages that aren't local yet
-        // - Use server version for messages that exist in both
-        const serverMsgIds = new Set(serverState.conversationHistory.map(m => m.id).filter(Boolean));
-        const localOnlyMessages = prev.filter(m => !serverMsgIds.has(m.id));
-        
-        // Get server messages with stable IDs
-        const serverMessages = serverState.conversationHistory.map((msg) => {
-          const stableId = msg.id || generateUniqueId(`msg-${msg.timestamp || Date.now()}`);
-          return {
-            ...msg,
-            id: stableId,
-            timestamp: msg.timestamp ? new Date(msg.timestamp) : new Date(),
-          };
-        });
-
-        // Merge: server messages + local-only messages at the end
-        return [...serverMessages, ...localOnlyMessages];
-      });
+      setMessages(serverState.conversationHistory.map((msg) => ({
+        ...msg,
+        id: msg.id || generateUniqueId(`msg-${msg.timestamp || Date.now()}`),
+        timestamp: msg.timestamp ? new Date(msg.timestamp) : new Date(),
+      })));
     }
   }, []);
 
