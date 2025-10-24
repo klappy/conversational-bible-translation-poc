@@ -6,6 +6,13 @@
 import { OpenAI } from "openai";
 import { getAgent } from "./agents/registry.js";
 
+// Simple ID generator for server-side (matches client-side pattern)
+let idCounter = 0;
+const generateUniqueId = (prefix) => {
+  idCounter++;
+  return `${prefix}_${Date.now()}_${idCounter}_${Math.random().toString(36).substr(2, 9)}`;
+};
+
 // OpenAI client will be initialized per request with context
 
 /**
@@ -192,13 +199,20 @@ async function processConversation(userMessage, conversationHistory, sessionId, 
   console.log("Starting processConversation with message:", userMessage);
   console.log("Using session ID:", sessionId);
   const responses = {};
+  
+  // Get current canvas state FIRST to preserve any existing conversation history
   const canvasState = await getCanvasState(sessionId);
   console.log("Got canvas state");
+  
+  // Use server's conversation history as the source of truth
+  // This preserves the initial greeting and any other messages
+  const serverHistory = canvasState.conversationHistory || [];
+  console.log(`Server has ${serverHistory.length} messages in history`);
 
-  // Build context for agents
+  // Build context for agents using server history (not client history)
   const context = {
     canvasState,
-    conversationHistory: conversationHistory.slice(-10), // Last 10 messages
+    conversationHistory: serverHistory.slice(-10), // Last 10 messages from SERVER
     timestamp: new Date().toISOString(),
   };
 
@@ -638,7 +652,45 @@ const handler = async (req, context) => {
     console.log("State message agent info:", stateMsg?.agent);
     console.log("Quick suggestions:", suggestions);
 
-    // Get updated canvas state
+    // Save conversation history to canvas state (server = source of truth)
+    // Build the complete conversation history including this turn
+    // Use SERVER's history as base (to preserve initial greeting and all messages)
+    const updatedHistory = [
+      ...serverHistory,  // Start with server's current history
+      { 
+        id: generateUniqueId("user"),
+        role: "user", 
+        content: message, 
+        timestamp: new Date().toISOString() 
+      },
+      ...messages.map(msg => ({
+        id: msg.id || generateUniqueId("msg"),
+        role: msg.role,
+        content: msg.content,
+        agent: msg.agent,
+        type: msg.type,
+        timestamp: msg.timestamp || new Date().toISOString()
+      })),
+      // Include suggestion messages if present
+      ...(suggestions && suggestions.length > 0 ? [{
+        id: generateUniqueId("sug"),
+        role: "system",
+        type: "suggestions",
+        content: suggestions,
+        agent: getAgent("suggestions").visual, // Include Suggestion Helper attribution
+        timestamp: new Date().toISOString()
+      }] : [])
+    ];
+
+    // Save to server (single source of truth)
+    await updateCanvasState(
+      { conversationHistory: updatedHistory },
+      "conversation",
+      sessionId
+    );
+    console.log("✅ Conversation history saved to server");
+
+    // Get updated canvas state (includes conversation history)
     const canvasState = await getCanvasState(sessionId);
 
     // Return response with agent attribution
@@ -646,6 +698,7 @@ const handler = async (req, context) => {
       JSON.stringify({
         messages,
         suggestions, // Include dynamic suggestions from agents
+        conversationHistory: canvasState.conversationHistory || [], // Return server's conversation history
         agentResponses: Object.keys(agentResponses).reduce((acc, key) => {
           if (agentResponses[key] && !agentResponses[key].error) {
             acc[key] = {
