@@ -199,13 +199,20 @@ async function processConversation(userMessage, conversationHistory, sessionId, 
   console.log("Starting processConversation with message:", userMessage);
   console.log("Using session ID:", sessionId);
   const responses = {};
+  
+  // Get current canvas state FIRST to preserve any existing conversation history
   const canvasState = await getCanvasState(sessionId);
   console.log("Got canvas state");
+  
+  // Use server's conversation history as the source of truth
+  // This preserves the initial greeting and any other messages
+  const serverHistory = canvasState.conversationHistory || [];
+  console.log(`Server has ${serverHistory.length} messages in history`);
 
-  // Build context for agents
+  // Build context for agents using server history (not client history)
   const context = {
     canvasState,
-    conversationHistory: conversationHistory.slice(-10), // Last 10 messages
+    conversationHistory: serverHistory.slice(-10), // Last 10 messages from SERVER
     timestamp: new Date().toISOString(),
   };
 
@@ -647,8 +654,9 @@ const handler = async (req, context) => {
 
     // Save conversation history to canvas state (server = source of truth)
     // Build the complete conversation history including this turn
+    // Use SERVER's history as base (to preserve initial greeting and all messages)
     const updatedHistory = [
-      ...history,
+      ...serverHistory,  // Start with server's current history
       { 
         id: generateUniqueId("user"),
         role: "user", 
@@ -669,6 +677,7 @@ const handler = async (req, context) => {
         role: "system",
         type: "suggestions",
         content: suggestions,
+        agent: getAgent("suggestions").visual, // Include Suggestion Helper attribution
         timestamp: new Date().toISOString()
       }] : [])
     ];
