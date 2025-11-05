@@ -159,6 +159,50 @@ const ChatInterfaceMultiAgent = () => {
     setInput("");
     setIsLoading(true);
 
+    // Save user message to canvas state immediately
+    try {
+      const canvasUrl = import.meta.env.DEV
+        ? "http://localhost:9999/.netlify/functions/canvas-state"
+        : "/.netlify/functions/canvas-state";
+      
+      const currentStateResponse = await fetch(canvasUrl, {
+        headers: {
+          ...getSessionHeaders(),
+        },
+      });
+      
+      let currentHistory = [];
+      if (currentStateResponse.ok) {
+        const currentState = await currentStateResponse.json();
+        currentHistory = currentState.conversationHistory || [];
+      }
+      
+      const apiUrl = import.meta.env.DEV
+        ? "http://localhost:9999/.netlify/functions/canvas-state/update"
+        : "/.netlify/functions/canvas-state/update";
+      
+      await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...getSessionHeaders(),
+        },
+        body: JSON.stringify({
+          updates: {
+            conversationHistory: [
+              ...currentHistory,
+              {
+                ...userMessage,
+                timestamp: userMessage.timestamp.toISOString(),
+              }
+            ],
+          },
+        }),
+      });
+    } catch (error) {
+      console.error("Failed to save user message to canvas state:", error);
+    }
+
     // Force scroll when user sends a message
     scrollToBottom(true);
 
@@ -267,6 +311,24 @@ const ChatInterfaceMultiAgent = () => {
           
           // Also save to canvas state immediately so polling doesn't overwrite
           try {
+            // First get current conversation history
+            const canvasUrl = import.meta.env.DEV
+              ? "http://localhost:9999/.netlify/functions/canvas-state"
+              : "/.netlify/functions/canvas-state";
+            
+            const currentStateResponse = await fetch(canvasUrl, {
+              headers: {
+                ...getSessionHeaders(),
+              },
+            });
+            
+            let currentHistory = [];
+            if (currentStateResponse.ok) {
+              const currentState = await currentStateResponse.json();
+              currentHistory = currentState.conversationHistory || [];
+            }
+            
+            // Now append the new message to existing history
             const apiUrl = import.meta.env.DEV
               ? "http://localhost:9999/.netlify/functions/canvas-state/update"
               : "/.netlify/functions/canvas-state/update";
@@ -279,10 +341,13 @@ const ChatInterfaceMultiAgent = () => {
               },
               body: JSON.stringify({
                 updates: {
-                  conversationHistory: [{
-                    ...newMessage,
-                    timestamp: newMessage.timestamp.toISOString(),
-                  }],
+                  conversationHistory: [
+                    ...currentHistory,
+                    {
+                      ...newMessage,
+                      timestamp: newMessage.timestamp.toISOString(),
+                    }
+                  ],
                 },
               }),
             });
@@ -304,13 +369,58 @@ const ChatInterfaceMultiAgent = () => {
 
       // Step 3: Add suggestions if we have them
       if (allSuggestions.length > 0) {
-        addMessage({
+        const suggestionsMessage = {
           type: "suggestions",
           role: "system",
           content: allSuggestions,
           id: generateUniqueId("suggestions"),
           timestamp: new Date(),
-        });
+        };
+        addMessage(suggestionsMessage);
+        
+        // Save suggestions to canvas state
+        try {
+          const canvasUrl = import.meta.env.DEV
+            ? "http://localhost:9999/.netlify/functions/canvas-state"
+            : "/.netlify/functions/canvas-state";
+          
+          const currentStateResponse = await fetch(canvasUrl, {
+            headers: {
+              ...getSessionHeaders(),
+            },
+          });
+          
+          let currentHistory = [];
+          if (currentStateResponse.ok) {
+            const currentState = await currentStateResponse.json();
+            currentHistory = currentState.conversationHistory || [];
+          }
+          
+          const apiUrl = import.meta.env.DEV
+            ? "http://localhost:9999/.netlify/functions/canvas-state/update"
+            : "/.netlify/functions/canvas-state/update";
+          
+          await fetch(apiUrl, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              ...getSessionHeaders(),
+            },
+            body: JSON.stringify({
+              updates: {
+                conversationHistory: [
+                  ...currentHistory,
+                  {
+                    ...suggestionsMessage,
+                    timestamp: suggestionsMessage.timestamp.toISOString(),
+                  }
+                ],
+              },
+            }),
+          });
+        } catch (error) {
+          console.error("Failed to save suggestions to canvas state:", error);
+        }
       }
 
       // Step 4: Update canvas state from polling (will sync within 2 seconds)
