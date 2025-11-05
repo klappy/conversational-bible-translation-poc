@@ -654,7 +654,9 @@ const handler = async (req, context) => {
 
     // Save conversation history to canvas state (server = source of truth)
     // Build the complete conversation history including this turn
-    // Use SERVER's history as base (to preserve initial greeting and all messages)
+    // Get current server history to preserve initial greeting and all messages
+    const currentState = await getCanvasState(sessionId);
+    const serverHistory = currentState.conversationHistory || [];
     const updatedHistory = [
       ...serverHistory,  // Start with server's current history
       { 

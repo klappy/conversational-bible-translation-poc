@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.1] - 2025-11-05
+
+### Fixed
+
+- **Critical Conversation API Bug**: Fixed undefined `serverHistory` variable causing complete API failure
+  - All tests were failing with "Cannot read properties of undefined"
+  - Conversation endpoint was completely non-functional
+  - Fixed by properly fetching canvas state before using serverHistory
+  
+- **Glossary Display Issue**: Fixed user phrases showing as "phrase_1", "phrase_2" instead of actual source phrases
+  - Canvas Scribe now captures and saves actual source phrases from Ruth
+  - Added backward compatibility for sessions with old format
+  - Display component handles both formats gracefully
+  
+### Changed
+
+- Enhanced Canvas Scribe instructions to prioritize capturing actual phrase text
+- Improved error handling in conversation endpoint
+
 ## [0.4.0] - 2025-10-21
 
 ### Added

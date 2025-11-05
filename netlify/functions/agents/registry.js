@@ -692,15 +692,22 @@ When user explains a phrase during understanding phase, return JSON like:
         }
       },
       "userPhrases": {
-        "phrase_1": "A time before the kings when some people made sure others followed the rules"
+        "In the days when the judges ruled": "A time before the kings when some people made sure others followed the rules"
       }
     }
   },
   "summary": "Captured user understanding of phrase and key term 'judges'"
 }
 
-If you can't determine the exact phrase being discussed, use a generic key like "phrase_1", "phrase_2", etc.
-The important thing is to CAPTURE the user's explanation!
+CRITICAL: Always use the ACTUAL SOURCE PHRASE as the key (e.g., "In the days when the judges ruled", "there was a famine in the land").
+Look for phrases that are quoted or mentioned in the conversation. Common phrases from Ruth 1:1 include:
+- "In the days when the judges ruled"
+- "there was a famine in the land"
+- "So a man from Bethlehem in Judah"
+- "went to live in the country of Moab"
+
+Only use generic keys like "phrase_1" if absolutely no source phrase can be identified.
+The important thing is to CAPTURE both the source phrase AND the user's explanation!
 
 📝 DURING DRAFTING PHASE - DRAFT COLLECTION:
 

@@ -98,14 +98,21 @@ const ScriptureCanvas = () => {
                 <div className='glossary-section'>
                   <h4>Your Phrase Translations</h4>
                   <div className='terms-list'>
-                    {Object.entries(userPhrases).map(([phrase, translation]) => (
-                      <div key={phrase} className='term-item phrase-item'>
-                        <div className='term-header'>
-                          <strong className='original-phrase'>{phrase}</strong>
+                    {Object.entries(userPhrases).map(([phrase, translation]) => {
+                      // Handle both old format (phrase_1) and new format (actual phrase text)
+                      const displayPhrase = phrase.startsWith('phrase_') 
+                        ? `Phrase ${phrase.split('_')[1]}` 
+                        : phrase;
+                      
+                      return (
+                        <div key={phrase} className='term-item phrase-item'>
+                          <div className='term-header'>
+                            <strong className='original-phrase'>{displayPhrase}</strong>
+                          </div>
+                          <p className='definition user-translation'>→ {translation}</p>
                         </div>
-                        <p className='definition user-translation'>→ {translation}</p>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               )}
