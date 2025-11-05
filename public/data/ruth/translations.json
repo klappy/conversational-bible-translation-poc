@@ -1,0 +1,42 @@
+{
+  "translations": {
+    "English": {
+      "file": "bsb-ruth-1.json",
+      "name": "Berean Standard Bible",
+      "abbreviation": "BSB",
+      "license": "CC BY-SA 4.0",
+      "attribution": "https://berean.bible"
+    },
+    "Spanish": {
+      "file": "rv1909-ruth-1.json",
+      "name": "Reina-Valera 1909",
+      "abbreviation": "RV1909",
+      "license": "Public Domain",
+      "attribution": "Dominio Público"
+    },
+    "French": {
+      "file": "lsg1910-ruth-1.json",
+      "name": "Louis Segond 1910",
+      "abbreviation": "LSG1910",
+      "license": "Public Domain",
+      "attribution": "Domaine Public"
+    },
+    "Hebrew": {
+      "file": "bsb-ruth-1.json",
+      "name": "Berean Standard Bible",
+      "abbreviation": "BSB",
+      "license": "CC BY-SA 4.0",
+      "attribution": "https://berean.bible",
+      "note": "Hebrew source text not yet available - using English BSB"
+    },
+    "Greek": {
+      "file": "bsb-ruth-1.json",
+      "name": "Berean Standard Bible",
+      "abbreviation": "BSB",
+      "license": "CC BY-SA 4.0",
+      "attribution": "https://berean.bible",
+      "note": "Greek source text not yet available - using English BSB"
+    }
+  },
+  "default": "English"
+}

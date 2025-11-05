@@ -1,0 +1,69 @@
+{
+  "translation": "Louis Segond 1910",
+  "language": "French",
+  "license": "Public Domain",
+  "attribution": "Domaine Public - Louis Segond 1910",
+  "book": "Ruth",
+  "chapter": 1,
+  "verses": [
+    {
+      "verse": 1,
+      "text": "Du temps des juges, il y eut une famine dans le pays. Un homme de Bethléhem de Juda partit, avec sa femme et ses deux fils, pour faire un séjour dans le pays de Moab.",
+      "phrases": [
+        "Du temps des juges",
+        "il y eut une famine dans le pays",
+        "Un homme de Bethléhem de Juda partit",
+        "avec sa femme et ses deux fils",
+        "pour faire un séjour dans le pays de Moab"
+      ]
+    },
+    {
+      "verse": 2,
+      "text": "Le nom de cet homme était Élimélec, celui de sa femme Naomi, et ses deux fils s'appelaient Machlon et Kiljon; ils étaient Éphratiens, de Bethléhem de Juda. Arrivés au pays de Moab, ils y fixèrent leur demeure.",
+      "phrases": [
+        "Le nom de cet homme était Élimélec",
+        "celui de sa femme Naomi",
+        "et ses deux fils s'appelaient Machlon et Kiljon",
+        "ils étaient Éphratiens, de Bethléhem de Juda",
+        "Arrivés au pays de Moab, ils y fixèrent leur demeure"
+      ]
+    },
+    {
+      "verse": 3,
+      "text": "Élimélec, mari de Naomi, mourut, et elle resta avec ses deux fils.",
+      "phrases": [
+        "Élimélec, mari de Naomi, mourut",
+        "et elle resta avec ses deux fils"
+      ]
+    },
+    {
+      "verse": 4,
+      "text": "Ils prirent des femmes Moabites, dont l'une se nommait Orpa, et l'autre Ruth, et ils habitèrent là environ dix ans.",
+      "phrases": [
+        "Ils prirent des femmes Moabites",
+        "dont l'une se nommait Orpa",
+        "et l'autre Ruth",
+        "et ils habitèrent là environ dix ans"
+      ]
+    },
+    {
+      "verse": 5,
+      "text": "Machlon et Kiljon moururent aussi tous les deux, et Naomi resta privée de ses deux fils et de son mari.",
+      "phrases": [
+        "Machlon et Kiljon moururent aussi tous les deux",
+        "et Naomi resta privée",
+        "de ses deux fils et de son mari"
+      ]
+    },
+    {
+      "verse": 6,
+      "text": "Alors elle se leva, elle et ses belles-filles, afin de quitter le pays de Moab, car elle apprit au pays de Moab que l'Éternel avait visité son peuple et lui avait donné du pain.",
+      "phrases": [
+        "Alors elle se leva, elle et ses belles-filles",
+        "afin de quitter le pays de Moab",
+        "car elle apprit au pays de Moab",
+        "que l'Éternel avait visité son peuple et lui avait donné du pain"
+      ]
+    }
+  ]
+}
