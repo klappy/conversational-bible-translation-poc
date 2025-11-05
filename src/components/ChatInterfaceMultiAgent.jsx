@@ -28,6 +28,13 @@ const ChatInterfaceMultiAgent = () => {
   // Poll for canvas state updates
   useEffect(() => {
     const pollCanvasState = async () => {
+      // Don't sync from server while we're sending a message
+      // This prevents race conditions where local optimistic updates get overwritten
+      if (isLoading) {
+        console.log("Skipping poll - message in flight");
+        return;
+      }
+
       try {
         const apiUrl = import.meta.env.DEV
           ? "http://localhost:9999/.netlify/functions/canvas-state"
@@ -60,22 +67,57 @@ const ChatInterfaceMultiAgent = () => {
     return () => {
       clearInterval(intervalId);
     };
-  }, [updateFromServerState]); // Include dependency
+  }, [updateFromServerState, isLoading]); // Add isLoading to dependencies
 
   // Separate effect for initial message generation
   useEffect(() => {
-    if (
-      !initialMessageGenerated.current &&
-      messages.length === 0 &&
-      generateInitialMessage &&
-      canvasState
-    ) {
-      const initialMsg = generateInitialMessage(canvasState);
-      addMessage(initialMsg);
-      initialMessageGenerated.current = true;
+    const generateInitialGreetingIfNeeded = async () => {
+      // Only generate if we haven't already, local messages are empty, 
+      // AND server conversation history is also empty
+      if (
+        !initialMessageGenerated.current &&
+        messages.length === 0 &&
+        generateInitialMessage &&
+        canvasState &&
+        (!canvasState.conversationHistory || canvasState.conversationHistory.length === 0)
+      ) {
+        const initialMsg = generateInitialMessage(canvasState);
+        initialMessageGenerated.current = true;
 
-      // Don't process suggestions here - backend handles everything now
-    }
+        // Save initial greeting to server immediately
+        // Don't add locally - let polling sync it back from server
+        try {
+          const apiUrl = import.meta.env.DEV
+            ? "http://localhost:9999/.netlify/functions/canvas-state/update"
+            : "/.netlify/functions/canvas-state/update";
+
+          await fetch(apiUrl, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              ...getSessionHeaders(),
+            },
+            body: JSON.stringify({
+              updates: {
+                conversationHistory: [
+                  {
+                    ...initialMsg,
+                    timestamp: initialMsg.timestamp.toISOString(),
+                  },
+                ],
+              },
+            }),
+          });
+          console.log("✅ Initial greeting saved to server");
+        } catch (error) {
+          console.error("Failed to save initial greeting:", error);
+          // Fallback: add locally if server save fails
+          addMessage(initialMsg);
+        }
+      }
+    };
+
+    generateInitialGreetingIfNeeded();
   }, [messages.length, generateInitialMessage, addMessage, canvasState]);
 
   useEffect(() => {
@@ -168,34 +210,10 @@ const ChatInterfaceMultiAgent = () => {
         setActiveAgents(Object.keys(result.agentResponses));
       }
 
-      // Add agent messages to conversation
-      console.log("🔴 ABOUT TO PROCESS MESSAGES:", result.messages?.length);
-      if (result.messages && result.messages.length > 0) {
-        console.log("🔴 INSIDE MESSAGE PROCESSING BLOCK");
-        result.messages.forEach((msg) => {
-          addMessage({
-            ...msg,
-            id: generateUniqueId("msg"),
-            timestamp: new Date(),
-          });
-        });
-
-        // Add suggestions as inline message in conversation history
-        const suggestions = result.suggestions || [];
-        if (suggestions && suggestions.length > 0) {
-          const suggestionMessage = {
-            id: generateUniqueId("sug"),
-            role: "system",
-            type: "suggestions",
-            content: suggestions,
-            timestamp: new Date(),
-          };
-          addMessage(suggestionMessage);
-        }
-      }
-
-      // Update canvas state if provided
+      // ALWAYS update canvas state (workflow, glossary, etc.)
+      // Server is source of truth for ALL state, not just conversation
       if (result.canvasState) {
+        console.log("✅ Updating canvas state from server");
         setCanvasState(result.canvasState);
         if (updateFromServerState) {
           updateFromServerState(result.canvasState);

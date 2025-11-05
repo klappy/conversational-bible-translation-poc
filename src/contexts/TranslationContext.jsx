@@ -266,6 +266,16 @@ export const TranslationProvider = ({ children }) => {
         ...serverState.workflow,
       }));
     }
+
+    // Sync conversation history from server (server = source of truth)
+    // Simply replace local state with server state - no merging, no complexity
+    if (serverState.conversationHistory && Array.isArray(serverState.conversationHistory)) {
+      setMessages(serverState.conversationHistory.map((msg) => ({
+        ...msg,
+        id: msg.id || generateUniqueId(`msg-${msg.timestamp || Date.now()}`),
+        timestamp: msg.timestamp ? new Date(msg.timestamp) : new Date(),
+      })));
+    }
   }, []);
 
   const value = {

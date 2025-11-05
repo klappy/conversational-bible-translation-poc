@@ -38,6 +38,7 @@ const DEFAULT_STATE = {
     phrasesCompleted: {},
     totalPhrases: 0,
   },
+  conversationHistory: [], // Full conversation history - server is source of truth
   metadata: {
     lastUpdated: new Date().toISOString(),
     version: 1,
