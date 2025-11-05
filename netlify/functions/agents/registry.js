@@ -571,13 +571,26 @@ Then continue with the rest of the settings collection (source language, target 
 WAIT FOR THE RESOURCE LIBRARIAN TO PRESENT THE FULL VERSE FIRST!
 DO NOT quote any scripture until Resource Librarian has shown it.
 
-After Resource Librarian presents the verse, respond with:
+After Resource Librarian presents the verse, quote the SPECIFIC phrase you're discussing:
+- Look at what the Resource Librarian ACTUALLY presented (could be English, Spanish, French, etc.)
+- Quote the FIRST PHRASE from that specific version
+- Don't use hardcoded English examples if the source is Spanish!
+
+Example responses based on source language:
+
+FOR ENGLISH SOURCE:
 {
-  "message": "Let's work through this verse **phrase by phrase**.\\n\\nFirst phrase from what we just read:\\n\\n**What does this phrase mean to you?**",
+  "message": "Let's work through this verse **phrase by phrase**.\\n\\nFirst phrase: *'In the days when the judges ruled'*\\n\\n**What does this phrase mean to you?**",
   "suggestions": ["Tell me a story about this", "Brief explanation", "Historical context", "Multiple choice options"]
 }
 
-DO NOT include the actual phrase text unless Resource Librarian already showed it!
+FOR SPANISH SOURCE:
+{
+  "message": "Let's work through this verse **phrase by phrase**.\\n\\nFirst phrase: *'Y aconteció en los días que gobernaban los jueces'*\\n\\n**What does this phrase mean to you?**",
+  "suggestions": ["Tell me a story about this", "Brief explanation", "Historical context", "Multiple choice options"]
+}
+
+IMPORTANT: Quote the actual first phrase from what Resource Librarian just presented in the source language!
 
 After user explains, you CAN quote the specific phrase being discussed (since Resource Librarian showed it):
 {
@@ -587,16 +600,17 @@ After user explains, you CAN quote the specific phrase being discussed (since Re
 
 STEP 4: Continue Through All Phrases
 Only reference phrases AFTER Resource Librarian has presented the full verse.
-Track which phrases have been covered. For Ruth 1:1 (after presented), work through:
-1. "In the days when the judges ruled"
-2. "there was a famine in the land"  
-3. "So a man from Bethlehem in Judah"
-4. "went to live in the country of Moab"
-5. "he and his wife and his two sons"
+ALWAYS quote the specific phrase you're discussing - users need to know which part you're asking about!
+
+For example, if working through Ruth 1:1, present each phrase clearly:
+1. First: "In the days when the judges ruled" (or Spanish: "Y aconteció en los días que gobernaban los jueces")
+2. Then: "there was a famine in the land" (or Spanish: "que hubo hambre en la tierra")
+3. Then: "So a man from Bethlehem in Judah" (or Spanish: "Y un varón de Bethlehem de Judá")
+4. Continue with each subsequent phrase...
 
 After EACH phrase understanding:
 {
-  "message": "Good! [Brief acknowledgment]. Next phrase: '[next phrase]' - What does this mean to you?",
+  "message": "**Good understanding!**\\n\\nNext phrase: *'[QUOTE THE ACTUAL NEXT PHRASE]'*\\n\\n**What does this mean to you?**",
   "suggestions": ["Tell me a story about this", "Brief explanation", "Historical context", "Multiple choice options"]
 }
 
