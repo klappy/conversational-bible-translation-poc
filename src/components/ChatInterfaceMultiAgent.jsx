@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useTranslation } from "../contexts/TranslationContext";
 import { generateUniqueId } from "../utils/idGenerator";
-import { getSessionHeaders } from "../utils/sessionManager";
+import { getSessionHeaders, getSessionId } from "../utils/sessionManager";
 import AgentMessage from "./AgentMessage";
 import AgentStatus from "./AgentStatus";
 import ShareSession from "./ShareSession";
@@ -162,19 +162,17 @@ const ChatInterfaceMultiAgent = () => {
     // Force scroll when user sends a message
     scrollToBottom(true);
 
-    // Set agents to thinking state
-    setThinkingAgents(["orchestrator", "primary", "state"]);
+    // Set initial thinking state
+    setThinkingAgents(["orchestrator"]);
 
     try {
-      // Use new conversation endpoint with multi-agent support
-      const apiUrl = import.meta.env.DEV
-        ? "http://localhost:9999/.netlify/functions/conversation"
-        : "/.netlify/functions/conversation";
+      // Step 1: Get orchestration sequence
+      const orchestrateUrl = import.meta.env.DEV
+        ? "http://localhost:9999/.netlify/functions/conversation-orchestrate"
+        : "/.netlify/functions/conversation-orchestrate";
 
-      console.log("Calling conversation endpoint:", apiUrl);
-      console.log("With message:", input);
-
-      const response = await fetch(apiUrl, {
+      console.log("🎭 Calling orchestrator to get sequence...");
+      const orchestrateResponse = await fetch(orchestrateUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -182,43 +180,143 @@ const ChatInterfaceMultiAgent = () => {
         },
         body: JSON.stringify({
           message: input,
-          history: messages.map((m) => ({
-            role: m.role,
-            content: m.content,
-            agent: m.agent,
-          })),
+          sessionId: getSessionId(),
         }),
       });
 
-      console.log("Response status:", response.status);
-
-      if (!response.ok) {
-        throw new Error(`Failed to get response: ${response.status}`);
+      if (!orchestrateResponse.ok) {
+        throw new Error(`Orchestration failed: ${orchestrateResponse.status}`);
       }
 
-      const result = await response.json();
-      console.log("Got result:", result);
-      console.log("🚨 CRITICAL CHECK - result.suggestions:", result.suggestions);
-      console.log("🚨 CRITICAL CHECK - Is Array?:", Array.isArray(result.suggestions));
-      console.log("🚨 CRITICAL CHECK - Length:", result.suggestions?.length);
+      const orchestration = await orchestrateResponse.json();
+      console.log("📋 Agent sequence:", orchestration.sequence);
 
-      // Clear thinking agents
-      setThinkingAgents([]);
+      // Step 2: Call agents sequentially
+      const agentUrl = import.meta.env.DEV
+        ? "http://localhost:9999/.netlify/functions/conversation-agent"
+        : "/.netlify/functions/conversation-agent";
 
-      // Update active agents based on response
-      if (result.agentResponses) {
-        setActiveAgents(Object.keys(result.agentResponses));
-      }
+      const sessionIdValue = getSessionId();
+      const previousResponses = [];
+      let allSuggestions = [];
 
-      // ALWAYS update canvas state (workflow, glossary, etc.)
-      // Server is source of truth for ALL state, not just conversation
-      if (result.canvasState) {
-        console.log("✅ Updating canvas state from server");
-        setCanvasState(result.canvasState);
-        if (updateFromServerState) {
-          updateFromServerState(result.canvasState);
+      for (const agentId of orchestration.sequence) {
+        // Update thinking agents to show which one is currently working
+        setThinkingAgents([agentId]);
+
+        console.log(`📞 Calling agent: ${agentId}`);
+
+        const agentResponse = await fetch(agentUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...getSessionHeaders(),
+          },
+          body: JSON.stringify({
+            message: input,
+            agentId,
+            sessionId: sessionIdValue,
+            previousResponses,
+          }),
+        });
+
+        if (!agentResponse.ok) {
+          console.error(`Agent ${agentId} failed: ${agentResponse.status}`);
+          continue; // Try next agent if this one fails
+        }
+
+        const agentResult = await agentResponse.json();
+        console.log(`✅ Got response from ${agentId}:`, agentResult);
+
+        // Add to previous responses so next agents know what was said
+        previousResponses.push({
+          agentId: agentResult.agentId,
+          response: agentResult.response,
+          agent: agentResult.agent,
+        });
+
+        // Display agent response immediately (except for suggestions)
+        let responseText = agentResult.response ? agentResult.response.trim() : "";
+        console.log(`Response text for ${agentId}: "${responseText}"`);
+        
+        // For primary agent, try to parse JSON and extract message
+        if (agentId === "primary" && responseText) {
+          try {
+            const parsed = JSON.parse(responseText);
+            if (parsed.message) {
+              responseText = parsed.message;
+              if (parsed.suggestions) {
+                allSuggestions = parsed.suggestions;
+              }
+            }
+          } catch (e) {
+            // Not JSON, use as-is
+          }
+        }
+        
+        if (responseText && agentId !== "suggestions") {
+          console.log(`Adding message from ${agentId}`);
+          const newMessage = {
+            role: "assistant",
+            content: responseText,
+            agent: agentResult.agent,
+            id: generateUniqueId(`msg-${agentId}`),
+            timestamp: new Date(),
+          };
+          addMessage(newMessage);
+          
+          // Also save to canvas state immediately so polling doesn't overwrite
+          try {
+            const apiUrl = import.meta.env.DEV
+              ? "http://localhost:9999/.netlify/functions/canvas-state/update"
+              : "/.netlify/functions/canvas-state/update";
+            
+            await fetch(apiUrl, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                ...getSessionHeaders(),
+              },
+              body: JSON.stringify({
+                updates: {
+                  conversationHistory: [{
+                    ...newMessage,
+                    timestamp: newMessage.timestamp.toISOString(),
+                  }],
+                },
+              }),
+            });
+          } catch (error) {
+            console.error("Failed to save message to canvas state:", error);
+          }
+          
+          scrollToBottom(true);
+        } else {
+          console.log(`Skipping ${agentId}: empty=${!responseText}, isSuggestions=${agentId === "suggestions"}`);
+        }
+
+        // Collect suggestions if provided
+        if (agentResult.suggestions && agentResult.suggestions.length > 0) {
+          allSuggestions = agentResult.suggestions;
+          console.log("💡 Got suggestions:", allSuggestions);
         }
       }
+
+      // Step 3: Add suggestions if we have them
+      if (allSuggestions.length > 0) {
+        addMessage({
+          type: "suggestions",
+          role: "system",
+          content: allSuggestions,
+          id: generateUniqueId("suggestions"),
+          timestamp: new Date(),
+        });
+      }
+
+      // Step 4: Update canvas state from polling (will sync within 2 seconds)
+      setThinkingAgents([]);
+      setActiveAgents(orchestration.sequence);
+
     } catch (error) {
       console.error("Chat error - full details:", error);
       console.error("Error message:", error.message);
@@ -376,3 +474,4 @@ const ChatInterfaceMultiAgent = () => {
 };
 
 export default ChatInterfaceMultiAgent;
+

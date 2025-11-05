@@ -1,0 +1,119 @@
+/**
+ * Agent Orchestration Endpoint
+ * Determines which agents should respond and in what order
+ * Returns immediately with sequence information
+ */
+
+import { OpenAI } from "openai";
+import { getAgent } from "./agents/registry.js";
+import { callAgent, buildAgentContext, getCorsHeaders, getSessionIdFromRequest } from "./agent-utils.js";
+
+const handler = async (req, context) => {
+  const headers = getCorsHeaders();
+
+  // Handle preflight
+  if (req.method === "OPTIONS") {
+    return new Response("OK", { headers });
+  }
+
+  if (req.method !== "POST") {
+    return new Response("Method not allowed", { status: 405, headers });
+  }
+
+  try {
+    console.log("Orchestrate endpoint called");
+    const body = await req.json();
+    const { message, sessionId: bodySessionId } = body;
+    
+    const sessionId = getSessionIdFromRequest(req, bodySessionId);
+    console.log("Session ID:", sessionId);
+
+    // Build context for orchestrator
+    const agentContext = await buildAgentContext(message, sessionId);
+
+    // Initialize OpenAI client
+    const openai = new OpenAI({
+      apiKey: context.env?.OPENAI_API_KEY,
+    });
+
+    // Call orchestrator to determine sequence
+    const orchestrator = getAgent("orchestrator");
+    console.log("Asking orchestrator which agents to activate...");
+    
+    const orchestratorResponse = await callAgent(orchestrator, message, agentContext, openai);
+
+    let orchestration;
+    try {
+      orchestration = JSON.parse(orchestratorResponse.response);
+      console.log("Orchestrator decided:", orchestration);
+    } catch (error) {
+      console.error("Orchestrator response was not valid JSON, using defaults:", error.message);
+      orchestration = {
+        agents: ["primary", "state"],
+        notes: "Fallback to primary and state agents",
+      };
+    }
+
+    // Build the sequence - order matters for user experience
+    const sequence = [];
+    
+    // Resource Librarian first if needed (to present scripture)
+    if (orchestration.agents?.includes("resource")) {
+      sequence.push("resource");
+    }
+
+    // Primary translator second (asks questions, guides conversation)
+    if (orchestration.agents?.includes("primary")) {
+      sequence.push("primary");
+    }
+
+    // State manager third (records what was decided)
+    if (orchestration.agents?.includes("state")) {
+      sequence.push("state");
+    }
+
+    // Suggestions last (based on primary's latest question)
+    if (orchestration.agents?.includes("suggestions")) {
+      sequence.push("suggestions");
+    }
+
+    // Validator during checking phase
+    if (orchestration.agents?.includes("validator")) {
+      sequence.push("validator");
+    }
+
+    return new Response(
+      JSON.stringify({
+        sequence,
+        orchestration,
+        timestamp: new Date().toISOString(),
+      }),
+      {
+        status: 200,
+        headers: {
+          ...headers,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+  } catch (error) {
+    console.error("Orchestration error:", error);
+    return new Response(
+      JSON.stringify({
+        error: "Failed to orchestrate",
+        details: error.message,
+        sequence: ["primary", "state"],
+      }),
+      {
+        status: 500,
+        headers: {
+          ...headers,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+  }
+};
+
+export default handler;
+
