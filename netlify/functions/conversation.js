@@ -84,19 +84,39 @@ async function callAgent(agent, message, context, openaiClient) {
       });
     }
 
-    // Add timeout wrapper for API call
+    // Add timeout wrapper for API call with generous timeout
+    // 30 seconds allows for complex responses and occasional network delays
     const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error(`Timeout calling ${agent.id}`)), 10000); // 10 second timeout
+      setTimeout(() => reject(new Error(`Timeout calling ${agent.id}`)), 30000); // 30 second timeout
     });
 
-    const completionPromise = openaiClient.chat.completions.create({
-      model: agent.model,
-      messages: messages,
-      temperature: agent.id === "state" ? 0.1 : 0.7, // Lower temp for state extraction
-      max_tokens: agent.id === "state" ? 500 : 2000,
-    });
+    let completion;
+    let retryCount = 0;
+    const maxRetries = 2;
 
-    const completion = await Promise.race([completionPromise, timeoutPromise]);
+    while (retryCount <= maxRetries) {
+      try {
+        const completionPromise = openaiClient.chat.completions.create({
+          model: agent.model,
+          messages: messages,
+          temperature: agent.id === "state" ? 0.1 : 0.7, // Lower temp for state extraction
+          max_tokens: agent.id === "state" ? 500 : 2000,
+        });
+
+        completion = await Promise.race([completionPromise, timeoutPromise]);
+        break; // Success, exit retry loop
+      } catch (error) {
+        retryCount++;
+        if (retryCount <= maxRetries) {
+          console.log(`⚠️ Agent ${agent.id} failed (attempt ${retryCount}), retrying... Error: ${error.message}`);
+          // Wait a bit before retry (exponential backoff)
+          await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
+        } else {
+          console.error(`❌ Agent ${agent.id} failed after ${maxRetries + 1} attempts`);
+          throw error;
+        }
+      }
+    }
     console.log(`Agent ${agent.id} responded successfully`);
 
     return {

@@ -133,14 +133,17 @@ async function getState(store, stateKey) {
 }
 
 /**
- * Update the state with validation
+ * Update the state with validation and error recovery
  */
-async function updateState(store, stateKey, updates) {
+async function updateState(store, stateKey, updates, agentId = "system") {
   try {
     // Validate updates
     if (!updates || typeof updates !== "object") {
+      console.warn(`⚠️ Invalid updates from ${agentId}:`, updates);
       throw new Error("Invalid updates provided");
     }
+
+    console.log(`📝 State update from ${agentId}:`, JSON.stringify(updates, null, 2));
 
     // Load current state
     let globalState = await loadState(store, stateKey);
@@ -151,18 +154,47 @@ async function updateState(store, stateKey, updates) {
     // Update metadata
     globalState.metadata.lastUpdated = new Date().toISOString();
     globalState.metadata.version = (globalState.metadata.version || 1) + 1;
+    globalState.metadata.lastAgent = agentId;
 
-    // Save to Blobs
-    await saveState(store, stateKey, globalState);
+    // Save to Blobs with retry on failure
+    let saveSucceeded = false;
+    let saveAttempts = 0;
+    const maxSaveAttempts = 3;
+
+    while (saveAttempts < maxSaveAttempts && !saveSucceeded) {
+      try {
+        await saveState(store, stateKey, globalState);
+        saveSucceeded = true;
+        console.log(`✅ State saved successfully (version ${globalState.metadata.version})`);
+      } catch (saveError) {
+        saveAttempts++;
+        console.error(`🔴 Save attempt ${saveAttempts} failed:`, saveError.message);
+        if (saveAttempts < maxSaveAttempts) {
+          // Wait before retry
+          await new Promise(resolve => setTimeout(resolve, 500 * saveAttempts));
+        }
+      }
+    }
+
+    if (!saveSucceeded) {
+      console.error(`❌ Failed to save state after ${maxSaveAttempts} attempts`);
+      throw new Error(`Failed to persist state after ${maxSaveAttempts} attempts`);
+    }
+
+    const savedState = await getState(store, stateKey);
+    console.log(`✅ State update complete for ${agentId}`);
 
     return {
       success: true,
-      state: await getState(store, stateKey),
+      state: savedState,
+      message: `State updated successfully from ${agentId}`,
     };
   } catch (error) {
+    console.error(`❌ State update failed from ${agentId}:`, error.message);
     return {
       success: false,
       error: error.message,
+      agent: agentId,
     };
   }
 }
