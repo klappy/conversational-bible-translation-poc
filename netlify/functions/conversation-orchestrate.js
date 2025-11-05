@@ -62,14 +62,14 @@ const handler = async (req, context) => {
       sequence.push("resource");
     }
 
-    // Primary translator second (asks questions, guides conversation)
-    if (orchestration.agents?.includes("primary")) {
-      sequence.push("primary");
-    }
-
-    // State manager third (records what was decided)
+    // State manager BEFORE primary (acknowledge user input first)
     if (orchestration.agents?.includes("state")) {
       sequence.push("state");
+    }
+
+    // Primary translator AFTER state (asks next question after acknowledgment)
+    if (orchestration.agents?.includes("primary")) {
+      sequence.push("primary");
     }
 
     // Suggestions last (based on primary's latest question)
