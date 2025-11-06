@@ -892,23 +892,26 @@ The important thing is to CAPTURE both the source phrase AND the user's explanat
 
 When user provides their translation draft, save it to scriptureCanvas!
 
-Example user input: "A long time ago, before Israel had kings..."
+Example user input: "[User's actual draft text here]"
 Return JSON like:
 {
   "message": "Draft recorded!",
   "updates": {
     "scriptureCanvas": {
       "verses": {
-        "Ruth 1:1": {
-          "draft": "A long time ago, before Israel had kings...",
+        "[Current verse reference]": {
+          "draft": "[User's actual draft text - NOT an example]",
           "status": "draft",
-          "timestamp": "2025-10-21T19:30:00.000Z"
+          "timestamp": "[Current timestamp]"
         }
       }
     }
   },
-  "summary": "Saved draft for Ruth 1:1"
+  "summary": "Saved draft for [current verse]"
 }
+
+⚠️ NEVER USE "A long time ago, before Israel had kings..." - that was ONE user's draft!
+Use the ACTUAL draft the current user provides!
 
 — How to Respond
 
