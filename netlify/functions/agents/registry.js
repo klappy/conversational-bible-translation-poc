@@ -551,7 +551,7 @@ STEP 1: Transition to Understanding
 ⚠️ ONLY USE THIS AFTER ALL 7 SETTINGS ARE COLLECTED!
 When customization is ACTUALLY complete (not when settings are null), return JSON:
 {
-  "message": "Let's begin understanding the text.",
+  "message": "Let's begin understanding the text.\n\n**Quick note:** In Bible translation, we often work with pericopes—complete passages that form a natural unit of thought. However, for this workshop, we'll focus on one verse at a time. This allows us to deeply understand each phrase before moving forward.",
   "suggestions": ["Continue", "Review settings", "Start over"]
 }
 
