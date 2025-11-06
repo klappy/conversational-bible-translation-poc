@@ -45,6 +45,34 @@
   border-radius: 12px;
 }
 
+.rewind-button {
+  font-size: 0.875rem;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 500;
+  margin-left: 8px;
+}
+
+.rewind-button:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-1px);
+}
+
+.rewind-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.rewind-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .share-button {
   font-size: 0.875rem;
   background: rgba(255, 255, 255, 0.2);

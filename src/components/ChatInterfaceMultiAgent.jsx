@@ -11,6 +11,7 @@ import "./ChatInterface.css";
 const ChatInterfaceMultiAgent = () => {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isRewinding, setIsRewinding] = useState(false);
   const [showAudioRecord, setShowAudioRecord] = useState(false);
   const [activeAgents, setActiveAgents] = useState(["primary", "state"]);
   const [thinkingAgents, setThinkingAgents] = useState([]);
@@ -141,6 +142,50 @@ const ChatInterfaceMultiAgent = () => {
 
     if (force || isNearBottom) {
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  const handleRewind = async () => {
+    if (isLoading || isRewinding) return;
+    
+    // Check if we have user messages to rewind
+    const userMessageCount = messages.filter(m => m.role === 'user').length;
+    if (userMessageCount === 0) return;
+    
+    setIsRewinding(true);
+    
+    try {
+      const apiUrl = import.meta.env.DEV
+        ? "http://localhost:9999/.netlify/functions/canvas-state/rewind"
+        : "/.netlify/functions/canvas-state/rewind";
+      
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...getSessionHeaders(),
+        },
+      });
+      
+      if (response.ok) {
+        // Force immediate refresh from server
+        const canvasUrl = import.meta.env.DEV
+          ? "http://localhost:9999/.netlify/functions/canvas-state"
+          : "/.netlify/functions/canvas-state";
+        
+        const stateResponse = await fetch(canvasUrl, {
+          headers: getSessionHeaders(),
+        });
+        
+        if (stateResponse.ok) {
+          const freshState = await stateResponse.json();
+          updateFromServerState(freshState);
+        }
+      }
+    } catch (error) {
+      console.error("Failed to rewind conversation:", error);
+    } finally {
+      setIsRewinding(false);
     }
   };
 
@@ -484,6 +529,14 @@ const ChatInterfaceMultiAgent = () => {
         <div className='workflow-info'>
           <span className='workflow-phase'>{phaseDisplay}</span>
           <span className='workflow-verse'>{getCurrentVerse()}</span>
+          <button
+            className='rewind-button'
+            onClick={handleRewind}
+            disabled={isLoading || isRewinding || messages.filter(m => m.role === 'user').length === 0}
+            title='Undo last message'
+          >
+            ↶ Undo
+          </button>
           <button
             className='share-button'
             onClick={() => setShowShareModal(true)}

@@ -389,6 +389,42 @@ const handler = async (req, context) => {
       );
     }
 
+    // POST /rewind - Remove last user message and responses
+    if (req.method === "POST" && path === "/rewind") {
+      const state = await getState(store, stateKey);
+      const history = state.conversationHistory || [];
+      
+      // Find last user message index
+      let lastUserIndex = -1;
+      for (let i = history.length - 1; i >= 0; i--) {
+        if (history[i].role === "user") {
+          lastUserIndex = i;
+          break;
+        }
+      }
+      
+      // Don't rewind past initial greeting
+      if (lastUserIndex <= 0) {
+        return new Response(JSON.stringify({
+          success: false,
+          message: "Cannot rewind further"
+        }), { status: 400, headers });
+      }
+      
+      // Keep everything before last user message
+      const rewoundHistory = history.slice(0, lastUserIndex);
+      
+      const result = await updateState(store, stateKey, {
+        conversationHistory: rewoundHistory
+      }, "rewind");
+      
+      return new Response(JSON.stringify({
+        success: result.success,
+        rewoundCount: history.length - rewoundHistory.length,
+        newLength: rewoundHistory.length
+      }), { status: 200, headers });
+    }
+
     // DELETE /session - Delete a specific session
     if (req.method === "DELETE" && path === "/session") {
       try {

@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.2] - 2025-11-06
+
+### Added
+
+- **Conversation Rewind Feature**: Users can now undo their last message
+  - New "Undo" button in chat header removes last user message and all subsequent agent responses
+  - Canvas state (settings, glossary, drafts) remains intact during rewind
+  - Button automatically disables when: agents are thinking, no messages to undo, or rewind in progress
+  - Protects initial greeting from being removed
+  - Backend endpoint at `/canvas-state/rewind` handles conversation history pruning
+  - Instant UI refresh after rewind completes
+
+### Changed
+
+- Enhanced chat interface with rewind capability for error correction
+- Improved user control over conversation flow
+
 ## [0.4.1] - 2025-11-05
 
 ### Fixed
