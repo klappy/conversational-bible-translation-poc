@@ -5,6 +5,60 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.5] - 2025-11-06
+
+### 🚨 Critical Privacy & Trust Fixes
+
+#### **EMERGENCY: Removed Hardcoded User Data**
+- **Privacy Breach**: User's personal glossary translations were hardcoded as "examples"
+  - Specific phrases like "This was the time before the kings ruled Israel" were in prompts
+  - These would be suggested to ALL users regardless of their own translations
+  - Removed all hardcoded user-specific phrases and replaced with generic placeholders
+  - Added multiple explicit warnings against hardcoding user data
+
+#### **Draft Creation Now Uses User's Glossary**
+- **Major Bug**: Translation Assistant was completely ignoring user's glossary
+  - Was suggesting the original Bible text as the "draft"
+  - Users' careful phrase explanations during Understanding phase were discarded
+  - Now REQUIRES using glossary.userPhrases for all drafts
+  - Added safeguards and examples showing correct vs wrong draft creation
+
+#### **Glossary Preserves User's Exact Words**
+- **Trust Issue**: System was "academically improving" user input
+  - "before the kings ruled" → "governance by judges prior to establishment of kings"
+  - Now saves VERBATIM user input without any paraphrasing
+  - Critical for maintaining trust and accurate translations
+
+### 🐛 Workflow & UI Fixes
+
+#### **Fixed Premature Phase Transitions**
+- Planning → Understanding was triggering after tone (step 7) instead of philosophy (step 8)
+- Added explicit guards to prevent early transitions
+- Clear warnings that philosophy/approach is the FINAL setting
+
+#### **Dynamic Settings Display**
+- Previously hidden fields (userName, targetCommunity) now visible
+- Settings panel dynamically shows ALL collected data
+- No more invisible settings that users provided but couldn't see
+
+#### **Fixed JSON Output in Chat**
+- Primary agent was showing raw JSON code alongside messages
+- Strengthened instructions to output ONLY JSON, no extra text
+- Clean conversation interface without code artifacts
+
+### 📚 Educational Improvements
+
+#### **Pericope Explanation Added**
+- Explains what pericopes are (complete passages forming a thought unit)
+- Clarifies workshop focuses on one verse at a time for deeper understanding
+- Sets proper expectations for workshop scope
+
+### 🧹 Additional Cleanup
+
+- Removed another hardcoded draft example ("A long time ago, before Israel had kings...")
+- Fixed all remaining hardcoded examples to use placeholders
+- Made examples explicitly generic with warnings not to use them literally
+
 ## [0.4.4] - 2025-11-06
 
 ### Critical Security & Privacy Fixes
