@@ -5,6 +5,75 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.3] - 2025-11-06
+
+### Critical Fixes
+
+- **BREAKING BUG: Hardcoded User Data**: Removed hardcoded glossary entries that were being suggested to ALL users
+  - One user's personal translations were hardcoded as examples in the prompt
+  - Every user would get the same translation suggestions regardless of their input
+  - Fixed to use actual dynamic glossary data from each user's session
+  - Added warnings against hardcoding user-specific data
+
+- **Trust Issue: Glossary Not Saving User's Exact Words**: Fixed system paraphrasing user input
+  - Canvas Scribe was "improving" user's words (e.g., "before kings" → "prior to monarchical rule")
+  - Now saves user's EXACT words verbatim to preserve trust
+  - Critical for accurate translation drafts
+
+- **Draft Creation Ignored User's Work**: Translation Assistant was using original Bible text instead of user's glossary
+  - Users spent time explaining phrases, but drafts used the original scripture
+  - Now MUST use glossary.userPhrases to create drafts
+  - Added explicit warnings to never suggest original text as draft
+
+### Fixed
+
+- **Premature Phase Transitions**: Fixed system jumping from Planning to Understanding too early
+  - Was transitioning after "tone" (step 7) instead of waiting for "philosophy" (step 8)
+  - Added guards to prevent transition until ALL settings collected
+  - Philosophy/approach is now correctly marked as the FINAL setting
+
+- **Primary Agent Outputting Raw JSON**: Fixed JSON code appearing in chat messages
+  - Users saw both the message AND raw JSON like `{"message": "...", "suggestions": [...]}`
+  - Strengthened instructions for JSON-only output format
+  - No more duplicate content or visible code
+
+- **Missing Settings in UI**: Settings panel now shows ALL collected fields
+  - Added userName and targetCommunity that were hidden
+  - Dynamic rendering of all fields in state instead of hardcoded subset
+  - Users can now see everything they've provided
+
+### Added
+
+- **Pericope Explanation**: Added note about translation scope when entering Understanding phase
+  - Explains that pericopes (complete passages) are normal for Bible translation
+  - Clarifies workshop focuses on one verse at a time for learning
+  - Sets proper expectations for workshop participants
+
+- **Multi-language Bible Support**: Added Spanish and French translations
+  - Spanish: Reina-Valera 1909 (public domain)
+  - French: Louis Segond 1910 (public domain)
+  - Resource Librarian now checks source language and uses appropriate translation
+  - Proper citations for each language version
+
+### Changed
+
+- **Agent Response Order**: Corrected sequence for natural conversation flow
+  - Canvas Scribe now responds BEFORE Translation Assistant asks next question
+  - Resource Librarian presents full scripture BEFORE Primary discusses phrases
+  - Prevents confusing out-of-order responses
+
+- **Suggestion Helper Consistency**: Orchestrator now always includes suggestions when primary responds
+  - Fixed disappearing quick response buttons
+  - Updated all orchestrator examples to include suggestions
+  - Consistent user experience throughout conversation
+
+### Security
+
+- **Removed Hardcoded Test Data**: Cleaned up user-specific examples
+  - Removed "A long time ago, before Israel had kings..." draft example
+  - Generic placeholders instead of actual user translations
+  - Protected user privacy and prevented data leakage
+
 ## [0.4.2] - 2025-11-06
 
 ### Added
