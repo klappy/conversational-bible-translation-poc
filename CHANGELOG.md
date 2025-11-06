@@ -5,6 +5,56 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.4] - 2025-11-06
+
+### Critical Security & Privacy Fixes
+
+- **EMERGENCY: Removed Hardcoded User Data**: Critical privacy violation fixed
+  - User's personal glossary translations were hardcoded in prompts as "examples"
+  - These would be suggested to ALL users regardless of their own translations
+  - Removed all hardcoded phrases and replaced with generic placeholders
+  - Added multiple warnings against hardcoding user-specific data
+
+### Major Fixes
+
+- **Draft Creation Now Uses User's Glossary**: Fixed complete failure of draft system
+  - Translation Assistant was ignoring user's glossary and using original Bible text
+  - Users' careful phrase explanations were being discarded
+  - Now REQUIRES using glossary.userPhrases for all drafts
+  - Added explicit safeguards against using original text
+
+- **Glossary Preserves User's Exact Words**: Fixed trust-breaking paraphrasing
+  - System was "improving" user input (e.g., "before kings" → "prior to monarchical rule")
+  - Now saves verbatim user input without modification
+  - Critical for maintaining user trust and accurate translations
+
+- **Phase Transition Timing Fixed**: Resolved premature workflow transitions
+  - System was jumping from Planning to Understanding after tone (step 7)
+  - Now correctly waits for philosophy/approach (step 8) before transitioning
+  - Added explicit guards and warnings about transition timing
+
+### Improvements
+
+- **Dynamic Settings Display**: All collected settings now visible
+  - Previously hidden fields (userName, targetCommunity) now displayed
+  - Settings panel dynamically shows whatever data exists
+  - No more invisible settings
+
+- **Pericope Explanation Added**: Educational note for workshop participants
+  - Explains difference between pericope and single-verse translation
+  - Clarifies workshop scope and teaching approach
+  - Sets proper expectations
+
+- **JSON Output Cleaned**: Fixed raw code appearing in chat
+  - Primary agent no longer shows JSON alongside messages
+  - Cleaner conversation interface
+
+### Technical Debt
+
+- Removed additional hardcoded examples found in system
+- Fixed changelog timeline (was documenting fixes before they were made)
+- Multiple prompt engineering improvements for reliability
+
 ## [0.4.3] - 2025-11-06
 
 ### Critical Fixes
