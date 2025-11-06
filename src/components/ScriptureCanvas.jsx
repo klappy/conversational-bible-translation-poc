@@ -36,49 +36,66 @@ const ScriptureCanvas = () => {
     { id: "feedback", label: "Feedback", icon: "💬" },
   ];
 
-  const renderStyleGuide = () => (
-    <div className='canvas-section'>
-      <h3>Translation Settings</h3>
-      <div className='style-guide-content'>
-        <div className='guide-item'>
-          <label>Conversation Language</label>
-          <div className='value'>{project.styleGuide.conversationLanguage || "English"}</div>
+  const renderStyleGuide = () => {
+    // Define the display order and labels for fields
+    const fieldConfig = {
+      userName: { label: "Your Name", defaultValue: "Not set" },
+      conversationLanguage: { label: "Conversation Language", defaultValue: "English" },
+      sourceLanguage: { label: "Source Language", defaultValue: "English" },
+      targetLanguage: { label: "Target Language", defaultValue: "English" },
+      targetCommunity: { label: "Target Community", defaultValue: "Not set" },
+      readingLevel: { label: "Reading Level", defaultValue: "Not set" },
+      tone: { label: "Tone", defaultValue: "Not set" },
+      philosophy: { label: "Translation Philosophy", defaultValue: "Not set" },
+      approach: { label: "Translation Approach", defaultValue: "Not set" },
+    };
+
+    // Filter out fields that are null, undefined, or match default values
+    const fieldsToDisplay = Object.keys(fieldConfig).filter((key) => {
+      const value = project.styleGuide[key];
+      // Show field if it has a non-default value
+      return value !== null && value !== undefined && value !== "";
+    });
+
+    // If no fields have values, show the most important ones with defaults
+    const displayFields = fieldsToDisplay.length > 0 
+      ? fieldsToDisplay 
+      : ['conversationLanguage', 'sourceLanguage', 'targetLanguage', 'readingLevel', 'tone', 'philosophy'];
+
+    return (
+      <div className='canvas-section'>
+        <h3>Translation Settings</h3>
+        <div className='style-guide-content'>
+          {displayFields.map((key) => {
+            const config = fieldConfig[key];
+            if (!config) return null; // Skip unknown fields
+            
+            const value = project.styleGuide[key];
+            const displayValue = value || config.defaultValue;
+            
+            return (
+              <div key={key} className='guide-item'>
+                <label>{config.label}</label>
+                <div className='value'>{displayValue}</div>
+              </div>
+            );
+          })}
         </div>
-        <div className='guide-item'>
-          <label>Source Language</label>
-          <div className='value'>{project.styleGuide.sourceLanguage || "English"}</div>
-        </div>
-        <div className='guide-item'>
-          <label>Target Language</label>
-          <div className='value'>{project.styleGuide.targetLanguage || "English"}</div>
-        </div>
-        <div className='guide-item'>
-          <label>Reading Level</label>
-          <div className='value'>{project.styleGuide.readingLevel}</div>
-        </div>
-        <div className='guide-item'>
-          <label>Tone</label>
-          <div className='value'>{project.styleGuide.tone}</div>
-        </div>
-        <div className='guide-item'>
-          <label>Philosophy</label>
-          <div className='value'>{project.styleGuide.philosophy}</div>
-        </div>
+        <button
+          className='edit-button'
+          onClick={() => {
+            const newLevel = prompt(
+              "Enter reading level (e.g., Grade 1-8):",
+              project.styleGuide.readingLevel
+            );
+            if (newLevel) updateStyleGuide({ readingLevel: newLevel });
+          }}
+        >
+          Edit Settings
+        </button>
       </div>
-      <button
-        className='edit-button'
-        onClick={() => {
-          const newLevel = prompt(
-            "Enter reading level (e.g., Grade 1-8):",
-            project.styleGuide.readingLevel
-          );
-          if (newLevel) updateStyleGuide({ readingLevel: newLevel });
-        }}
-      >
-        Edit Settings
-      </button>
-    </div>
-  );
+    );
+  };
 
   const renderGlossary = () => {
     const keyTerms = project.glossary?.keyTerms || {};
