@@ -5,6 +5,39 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.6] - 2025-11-07
+
+### Added
+
+- **Agent Inspector Debug Interface**: Behind-the-curtain view of AI agent system
+  - New debug page accessible via `?inspector=true` URL parameter
+  - View all agent system prompts and configurations in real-time
+  - Search functionality to find specific instructions across all agents
+  - Visual formatting with syntax highlighting for sections, warnings, and critical rules
+  - Stats display showing prompt length, line count, and critical section count
+  - Toggle between normal app and inspector view with state persistence
+  - New API endpoint `/.netlify/functions/agent-prompts` to expose agent data
+  - Helps developers and users understand agent decision-making and behavior
+
+### Files Added
+
+- `netlify/functions/agent-prompts.js` - API endpoint for agent registry data
+- `src/components/AgentInspector.jsx` - Inspector UI component
+- `src/components/AgentInspector.css` - Inspector styling with two-panel layout
+
+### Changed
+
+- Modified `src/App.jsx` to support conditional rendering between translation app and inspector
+- Inspector toggle button only visible when `?inspector=true` parameter present
+- Inspector preference persists in localStorage for convenience
+
+### Developer Experience
+
+- Faster debugging of agent behavior issues
+- Clear visibility into prompt instructions and guardrails
+- Easy verification of prompt changes and their effects
+- Educational tool for understanding multi-agent architecture
+
 ## [0.4.5] - 2025-11-06
 
 ### 🚨 Critical Privacy & Trust Fixes

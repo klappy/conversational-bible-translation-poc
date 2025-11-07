@@ -1,7 +1,7 @@
 {
   "name": "bible-translation-poc",
   "private": true,
-  "version": "0.4.5",
+  "version": "0.4.6",
   "type": "module",
   "scripts": {
     "dev": "./node_modules/.bin/vite",
