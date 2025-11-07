@@ -189,13 +189,13 @@ const ChatInterfaceMultiAgent = () => {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!input.trim() || isLoading) return;
+  // Extracted message sending logic so both form submit and quick responses can use it
+  const sendMessage = async (messageText) => {
+    if (!messageText.trim() || isLoading) return;
 
     const userMessage = {
       role: "user",
-      content: input,
+      content: messageText,
       id: generateUniqueId("user"),
       timestamp: new Date(),
     };
@@ -268,7 +268,7 @@ const ChatInterfaceMultiAgent = () => {
           ...getSessionHeaders(),
         },
         body: JSON.stringify({
-          message: input,
+          message: messageText,
           sessionId: getSessionId(),
         }),
       });
@@ -302,7 +302,7 @@ const ChatInterfaceMultiAgent = () => {
             ...getSessionHeaders(),
           },
           body: JSON.stringify({
-            message: input,
+            message: messageText,
             agentId,
             sessionId: sessionIdValue,
             previousResponses,
@@ -338,7 +338,7 @@ const ChatInterfaceMultiAgent = () => {
                 allSuggestions = parsed.suggestions;
               }
             }
-          } catch (e) {
+          } catch {
             // Not JSON, use as-is
           }
         }
@@ -493,6 +493,11 @@ const ChatInterfaceMultiAgent = () => {
     }
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    await sendMessage(input);
+  };
+
   const handleAudioRecord = () => {
     setShowAudioRecord(!showAudioRecord);
     // Mock audio recording for PoC
@@ -564,13 +569,8 @@ const ChatInterfaceMultiAgent = () => {
                 messageId={message.id}
                 suggestions={message.content}
                 onSelect={(suggestion) => {
-                  // Auto-fill input and send
-                  setInput(suggestion);
-                  // Optionally auto-send after a short delay
-                  setTimeout(() => {
-                    const form = document.querySelector(".chat-form");
-                    if (form) form.requestSubmit();
-                  }, 100);
+                  // Send the message directly when clicked
+                  sendMessage(suggestion);
                 }}
               />
             );
