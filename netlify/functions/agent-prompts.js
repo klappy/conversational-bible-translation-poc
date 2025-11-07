@@ -1,8 +1,8 @@
 import { agentRegistry } from "./agents/registry.js";
 
 /**
- * Agent Prompts API Endpoint
- * Exposes agent configurations and system prompts for debugging/inspection
+ * Assistant Prompts API Endpoint
+ * Exposes assistant configurations and system prompts for debugging/inspection
  */
 export async function handler(event, context) {
   // Only allow GET requests
@@ -18,7 +18,7 @@ export async function handler(event, context) {
   }
 
   try {
-    // Extract agent data with prompts
+    // Extract assistant data with prompts
     const agents = Object.entries(agentRegistry).map(([id, agent]) => ({
       id,
       name: agent.visual?.name || agent.role || id,
@@ -52,7 +52,7 @@ export async function handler(event, context) {
       }),
     };
   } catch (error) {
-    console.error("Error fetching agent prompts:", error);
+    console.error("Error fetching assistant prompts:", error);
     return {
       statusCode: 500,
       headers: {
@@ -60,7 +60,7 @@ export async function handler(event, context) {
         "Access-Control-Allow-Origin": "*",
       },
       body: JSON.stringify({
-        error: "Failed to fetch agent prompts",
+        error: "Failed to fetch assistant prompts",
         message: error.message,
       }),
     };

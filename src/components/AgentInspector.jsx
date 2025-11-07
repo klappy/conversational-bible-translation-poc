@@ -21,13 +21,13 @@ function AgentInspector() {
       }
       const data = await response.json();
       setAgents(data.agents);
-      // Auto-select first agent
+      // Auto-select first assistant
       if (data.agents.length > 0) {
         setSelectedAgent(data.agents[0]);
       }
       setLoading(false);
     } catch (err) {
-      console.error("Failed to fetch agents:", err);
+      console.error("Failed to fetch assistants:", err);
       setError(err.message);
       setLoading(false);
     }
@@ -178,7 +178,7 @@ function AgentInspector() {
   if (loading) {
     return (
       <div className="agent-inspector loading">
-        <div className="loading-spinner">Loading agent data...</div>
+        <div className="loading-spinner">Loading assistant data...</div>
       </div>
     );
   }
@@ -187,7 +187,7 @@ function AgentInspector() {
     return (
       <div className="agent-inspector error">
         <div className="error-message">
-          <h2>Failed to Load Agents</h2>
+          <h2>Failed to Load Assistants</h2>
           <p>{error}</p>
           <button onClick={fetchAgents}>Retry</button>
         </div>
@@ -198,7 +198,15 @@ function AgentInspector() {
   return (
     <div className="agent-inspector">
       <div className="inspector-header">
-        <h1>🔍 Agent Prompt Inspector</h1>
+        <div className="header-top">
+          <h1>🔍 Assistant Prompt Inspector</h1>
+          <button
+            className="back-button"
+            onClick={() => window.dispatchEvent(new CustomEvent('toggleInspector'))}
+          >
+            ← Back to Translation
+          </button>
+        </div>
         <p className="subtitle">
           Behind the curtain of the Bible Translation Assistant
         </p>
@@ -226,7 +234,7 @@ function AgentInspector() {
 
       <div className="inspector-layout">
         <div className="agent-list">
-          <h2>Agents ({agents.length})</h2>
+          <h2>Assistants ({agents.length})</h2>
           {agents.map((agent) => (
             <div
               key={agent.id}
@@ -292,9 +300,9 @@ function AgentInspector() {
             </>
           ) : (
             <div className="no-selection">
-              <p>Select an agent to view its system prompt</p>
+              <p>Select an assistant to view its system prompt</p>
               <p className="hint">
-                Each agent has specialized instructions that guide its behavior in the
+                Each assistant has specialized instructions that guide its behavior in the
                 translation workflow.
               </p>
             </div>

@@ -9,7 +9,6 @@ import "./App.css";
 function App() {
   const [isMobile, setIsMobile] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [inspectorEnabled, setInspectorEnabled] = useState(false);
   const [showInspector, setShowInspector] = useState(false);
 
   useEffect(() => {
@@ -23,83 +22,23 @@ function App() {
   }, []);
 
   useEffect(() => {
-    // Check URL parameter for inspector mode
-    const urlParams = new URLSearchParams(window.location.search);
-    const inspectorParam = urlParams.get("inspector");
-    
-    if (inspectorParam === "true") {
-      setInspectorEnabled(true);
-      // Check localStorage for persisted preference
-      const savedPref = localStorage.getItem("showInspector");
-      if (savedPref === "true") {
-        setShowInspector(true);
-      }
-    }
-  }, []);
+    // Listen for inspector toggle event from AgentStatus button
+    const handleToggleInspector = () => {
+      setShowInspector(prev => !prev);
+    };
 
-  const toggleInspector = () => {
-    const newValue = !showInspector;
-    setShowInspector(newValue);
-    localStorage.setItem("showInspector", String(newValue));
-  };
+    window.addEventListener('toggleInspector', handleToggleInspector);
+    return () => window.removeEventListener('toggleInspector', handleToggleInspector);
+  }, []);
 
   // If inspector is active, show it instead of normal app
   if (showInspector) {
-    return (
-      <>
-        {inspectorEnabled && (
-          <button
-            onClick={toggleInspector}
-            style={{
-              position: "fixed",
-              top: "10px",
-              right: "10px",
-              zIndex: 10000,
-              padding: "10px 16px",
-              background: "#2196f3",
-              color: "white",
-              border: "none",
-              borderRadius: "8px",
-              cursor: "pointer",
-              fontSize: "14px",
-              fontWeight: "500",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-            }}
-          >
-            ← Back to Translation
-          </button>
-        )}
-        <AgentInspector />
-      </>
-    );
+    return <AgentInspector />;
   }
 
   return (
     <TranslationProvider>
       <div className='app'>
-        {inspectorEnabled && (
-          <button
-            onClick={toggleInspector}
-            style={{
-              position: "fixed",
-              top: "10px",
-              right: "10px",
-              zIndex: 1000,
-              padding: "10px 16px",
-              background: "#f0f0f0",
-              color: "#333",
-              border: "1px solid #ddd",
-              borderRadius: "8px",
-              cursor: "pointer",
-              fontSize: "14px",
-              fontWeight: "500",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-            }}
-            title="View agent prompts and system configuration"
-          >
-            🔍 Agent Inspector
-          </button>
-        )}
         {isMobile ? (
           <MobileSwipeView />
         ) : (

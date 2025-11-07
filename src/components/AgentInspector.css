@@ -60,11 +60,38 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 5px;
+}
+
 .inspector-header h1 {
   margin: 0;
   font-size: 28px;
   color: #333;
   font-weight: 600;
+  flex: 1;
+}
+
+.back-button {
+  padding: 10px 16px;
+  background: #2196f3;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.back-button:hover {
+  background: #1976d2;
 }
 
 .subtitle {

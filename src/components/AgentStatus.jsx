@@ -70,7 +70,7 @@ const AgentStatus = ({ activeAgents = [], thinking = [], defaultViewMode = 'comp
           <div className="collapsed-content">
             <span className="collapsed-icon">👥</span>
             <span className="collapsed-text">
-              {activeAgents.length} agent{activeAgents.length !== 1 ? 's' : ''} active
+              {activeAgents.length} assistant{activeAgents.length !== 1 ? 's' : ''} active
             </span>
             {thinking.length > 0 && (
               <span className="thinking-indicator-dot" />
@@ -176,8 +176,15 @@ const AgentStatus = ({ activeAgents = [], thinking = [], defaultViewMode = 'comp
       
       <div className="agent-status-footer">
         <p className="agent-description">
-          AI agents work together to help you translate accurately
+          AI assistants work together to help you translate accurately
         </p>
+        <button
+          className="inspector-button"
+          onClick={() => window.dispatchEvent(new CustomEvent('toggleInspector'))}
+          title="View assistant system prompts and configurations"
+        >
+          🔍 View Prompts
+        </button>
       </div>
     </div>
   );
