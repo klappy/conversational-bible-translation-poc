@@ -5,6 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.7] - 2025-11-07
+
+### Added
+
+- **Workshop Flow Enforcement**: AI now guides users back on track when they skip ahead
+  - Acknowledges user requests while gently redirecting to proper workflow
+  - Offers "quick setup" options for impatient users
+  - Ensures glossary and draft data collection even during chaotic user behavior
+  - Example: "Just translate Ruth 1:1" → System offers quick defaults while maintaining structure
+
+- **Off-Topic Request Handling**: AI stays focused on Bible translation workshop purpose
+  - Politely redirects users asking unrelated questions (weather, programming, general knowledge)
+  - Provides helpful suggestions to return to translation work
+  - Maintains workshop boundaries while remaining friendly and professional
+
+- **Story Context Structure**: Three-level narrative context before phrase-by-phrase work
+  - Book overview (Ruth as loyalty and redemption story)
+  - Chapter summary (family's journey through famine and loss)
+  - Pericope context (specific section introduction)
+  - User choice points at each level to dive deeper or proceed
+
+### Changed
+
+- Enhanced Orchestrator Agent prompt with workshop purpose enforcement
+- Enhanced Primary Agent prompt with chaos control and off-topic handling
+- Added narrative context progression to Understanding Phase workflow
+
+### Files Modified
+
+- `netlify/functions/agents/registry.js` - Added 120 lines of prompt enhancements
+
 ## [0.4.6] - 2025-11-07
 
 ### Added

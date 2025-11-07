@@ -24,11 +24,11 @@ function App() {
   useEffect(() => {
     // Listen for inspector toggle event from AgentStatus button
     const handleToggleInspector = () => {
-      setShowInspector(prev => !prev);
+      setShowInspector((prev) => !prev);
     };
 
-    window.addEventListener('toggleInspector', handleToggleInspector);
-    return () => window.removeEventListener('toggleInspector', handleToggleInspector);
+    window.addEventListener("toggleInspector", handleToggleInspector);
+    return () => window.removeEventListener("toggleInspector", handleToggleInspector);
   }, []);
 
   // If inspector is active, show it instead of normal app
