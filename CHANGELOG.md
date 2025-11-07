@@ -32,9 +32,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Enhanced Primary Agent prompt with chaos control and off-topic handling
 - Added narrative context progression to Understanding Phase workflow
 
+### Fixed
+
+- **Context-Aware Scripture Presentation**: Resource Librarian no longer jumps in prematurely
+  - Removed automatic Resource activation in Understanding phase
+  - Orchestrator now waits for explicit signals before showing scripture
+  - Primary Agent controls narrative flow through all context levels first
+  - Scripture only presented after book, chapter, and pericope context complete
+
 ### Files Modified
 
-- `netlify/functions/agents/registry.js` - Added 120 lines of prompt enhancements
+- `netlify/functions/agents/registry.js` - Added 120+ lines of prompt enhancements and timing fixes
 
 ## [0.4.6] - 2025-11-07
 

@@ -271,16 +271,32 @@ User: "Use these settings and begin" (with default/existing settings)
 Phase: planning → understanding
 Response:
 {
-  "agents": ["state", "resource", "primary", "suggestions"],
-  "notes": "Using existing settings to begin. State transitions to understanding, Resource presents scripture, Primary guides, Suggestions help."
+  "agents": ["state", "primary", "suggestions"],
+  "notes": "Using existing settings to begin. State transitions to understanding, Primary will guide through story context first, Suggestions help."
 }
 
 User: "Meaning-based" (when this is the last customization setting needed)
 Phase: planning → understanding
 Response:
 {
-  "agents": ["state", "resource", "primary", "suggestions"],
-  "notes": "Final setting recorded, transition to understanding. Resource will present scripture first, Primary guides, Suggestions help."
+  "agents": ["state", "primary", "suggestions"],
+  "notes": "Final setting recorded, transition to understanding. Primary will present book/chapter context before scripture, Suggestions help."
+}
+
+User: "Show me the passage" or "Yes, let's read it" (after story context)
+Phase: understanding
+Response:
+{
+  "agents": ["resource", "state", "primary", "suggestions"],
+  "notes": "User ready for scripture after context. Resource presents text, State ready for glossary, Primary will guide phrase work, Suggestions help."
+}
+
+User: "Continue" (immediately after transition to understanding)
+Phase: understanding
+Response:
+{
+  "agents": ["primary", "suggestions"],
+  "notes": "User acknowledging transition. Primary presents book context first (NOT scripture yet), Suggestions provide options."
 }
 
 User: "What does 'famine' mean in this context?"
@@ -337,13 +353,57 @@ SHARING → PUBLISHING:
 • ALWAYS include "suggestions" when "primary" agent is included (they work together)
 • ALWAYS include "state" when user provides information to record
 • ALWAYS include "state" during understanding phase (to record glossary entries)
-• ALWAYS include "resource" when transitioning to understanding phase (to present scripture)
 • ALWAYS include "state" during drafting phase (to save the draft)
 • ALWAYS include "state" when user requests phase transitions (check, review, share, publish)
 • ONLY include "resource" in planning phase if explicitly asked about biblical content
 • ONLY include "validator" during checking phase
 • Detect phase transition keywords and trigger state updates
 • Keep it minimal - only call agents that are actually needed
+
+— RESOURCE LIBRARIAN TIMING (Understanding Phase)
+
+🚨 CONTEXT-AWARE SCRIPTURE PRESENTATION 🚨
+
+DO NOT automatically call Resource Librarian just because we're in understanding phase!
+
+Call Resource Librarian ONLY when:
+
+1. **Primary Agent EXPLICITLY signals readiness** (recent messages contain):
+   - "Let's read this opening passage"
+   - "ready to see the scripture"
+   - "Let's look at the verse"
+   - "time to read the text"
+   - "Let me show you the text"
+   
+   DO NOT trigger on:
+   - "explore the first section" (too vague)
+   - "dive into chapter" (means explore context, not scripture)
+   - "Ready to explore" (means ready for context, not scripture)
+
+2. **User EXPLICITLY requests scripture** (exact phrases):
+   - "Show me the passage"
+   - "Show me the verse"
+   - "Show me the text"
+   - "What does the text say?"
+   - "Let me see the scripture"
+   
+   DO NOT trigger on:
+   - "Let's dive into chapter 1" (means chapter context)
+   - "Continue" (too vague)
+   - "Yes" (too vague)
+
+3. **Context indicates story overview is complete**:
+   - Primary has mentioned "book of Ruth" AND
+   - Primary has mentioned "chapter" or "section" AND
+   - User has engaged with the context (not just "Continue")
+
+IMPORTANT: Let Primary Agent guide the narrative flow! They will:
+- First present book context
+- Then chapter context
+- Then pericope context
+- ONLY THEN signal for scripture
+
+If unsure, DO NOT include Resource Librarian. Let Primary Agent control the pace.
 
 Return ONLY valid JSON, nothing else.`,
   },
@@ -646,9 +706,16 @@ LEVEL 2 - CHAPTER CONTEXT (When user is ready for chapter):
 
 LEVEL 3 - PERICOPE CONTEXT (Before presenting verses):
 {
-  "message": "**The first section (verses 1-5) sets the scene.** It introduces the family, their move to Moab due to famine, and the tragedies that befall them there.\n\nLet's read this opening passage together.",
-  "suggestions": ["Show me the passage", "Why did they leave?", "What's Moab?"]
+  "message": "**The first section (verses 1-5) sets the scene.** It introduces the family, their move to Moab due to famine, and the tragedies that befall them there.\n\nReady to look at the actual text?",
+  "suggestions": ["Show me the passage", "Tell me more context", "Why did they leave?"]
 }
+
+CRITICAL: When user says "Show me the passage" or similar, respond with:
+{
+  "message": "Let's read this opening passage together.",
+  "suggestions": ["Continue"]
+}
+This specific phrasing "Let's read this opening passage" signals the orchestrator to call Resource Librarian.
 
 PROGRESSION:
 1. Give book overview → Ask if they want more or to proceed
@@ -675,9 +742,17 @@ When customization is ACTUALLY complete (not when settings are null), return JSO
   "suggestions": ["Continue", "Review settings", "Start over"]
 }
 
-STEP 2: Let Resource Librarian Present Scripture
-The Resource Librarian will present the full verse first.
-DO NOT ask "What phrase would you like to discuss?"
+STEP 2: Present Story Context (IMMEDIATELY after user says Continue)
+When user responds to transition (typically "Continue"), START WITH BOOK CONTEXT:
+Use the STORY CONTEXT STRUCTURE defined above - present Level 1 (Book Context) first!
+DO NOT wait for Resource Librarian - YOU present the story context.
+DO NOT jump to phrases - provide narrative context first.
+
+STEP 3: Let Resource Librarian Present Scripture (ONLY after context complete)
+Only AFTER you've presented all three levels of context (book, chapter, pericope),
+and the user indicates readiness, THEN the Resource Librarian will present the verse.
+Your final context message should include phrases like "Let's read this opening passage"
+to signal the orchestrator to involve the Resource Librarian.
 
 STEP 3: Break Into Phrases Systematically
 After scripture is presented, YOU lead the phrase-by-phrase process.
@@ -1411,12 +1486,10 @@ export function getActiveAgents(workflow, messageContent = "") {
     active.push("validator");
   }
 
-  // ALWAYS activate resource agent in Understanding phase (to present scripture)
-  if (workflow.currentPhase === "understanding") {
-    active.push("resource");
-  }
+  // NOTE: Resource agent is NO LONGER automatically activated in understanding phase
+  // The orchestrator will decide based on conversation context when to involve Resource Librarian
 
-  // Also activate resource agent if biblical terms are mentioned (in any phase)
+  // Activate resource agent if biblical terms are mentioned (in any phase)
   const resourceTriggers = [
     "hebrew",
     "greek",
