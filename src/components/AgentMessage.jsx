@@ -8,7 +8,31 @@ const agentProfiles = {
     name: "Translation Assistant",
     icon: "📖",
     color: "#3B82F6",
-    role: "Guides you through the translation process"
+    role: "Guides overall flow and transitions"
+  },
+  settings_collector: {
+    name: "Settings Guide",
+    icon: "📋",
+    color: "#3B82F6",
+    role: "Collects translation preferences"
+  },
+  context_guide: {
+    name: "Context Guide",
+    icon: "📖",
+    color: "#8B5CF6",
+    role: "Provides biblical context progressively"
+  },
+  understanding_guide: {
+    name: "Understanding Guide",
+    icon: "🔍",
+    color: "#10B981",
+    role: "Explores phrase meanings with you"
+  },
+  draft_builder: {
+    name: "Draft Builder",
+    icon: "✏️",
+    color: "#F59E0B",
+    role: "Creates translation drafts from glossary"
   },
   state: {
     name: "Canvas Scribe",
@@ -33,6 +57,12 @@ const agentProfiles = {
     icon: "🎭",
     color: "#8B5CF6",
     role: "Manages the conversation flow"
+  },
+  suggestions: {
+    name: "Suggestion Helper",
+    icon: "💡",
+    color: "#F59E0B",
+    role: "Generates contextual quick responses"
   },
   user: {
     name: "You",

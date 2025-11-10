@@ -7,6 +7,26 @@ const agentProfiles = {
     icon: "📖",
     color: "#3B82F6"
   },
+  settings_collector: {
+    name: "Settings Guide",
+    icon: "📋",
+    color: "#3B82F6"
+  },
+  context_guide: {
+    name: "Context Guide",
+    icon: "📖",
+    color: "#8B5CF6"
+  },
+  understanding_guide: {
+    name: "Understanding Guide",
+    icon: "🔍",
+    color: "#10B981"
+  },
+  draft_builder: {
+    name: "Draft Builder",
+    icon: "✏️",
+    color: "#F59E0B"
+  },
   state: {
     name: "Canvas Scribe",
     icon: "📝",
@@ -26,6 +46,11 @@ const agentProfiles = {
     name: "Team Coordinator",
     icon: "🎭",
     color: "#8B5CF6"
+  },
+  suggestions: {
+    name: "Suggestion Helper",
+    icon: "💡",
+    color: "#F59E0B"
   }
 };
 
