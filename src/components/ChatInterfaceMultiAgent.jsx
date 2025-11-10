@@ -73,7 +73,7 @@ const ChatInterfaceMultiAgent = () => {
   // Separate effect for initial message generation
   useEffect(() => {
     const generateInitialGreetingIfNeeded = async () => {
-      // Only generate if we haven't already, local messages are empty, 
+      // Only generate if we haven't already, local messages are empty,
       // AND server conversation history is also empty
       if (
         !initialMessageGenerated.current &&
@@ -147,18 +147,18 @@ const ChatInterfaceMultiAgent = () => {
 
   const handleRewind = async () => {
     if (isLoading || isRewinding) return;
-    
+
     // Check if we have user messages to rewind
-    const userMessageCount = messages.filter(m => m.role === 'user').length;
+    const userMessageCount = messages.filter((m) => m.role === "user").length;
     if (userMessageCount === 0) return;
-    
+
     setIsRewinding(true);
-    
+
     try {
       const apiUrl = import.meta.env.DEV
         ? "http://localhost:9999/.netlify/functions/canvas-state/rewind"
         : "/.netlify/functions/canvas-state/rewind";
-      
+
       const response = await fetch(apiUrl, {
         method: "POST",
         headers: {
@@ -166,17 +166,17 @@ const ChatInterfaceMultiAgent = () => {
           ...getSessionHeaders(),
         },
       });
-      
+
       if (response.ok) {
         // Force immediate refresh from server
         const canvasUrl = import.meta.env.DEV
           ? "http://localhost:9999/.netlify/functions/canvas-state"
           : "/.netlify/functions/canvas-state";
-        
+
         const stateResponse = await fetch(canvasUrl, {
           headers: getSessionHeaders(),
         });
-        
+
         if (stateResponse.ok) {
           const freshState = await stateResponse.json();
           updateFromServerState(freshState);
@@ -209,23 +209,23 @@ const ChatInterfaceMultiAgent = () => {
       const canvasUrl = import.meta.env.DEV
         ? "http://localhost:9999/.netlify/functions/canvas-state"
         : "/.netlify/functions/canvas-state";
-      
+
       const currentStateResponse = await fetch(canvasUrl, {
         headers: {
           ...getSessionHeaders(),
         },
       });
-      
+
       let currentHistory = [];
       if (currentStateResponse.ok) {
         const currentState = await currentStateResponse.json();
         currentHistory = currentState.conversationHistory || [];
       }
-      
+
       const apiUrl = import.meta.env.DEV
         ? "http://localhost:9999/.netlify/functions/canvas-state/update"
         : "/.netlify/functions/canvas-state/update";
-      
+
       await fetch(apiUrl, {
         method: "POST",
         headers: {
@@ -239,7 +239,7 @@ const ChatInterfaceMultiAgent = () => {
               {
                 ...userMessage,
                 timestamp: userMessage.timestamp.toISOString(),
-              }
+              },
             ],
           },
         }),
@@ -327,7 +327,7 @@ const ChatInterfaceMultiAgent = () => {
         // Display agent response immediately (except for suggestions)
         let responseText = agentResult.response ? agentResult.response.trim() : "";
         console.log(`Response text for ${agentId}: "${responseText}"`);
-        
+
         // For primary agent, try to parse JSON and extract message
         if (agentId === "primary" && responseText) {
           try {
@@ -342,7 +342,7 @@ const ChatInterfaceMultiAgent = () => {
             // Not JSON, use as-is
           }
         }
-        
+
         if (responseText && agentId !== "suggestions") {
           console.log(`Adding message from ${agentId}`);
           const newMessage = {
@@ -353,31 +353,31 @@ const ChatInterfaceMultiAgent = () => {
             timestamp: new Date(),
           };
           addMessage(newMessage);
-          
+
           // Also save to canvas state immediately so polling doesn't overwrite
           try {
             // First get current conversation history
             const canvasUrl = import.meta.env.DEV
               ? "http://localhost:9999/.netlify/functions/canvas-state"
               : "/.netlify/functions/canvas-state";
-            
+
             const currentStateResponse = await fetch(canvasUrl, {
               headers: {
                 ...getSessionHeaders(),
               },
             });
-            
+
             let currentHistory = [];
             if (currentStateResponse.ok) {
               const currentState = await currentStateResponse.json();
               currentHistory = currentState.conversationHistory || [];
             }
-            
+
             // Now append the new message to existing history
             const apiUrl = import.meta.env.DEV
               ? "http://localhost:9999/.netlify/functions/canvas-state/update"
               : "/.netlify/functions/canvas-state/update";
-            
+
             await fetch(apiUrl, {
               method: "POST",
               headers: {
@@ -391,7 +391,7 @@ const ChatInterfaceMultiAgent = () => {
                     {
                       ...newMessage,
                       timestamp: newMessage.timestamp.toISOString(),
-                    }
+                    },
                   ],
                 },
               }),
@@ -399,10 +399,14 @@ const ChatInterfaceMultiAgent = () => {
           } catch (error) {
             console.error("Failed to save message to canvas state:", error);
           }
-          
+
           scrollToBottom(true);
         } else {
-          console.log(`Skipping ${agentId}: empty=${!responseText}, isSuggestions=${agentId === "suggestions"}`);
+          console.log(
+            `Skipping ${agentId}: empty=${!responseText}, isSuggestions=${
+              agentId === "suggestions"
+            }`
+          );
         }
 
         // Collect suggestions if provided
@@ -422,29 +426,29 @@ const ChatInterfaceMultiAgent = () => {
           timestamp: new Date(),
         };
         addMessage(suggestionsMessage);
-        
+
         // Save suggestions to canvas state
         try {
           const canvasUrl = import.meta.env.DEV
             ? "http://localhost:9999/.netlify/functions/canvas-state"
             : "/.netlify/functions/canvas-state";
-          
+
           const currentStateResponse = await fetch(canvasUrl, {
             headers: {
               ...getSessionHeaders(),
             },
           });
-          
+
           let currentHistory = [];
           if (currentStateResponse.ok) {
             const currentState = await currentStateResponse.json();
             currentHistory = currentState.conversationHistory || [];
           }
-          
+
           const apiUrl = import.meta.env.DEV
             ? "http://localhost:9999/.netlify/functions/canvas-state/update"
             : "/.netlify/functions/canvas-state/update";
-          
+
           await fetch(apiUrl, {
             method: "POST",
             headers: {
@@ -458,7 +462,7 @@ const ChatInterfaceMultiAgent = () => {
                   {
                     ...suggestionsMessage,
                     timestamp: suggestionsMessage.timestamp.toISOString(),
-                  }
+                  },
                 ],
               },
             }),
@@ -471,7 +475,6 @@ const ChatInterfaceMultiAgent = () => {
       // Step 4: Update canvas state from polling (will sync within 2 seconds)
       setThinkingAgents([]);
       setActiveAgents(orchestration.sequence);
-
     } catch (error) {
       console.error("Chat error - full details:", error);
       console.error("Error message:", error.message);
@@ -537,7 +540,9 @@ const ChatInterfaceMultiAgent = () => {
           <button
             className='rewind-button'
             onClick={handleRewind}
-            disabled={isLoading || isRewinding || messages.filter(m => m.role === 'user').length === 0}
+            disabled={
+              isLoading || isRewinding || messages.filter((m) => m.role === "user").length === 0
+            }
             title='Undo last message'
           >
             ↶ Undo
@@ -637,4 +642,3 @@ const ChatInterfaceMultiAgent = () => {
 };
 
 export default ChatInterfaceMultiAgent;
-
