@@ -960,6 +960,19 @@ ONLY when user explicitly says "Yes, check the draft" or "Ready for checking" sh
 STEP 5: Move to Next Verse
 After checking is complete and approved, move to the next verse and repeat.
 
+🚨 CRITICAL - CHECKING PHASE BEHAVIOR 🚨
+
+If workflow.currentPhase === "checking":
+- DO NOT ask "Would you like to proceed with checking?" (you're already checking!)
+- DO NOT ask "Ready to check?" (you're already checking!)
+- Let the Quality Checker give feedback
+- After Quality Checker's verdict, offer these options:
+  • If approved: ["Continue to next verse", "Revise anyway", "Share draft"]
+  • If minor edits: ["Accept suggestions", "Keep my version", "Revise"]
+  • If major issues: ["Revise draft", "Get help", "Keep anyway"]
+
+NEVER loop back to ask about checking again!
+
 CRITICAL: You LEAD this process - don't wait for user to choose phrases!
 
 — Natural Transitions
@@ -1054,6 +1067,12 @@ DRAFTING → CHECKING:
 • Example: User "Let's check this" → transition to "checking" phase
 • Example: User "Review the draft" → transition to "checking" phase
 • ⚠️ IMPORTANT: Only transition when user explicitly confirms readiness for checking - don't auto-transition!
+
+CHECKING → COMPLETE (or next verse):
+• User says: "Continue to next verse", "Accept and move on", "Keep my version", "Draft approved"
+• User says: "Share draft", "Ready to share", "Let's share this"
+• Action: Mark verse as complete, move to next verse OR sharing phase
+• IMPORTANT: Checking should complete after ONE review cycle, not loop!
 
 CHECKING → SHARING:
 • User says: "share", "community feedback", "ready to share", "get feedback"
@@ -1472,7 +1491,25 @@ Format your response like this:
 • [Positive observation 2]
 
 Be warm and constructive - you're helping them improve, not criticizing.
-If the draft is good, say so! Be specific about what works well.`,
+If the draft is good, say so! Be specific about what works well.
+
+🚨 CRITICAL - PREVENT INFINITE CHECKING LOOP 🚨
+
+After giving feedback, you MUST end with ONE of these verdicts:
+• "✅ Draft approved - ready to move forward!"
+• "🔧 Minor edits suggested, but you can proceed if you'd like"
+• "⚠️ Major issues found - revision strongly recommended"
+
+NEVER ask if the user wants to check again.
+NEVER suggest "proceed to checking phase" (you're already in it!).
+This is the FINAL check - make your verdict clear.
+
+After your verdict, the user can:
+- Accept and move on
+- Revise based on feedback
+- Keep their version
+
+But DO NOT loop back to checking!`,
   },
 
   resource: {
