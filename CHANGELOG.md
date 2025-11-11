@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2025-11-11
+
+### Added
+
+- **Workshop Splash Modal**: Professional presentation modal for ETEN Summit workshop
+  - 6-slide presentation introducing conversational AI approach
+  - Modern, beautiful design with gradients and smooth animations
+  - Collaborative messaging emphasizing "our tools" vs "your tools"
+  - Fixed contrast issues for better accessibility and readability
+  - Manual navigation with keyboard support (arrow keys, ESC to close)
+  - LocalStorage persistence to show only on first visit
+  - Focuses on AI as bridge to existing tools, not replacement
+  - Invites workshop feedback and integration ideas
+
+### Changed
+
+- **Messaging Tone**: Shifted from competitive to collaborative language
+  - Emphasizes complementing existing tools rather than replacing them
+  - Uses inclusive "our" language instead of "your" language
+  - Frames conversational AI as accessibility layer for existing capabilities
+
 ## [0.4.7] - 2025-11-07
 
 ### Added
