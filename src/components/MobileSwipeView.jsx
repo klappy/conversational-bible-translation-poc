@@ -13,6 +13,28 @@ const MobileSwipeView = () => {
   const [cards, setCards] = useState(["chat", "styleGuide", "glossary", "scripture", "feedback"]);
   const [dismissedCards, setDismissedCards] = useState(new Set());
   const { project, workflow, updateStyleGuide, addGlossaryTerm, addFeedback } = useTranslation();
+  
+  // Trigger hint animation after mount
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (swiperRef.current && cards.length > 1) {
+        // Simulate a partial swipe to hint at navigation
+        const swiper = swiperRef.current;
+        
+        // First hint
+        swiper.setTranslate(-30);
+        setTimeout(() => swiper.setTranslate(0), 400);
+        
+        // Second hint after a pause
+        setTimeout(() => {
+          swiper.setTranslate(-35);
+          setTimeout(() => swiper.setTranslate(0), 500);
+        }, 1200);
+      }
+    }, 1000);
+    
+    return () => clearTimeout(timer);
+  }, [cards]);
 
   // Reorder cards based on workflow phase
   useEffect(() => {
@@ -244,6 +266,15 @@ const MobileSwipeView = () => {
           clickable: true,
           dynamicBullets: true,
         }}
+        cardsEffect={{
+          slideShadows: true,
+          rotate: true,
+          perSlideRotate: 2,
+          perSlideOffset: 8,
+        }}
+        threshold={10} // Minimum swipe distance to trigger navigation
+        resistance={true}
+        resistanceRatio={0.85}
         className='mobile-swiper'
         onSwiper={(swiper) => {
           swiperRef.current = swiper;

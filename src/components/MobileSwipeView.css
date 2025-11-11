@@ -52,6 +52,33 @@
   height: 100%;
 }
 
+/* Prevent agent panel from capturing swipe gestures */
+.chat-card .agent-status-panel {
+  pointer-events: none;
+}
+
+.chat-card .agent-status-panel button,
+.chat-card .agent-status-panel .agent-compact-item {
+  pointer-events: auto;
+}
+
+/* Force compact view for agents in mobile swipe */
+.chat-card .agent-status-panel.expanded {
+  display: none;
+}
+
+.chat-card .agent-status-panel.compact {
+  display: block !important;
+  max-height: 48px;
+  overflow: visible;
+}
+
+/* Disable horizontal scroll in swipe view */
+.chat-card .compact-agents {
+  overflow-x: hidden !important;
+  justify-content: flex-start;
+}
+
 .artifact-card,
 .resource-card {
   padding: 0;
@@ -234,63 +261,9 @@
   font-style: italic;
 }
 
-/* Swipe Hints - Hidden by default, shown with animation */
+/* Swipe Hints - Hidden */
 .swipe-hints {
-  display: none; /* Hidden - we'll use peek animation instead */
-}
-
-/* Peek animation for first card - tips to reveal what's behind */
-@keyframes peekBehind {
-  0% { 
-    transform: perspective(1000px) rotateY(0deg) scale(1);
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-  }
-  30% { 
-    transform: perspective(1000px) rotateY(-25deg) scale(0.95);
-    box-shadow: 15px 15px 50px rgba(0, 0, 0, 0.3);
-  }
-  40%, 60% { 
-    /* Hold the peek position */
-    transform: perspective(1000px) rotateY(-28deg) scale(0.94);
-    box-shadow: 20px 20px 60px rgba(0, 0, 0, 0.35);
-  }
-  100% { 
-    transform: perspective(1000px) rotateY(0deg) scale(1);
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-  }
-}
-
-/* Secondary card hint animation - shows there's something behind */
-@keyframes hintCardBehind {
-  0%, 30%, 100% {
-    transform: translateX(0) scale(0.9);
-    opacity: 0;
-  }
-  40%, 60% {
-    transform: translateX(30px) scale(0.9);
-    opacity: 0.3;
-  }
-}
-
-.swiper-slide:first-child .mobile-card {
-  animation: peekBehind 2s cubic-bezier(0.4, 0, 0.2, 1) 0.8s 2;
-  transform-origin: center left;
-}
-
-/* Create a pseudo-element to hint at the card behind */
-.swiper-slide:first-child::after {
-  content: '';
-  position: absolute;
-  top: 16px;
-  left: 16px;
-  right: -20px;
-  bottom: 16px;
-  background: linear-gradient(135deg, #8b92ea 0%, #9e6ba2 100%);
-  border-radius: 16px;
-  z-index: -1;
-  animation: hintCardBehind 2s cubic-bezier(0.4, 0, 0.2, 1) 0.8s 2;
-  transform-origin: center left;
-  box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.1);
+  display: none;
 }
 
 /* Visual indicator dot for multiple cards */

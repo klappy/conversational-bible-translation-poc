@@ -348,27 +348,42 @@
     scrollbar-width: thin;
   }
   
-  /* Horizontal scroll for compact mode */
+  /* Horizontal scroll for compact mode - disabled on touch to prevent swipe conflicts */
   .compact-agents {
     display: flex;
-    overflow-x: auto;
+    overflow-x: visible; /* Changed from auto to prevent scroll capture */
     overflow-y: hidden;
-    -webkit-overflow-scrolling: touch;
-    scroll-behavior: smooth;
+    flex-wrap: nowrap;
     padding-bottom: 2px;
   }
   
-  .compact-agents::-webkit-scrollbar {
-    height: 3px;
+  /* Only show limited agents on mobile to avoid need for scrolling */
+  @media (pointer: coarse) {
+    .agent-compact-item:nth-child(n+6) {
+      display: none; /* Show only first 5 agents on touch devices */
+    }
   }
   
-  .compact-agents::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.05);
-  }
-  
-  .compact-agents::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 3px;
+  /* For non-touch devices, keep scroll */
+  @media (pointer: fine) {
+    .compact-agents {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scroll-behavior: smooth;
+    }
+    
+    .compact-agents::-webkit-scrollbar {
+      height: 3px;
+    }
+    
+    .compact-agents::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.05);
+    }
+    
+    .compact-agents::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 3px;
+    }
   }
   
   .agent-status-header h3 {
