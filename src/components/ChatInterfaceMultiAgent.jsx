@@ -533,7 +533,7 @@ const ChatInterfaceMultiAgent = () => {
   return (
     <div className='chat-interface'>
       <div className='chat-header'>
-        <h2>Bible Translation Assistant</h2>
+        <h2>Conversational Bible Translation</h2>
         <div className='workflow-info'>
           <span className='workflow-phase'>{phaseDisplay}</span>
           <span className='workflow-verse'>{getCurrentVerse()}</span>

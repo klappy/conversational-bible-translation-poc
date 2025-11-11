@@ -208,7 +208,7 @@ function AgentInspector() {
           </button>
         </div>
         <p className="subtitle">
-          Behind the curtain of the Bible Translation Assistant
+          Behind the curtain of Conversational Bible Translation
         </p>
 
         <div className="inspector-controls">

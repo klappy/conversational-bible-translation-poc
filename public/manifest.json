@@ -1,6 +1,6 @@
 {
-  "name": "Bible Translation Assistant",
-  "short_name": "BibleTranslate",
+  "name": "Conversational Bible Translation",
+  "short_name": "ConvTranslate",
   "description": "AI-powered conversational Bible translation tool using FIA methodology",
   "start_url": "/",
   "display": "standalone",
