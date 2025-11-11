@@ -415,6 +415,121 @@
   }
 }
 
+/* Enhanced mobile responsiveness */
+@media (max-width: 767px) {
+  .chat-interface {
+    height: 100vh;
+    height: 100dvh; /* Dynamic viewport height */
+    border-radius: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .chat-header {
+    padding: 8px 12px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  
+  .chat-header h2 {
+    font-size: 1.1rem;
+  }
+  
+  .workflow-info {
+    gap: 8px;
+  }
+  
+  .workflow-phase,
+  .workflow-verse {
+    padding: 4px 10px;
+    font-size: 0.8rem;
+  }
+  
+  .rewind-button,
+  .share-button {
+    padding: 4px 8px;
+    font-size: 0.8rem;
+  }
+  
+  .agent-panel {
+    margin: 8px;
+  }
+  
+  .messages {
+    flex: 1;
+    padding: 8px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    /* Ensure messages don't get hidden behind input */
+    padding-bottom: 80px;
+  }
+  
+  .message {
+    padding: 10px 12px;
+    margin: 6px 0;
+  }
+  
+  .input-form {
+    padding: 8px 12px;
+    position: sticky;
+    bottom: 0;
+    background: white;
+    border-top: 1px solid #e0e0e0;
+    z-index: 10;
+    /* Account for iOS safari bottom bar */
+    padding-bottom: max(8px, env(safe-area-inset-bottom, 8px));
+  }
+  
+  .input-container {
+    gap: 6px;
+  }
+  
+  .audio-button {
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  
+  input[type="text"] {
+    padding: 8px 12px;
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+  
+  .send-button {
+    padding: 8px 16px;
+    font-size: 14px;
+  }
+  
+  /* Fix keyboard overlay issues */
+  .chat-interface:has(input:focus) .messages {
+    padding-bottom: 20px;
+  }
+  
+  /* Optimize suggestion cards for mobile */
+  .suggestion-cards {
+    padding: 8px;
+    gap: 8px;
+  }
+  
+  .suggestion-card {
+    padding: 10px;
+    min-height: auto;
+  }
+  
+  .suggestion-text {
+    font-size: 13px;
+  }
+  
+  .suggestion-hint {
+    font-size: 10px;
+    padding: 2px 4px;
+  }
+}
+
 /* Input Form */
 .input-form {
   padding: 16px;

@@ -253,11 +253,6 @@ const MobileSwipeView = () => {
           <SwiperSlide key={cardType}>{renderCard(cardType)}</SwiperSlide>
         ))}
       </Swiper>
-
-      <div className='swipe-hints'>
-        <div className='hint'>← Swipe to navigate →</div>
-        <div className='hint'>↑ Swipe up to dismiss ↑</div>
-      </div>
     </div>
   );
 };
