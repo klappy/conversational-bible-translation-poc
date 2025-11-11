@@ -3,6 +3,7 @@ import ChatInterfaceMultiAgent from "./components/ChatInterfaceMultiAgent";
 import ScriptureCanvas from "./components/ScriptureCanvas";
 import MobileSwipeView from "./components/MobileSwipeView";
 import AgentInspector from "./components/AgentInspector";
+import WorkshopSplashModal from "./components/WorkshopSplashModal";
 import { TranslationProvider } from "./contexts/TranslationContext";
 import "./App.css";
 
@@ -10,6 +11,7 @@ function App() {
   const [isMobile, setIsMobile] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [showInspector, setShowInspector] = useState(false);
+  const [showSplashModal, setShowSplashModal] = useState(false);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -29,6 +31,18 @@ function App() {
 
     window.addEventListener("toggleInspector", handleToggleInspector);
     return () => window.removeEventListener("toggleInspector", handleToggleInspector);
+  }, []);
+
+  useEffect(() => {
+    // Check if user has seen the workshop splash modal
+    const hasSeenSplash = localStorage.getItem("hasSeenWorkshopSplash");
+    if (!hasSeenSplash) {
+      // Delay showing the modal slightly so the app loads first
+      const timer = setTimeout(() => {
+        setShowSplashModal(true);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
   }, []);
 
   // If inspector is active, show it instead of normal app
@@ -59,6 +73,10 @@ function App() {
           </div>
         )}
       </div>
+      <WorkshopSplashModal
+        isOpen={showSplashModal}
+        onClose={() => setShowSplashModal(false)}
+      />
     </TranslationProvider>
   );
 }
