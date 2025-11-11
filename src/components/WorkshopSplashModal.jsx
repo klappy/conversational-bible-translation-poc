@@ -1,11 +1,38 @@
 import { useState, useEffect } from "react";
+import { QRCodeSVG } from "qrcode.react";
 import "./WorkshopSplashModal.css";
 
 const WorkshopSplashModal = ({ isOpen, onClose }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const slides = [
-    // Slide 1: The Hook
+    // Slide 1: QR Code Access
+    {
+      title: "Join the Experience",
+      content: (
+        <>
+          <div className="qr-slide-container">
+            <p className="slide-subtitle">Scan to open on your device:</p>
+            <div className="qr-code-wrapper">
+              <QRCodeSVG
+                value="https://conversational-bt.netlify.app"
+                size={220}
+                level="M"
+                includeMargin={true}
+                fgColor="#1e293b"
+              />
+            </div>
+            <div className="url-display">
+              <span className="url-text">conversational-bt.netlify.app</span>
+            </div>
+            <p className="slide-note">
+              <em>Open this URL on your phone, tablet, or laptop to follow along</em>
+            </p>
+          </div>
+        </>
+      ),
+    },
+    // Slide 2: The Hook (previously Slide 1)
     {
       title: "What if AI Could Bridge the Gap to Our Tools?",
       content: (
@@ -21,7 +48,7 @@ const WorkshopSplashModal = ({ isOpen, onClose }) => {
         </>
       ),
     },
-    // Slide 2: The Vision
+    // Slide 3: The Vision (previously Slide 2)
     {
       title: "Complementing Tools with Conversational Guidance",
       content: (
@@ -42,7 +69,7 @@ const WorkshopSplashModal = ({ isOpen, onClose }) => {
         </>
       ),
     },
-    // Slide 3: Why This Matters
+    // Slide 4: Why This Matters (previously Slide 3)
     {
       title: "Meeting Users Where They Are",
       content: (
@@ -70,7 +97,7 @@ const WorkshopSplashModal = ({ isOpen, onClose }) => {
         </>
       ),
     },
-    // Slide 4: What You'll See Today
+    // Slide 5: What You'll See Today (previously Slide 4)
     {
       title: "Today's Focus: The Guiding Conversation",
       content: (
@@ -89,7 +116,7 @@ const WorkshopSplashModal = ({ isOpen, onClose }) => {
         </>
       ),
     },
-    // Slide 5: The Partnership Model
+    // Slide 6: The Partnership Model (previously Slide 5)
     {
       title: "Better Together: Integration Opportunities",
       content: (
@@ -112,7 +139,7 @@ const WorkshopSplashModal = ({ isOpen, onClose }) => {
         </>
       ),
     },
-    // Slide 6: Let's Begin
+    // Slide 7: Let's Begin (previously Slide 6)
     {
       title: "Let's Explore This Together",
       content: (
