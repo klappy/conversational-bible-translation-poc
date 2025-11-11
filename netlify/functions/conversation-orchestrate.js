@@ -58,7 +58,7 @@ const handler = async (req, context) => {
     const sequence = [];
     
     // Resource Librarian first if needed (to present scripture)
-    if (orchestration.agents?.includes("resource")) {
+    if (orchestration.agents?.includes("resource") || orchestration.agents?.includes("librarian")) {
       sequence.push("resource");
     }
 
@@ -67,7 +67,27 @@ const handler = async (req, context) => {
       sequence.push("state");
     }
 
-    // Primary translator AFTER state (asks next question after acknowledgment)
+    // Settings collector during planning
+    if (orchestration.agents?.includes("settings_collector")) {
+      sequence.push("settings_collector");
+    }
+
+    // Context guide during understanding
+    if (orchestration.agents?.includes("context_guide")) {
+      sequence.push("context_guide");
+    }
+
+    // Understanding guide for phrase exploration
+    if (orchestration.agents?.includes("understanding_guide")) {
+      sequence.push("understanding_guide");
+    }
+
+    // Draft builder during drafting
+    if (orchestration.agents?.includes("draft_builder")) {
+      sequence.push("draft_builder");
+    }
+
+    // Primary translator AFTER specialists
     if (orchestration.agents?.includes("primary")) {
       sequence.push("primary");
     }

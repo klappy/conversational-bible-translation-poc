@@ -258,8 +258,8 @@ async function processConversation(userMessage, conversationHistory, sessionId, 
   const agentsToCall = orchestration.agents || ["primary", "state"];
 
   // Call Resource Librarian if orchestrator says so
-  if (agentsToCall.includes("resource")) {
-    const resource = getAgent("resource");
+  if (agentsToCall.includes("resource") || agentsToCall.includes("librarian")) {
+    const resource = getAgent("resource") || getAgent("librarian");
     console.log("Calling resource librarian...");
     responses.resource = await callAgent(
       resource,
@@ -271,6 +271,67 @@ async function processConversation(userMessage, conversationHistory, sessionId, 
       openaiClient
     );
     console.log("Resource librarian responded");
+  }
+
+  // Call specialized agents BEFORE primary
+  // Settings Collector
+  if (agentsToCall.includes("settings_collector")) {
+    const settingsCollector = getAgent("settings_collector");
+    console.log("Calling settings collector...");
+    responses.settings_collector = await callAgent(
+      settingsCollector,
+      userMessage,
+      {
+        ...context,
+        orchestration,
+      },
+      openaiClient
+    );
+  }
+
+  // Context Guide
+  if (agentsToCall.includes("context_guide")) {
+    const contextGuide = getAgent("context_guide");
+    console.log("Calling context guide...");
+    responses.context_guide = await callAgent(
+      contextGuide,
+      userMessage,
+      {
+        ...context,
+        orchestration,
+      },
+      openaiClient
+    );
+  }
+
+  // Understanding Guide
+  if (agentsToCall.includes("understanding_guide")) {
+    const understandingGuide = getAgent("understanding_guide");
+    console.log("Calling understanding guide...");
+    responses.understanding_guide = await callAgent(
+      understandingGuide,
+      userMessage,
+      {
+        ...context,
+        orchestration,
+      },
+      openaiClient
+    );
+  }
+
+  // Draft Builder
+  if (agentsToCall.includes("draft_builder")) {
+    const draftBuilder = getAgent("draft_builder");
+    console.log("Calling draft builder...");
+    responses.draft_builder = await callAgent(
+      draftBuilder,
+      userMessage,
+      {
+        ...context,
+        orchestration,
+      },
+      openaiClient
+    );
   }
 
   // Call primary translator if orchestrator says so
@@ -535,6 +596,47 @@ function mergeAgentResponses(responses) {
     } else {
       console.log("Resource Librarian returned empty response (staying silent)");
     }
+  }
+
+  // Include specialized agent responses (they speak before primary)
+  // Settings Collector
+  if (responses.settings_collector && !responses.settings_collector.error && responses.settings_collector.response) {
+    console.log("Adding Settings Collector message");
+    messages.push({
+      role: "assistant",
+      content: responses.settings_collector.response,
+      agent: responses.settings_collector.agent,
+    });
+  }
+
+  // Context Guide
+  if (responses.context_guide && !responses.context_guide.error && responses.context_guide.response) {
+    console.log("Adding Context Guide message");
+    messages.push({
+      role: "assistant",
+      content: responses.context_guide.response,
+      agent: responses.context_guide.agent,
+    });
+  }
+
+  // Understanding Guide
+  if (responses.understanding_guide && !responses.understanding_guide.error && responses.understanding_guide.response) {
+    console.log("Adding Understanding Guide message");
+    messages.push({
+      role: "assistant",
+      content: responses.understanding_guide.response,
+      agent: responses.understanding_guide.agent,
+    });
+  }
+
+  // Draft Builder
+  if (responses.draft_builder && !responses.draft_builder.error && responses.draft_builder.response) {
+    console.log("Adding Draft Builder message");
+    messages.push({
+      role: "assistant",
+      content: responses.draft_builder.response,
+      agent: responses.draft_builder.agent,
+    });
   }
 
   // Handle Suggestion Helper response (extract suggestions, don't show as message)
