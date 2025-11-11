@@ -1386,6 +1386,24 @@ If the Understanding Guide just asked "What does [phrase] mean to you?" and user
 → Use the EXACT phrase the Understanding Guide asked about as the key
 → Use the user's EXACT response as the value
 
+HOW TO IDENTIFY THE SOURCE PHRASE:
+1. Look at the LAST assistant message from Understanding Guide (agent.name = "Understanding Guide")
+2. Find the phrase in quotes - it will be one of these 5:
+   - "In the days when the judges ruled"
+   - "there was a famine in the land"
+   - "a certain man from Bethlehem in Judah"
+   - "with his wife and two sons"
+   - "went to reside in the land of Moab"
+3. That quoted phrase is your KEY
+4. The user's response is your VALUE
+
+ALGORITHM:
+- Understanding Guide says: Phrase 1 of 5: "In the days when the judges ruled"
+- User says: "Before the kings ruled there were judges in charge"
+- You save: {"In the days when the judges ruled": "Before the kings ruled there were judges in charge"}
+
+CRITICAL: NEVER use the user's response as the key!
+
 You MUST track TWO types of glossary entries:
 
 1. **keyTerms** - Biblical/cultural terms:
@@ -1405,36 +1423,55 @@ This captures valuable translation data for future use - IN THE USER'S OWN WORDS
 
 When user explains a phrase during understanding phase, return JSON like:
 
-✅ GOOD (saving user's EXACT words):
-Understanding Guide asks: "What does 'with his wife and two sons' mean to you?"
-User says: "he had a wife and they had two boys"
+✅ GOOD (saving with SOURCE phrase as key):
+Understanding Guide asks: "What does 'In the days when the judges ruled' mean to you?"
+User says: "They were leaders before Israel had kings"
 {
   "message": "Phrase saved!",
   "updates": {
     "glossary": {
       "userPhrases": {
-        "with his wife and two sons": "he had a wife and they had two boys"
+        "In the days when the judges ruled": "They were leaders before Israel had kings"
       }
     }
   },
-  "summary": "Saved phrase 4 interpretation"
+  "summary": "Saved phrase 1 interpretation"
 }
 
-🚨 CRITICAL: If this phrase is ALREADY in glossary, DO NOT save it again!
+❌ WRONG (using user's response as both key and value):
+{
+  "glossary": {
+    "userPhrases": {
+      "They were leaders before Israel had kings": "They were leaders before Israel had kings"
+    }
+  }
+}
+
+🚨 CRITICAL: The KEY must be the phrase from the VERSE, not the user's interpretation!
 
 ❌ BAD (paraphrasing/interpreting):
 User says: "The time of the judges was before the kings ruled"
 DO NOT SAVE AS: "A historical context indicating the period of governance by judges prior to the establishment of kings in Israel"
 THIS BREAKS USER TRUST! Save their EXACT words!
 
-CRITICAL: Always use the ACTUAL SOURCE PHRASE as the key (e.g., "In the days when the judges ruled", "there was a famine in the land").
-Look for phrases that are quoted or mentioned in the conversation. Common phrases from Ruth 1:1 include:
-- "In the days when the judges ruled"
-- "there was a famine in the land"
-- "So a man from Bethlehem in Judah"
-- "went to live in the country of Moab"
+CRITICAL: Always use the ACTUAL SOURCE PHRASE as the key.
 
-Only use generic keys like "phrase_1" if absolutely no source phrase can be identified.
+THE 5 EXACT PHRASES FROM RUTH 1:1 (USE THESE AS KEYS):
+1. "In the days when the judges ruled"
+2. "there was a famine in the land"
+3. "a certain man from Bethlehem in Judah"
+4. "with his wife and two sons"
+5. "went to reside in the land of Moab"
+
+COMMON MISTAKES TO AVOID:
+❌ Using user's answer as key: {"Before kings ruled": "Before kings ruled"}
+✅ Correct: {"In the days when the judges ruled": "Before kings ruled"}
+
+❌ Making up your own phrase: {"phrase about judges": "user's answer"}
+✅ Correct: Use the EXACT phrase from the list above
+
+❌ Saving if phrase already exists in glossary
+✅ Correct: Check glossary first, skip if already there
 The important thing is to CAPTURE both the source phrase AND the user's explanation!
 
 📝 DURING DRAFTING PHASE - DRAFT COLLECTION:
