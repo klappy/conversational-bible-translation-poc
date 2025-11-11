@@ -334,6 +334,22 @@ async function processConversation(userMessage, conversationHistory, sessionId, 
     );
   }
 
+  // Process Monitor - runs after state changes to validate
+  if (agentsToCall.includes("process_monitor")) {
+    const processMonitor = getAgent("process_monitor");
+    console.log("Calling process monitor for validation...");
+    responses.process_monitor = await callAgent(
+      processMonitor,
+      userMessage,
+      {
+        ...context,
+        orchestration,
+        stateChanges: responses.state?.updates,
+      },
+      openaiClient
+    );
+  }
+
   // Call primary translator if orchestrator says so
   if (agentsToCall.includes("primary")) {
     console.log("========== PRIMARY AGENT CALLED ==========");
@@ -637,6 +653,19 @@ function mergeAgentResponses(responses) {
       content: responses.draft_builder.response,
       agent: responses.draft_builder.agent,
     });
+  }
+
+  // Process Monitor (only shows message if it fixed something)
+  if (responses.process_monitor && !responses.process_monitor.error && responses.process_monitor.response) {
+    const monitorResponse = responses.process_monitor.response.trim();
+    if (monitorResponse && monitorResponse !== "") {
+      console.log("Process Monitor detected/fixed issue:", monitorResponse);
+      messages.push({
+        role: "assistant",
+        content: monitorResponse,
+        agent: responses.process_monitor.agent,
+      });
+    }
   }
 
   // Handle Suggestion Helper response (extract suggestions, don't show as message)

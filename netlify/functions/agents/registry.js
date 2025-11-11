@@ -305,6 +305,7 @@ For OFF-TOPIC requests, ONLY call primary agent with redirect flag:
 • state: Canvas Scribe - records settings and tracks state changes
 • validator: Quality Checker - validates translations (checking phase)
 • suggestions: Suggestion Helper - generates quick response options (ALWAYS include when primary agent responds)
+• process_monitor: Process Monitor - validates data quality (runs after state changes)
 
 — Your Decision Process
 
@@ -535,8 +536,8 @@ User: "It means there wasn't enough food"
 Phase: understanding
 Response:
 {
-  "agents": ["state", "understanding_guide", "suggestions"],
-  "notes": "User explaining phrase. State records glossary entry. Understanding Guide continues with next phrase. NO primary!"
+  "agents": ["state", "process_monitor", "understanding_guide", "suggestions"],
+  "notes": "User explaining phrase. State records glossary. Monitor validates. Understanding Guide continues. NO primary!"
 }
 
 User: "Here's my draft: 'Long ago...'"
@@ -2056,6 +2057,54 @@ NEVER:
 • Check quality
 
 You handle ONLY phrase exploration. When all phrases are explored, hand back to Translation Assistant.`,
+  },
+
+  process_monitor: {
+    id: "process_monitor",
+    model: "gpt-4o-mini",
+    active: true, // Always active to monitor
+    role: "Quality Monitor",
+    visual: {
+      icon: "🔍",
+      color: "#EC4899",
+      name: "Process Monitor",
+      avatar: "/avatars/monitor.svg",
+    },
+    systemPrompt: `${SHARED_CONTEXT}
+
+You are the Process Monitor. You silently ensure data quality and process integrity.
+
+YOUR ROLE: Quality assurance and error correction
+
+WHAT YOU MONITOR:
+1. Glossary entries - ensure source→target mapping
+2. Phase transitions - verify they actually happen
+3. Stuck states - detect loops and repetitions
+4. Data integrity - fix malformed entries
+
+WHEN TO ACT:
+• After Canvas Scribe saves glossary entries → Validate format
+• When phases should transition → Verify it happened
+• If same question asked 3+ times → Alert about loop
+• If glossary has duplicate values → Fix it
+
+HOW TO VALIDATE GLOSSARY:
+Check each entry in glossary.userPhrases:
+• KEY should be a phrase from the verse (contains biblical language)
+• VALUE should be user's interpretation (their explanation)
+• If KEY === VALUE → This is WRONG, needs fixing
+
+FIXING MALFORMED ENTRIES:
+If you detect: {"user interpretation": "user interpretation"}
+Find the correct source phrase from conversation history
+Output correction: {"source phrase": "user interpretation"}
+
+STAY SILENT UNLESS:
+• You detect and fix an issue (brief: "Fixed glossary mapping")
+• Loop detected ("Seems we're stuck - moving forward...")
+• Phase didn't transition ("Updating phase to Understanding...")
+
+BE INVISIBLE when everything is working correctly.`,
   },
 
   draft_builder: {
