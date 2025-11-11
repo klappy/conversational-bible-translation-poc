@@ -29,39 +29,44 @@
 
 .workflow-phase {
   font-size: 0.875rem;
-  font-weight: 600;
-  background: rgba(59, 130, 246, 0.15);
-  color: #3b82f6;
-  padding: 4px 12px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  color: #f8fafc;
+  padding: 6px 14px;
   border-radius: 12px;
-  border: 1px solid rgba(59, 130, 246, 0.3);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  letter-spacing: 0.025em;
 }
 
 .workflow-verse {
   font-size: 0.875rem;
-  opacity: 0.9;
-  background: rgba(255, 255, 255, 0.2);
-  padding: 4px 12px;
+  font-weight: 600;
+  background: linear-gradient(135deg, #475569 0%, #64748b 100%);
+  color: #f8fafc;
+  padding: 6px 14px;
   border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
 }
 
 .rewind-button {
   font-size: 0.875rem;
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(71, 85, 105, 0.9);
+  color: #f8fafc;
+  border: 1px solid rgba(99, 102, 241, 0.3);
   padding: 6px 12px;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s;
-  font-weight: 500;
+  font-weight: 600;
   margin-left: 8px;
 }
 
 .rewind-button:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.3);
-  border-color: rgba(255, 255, 255, 0.5);
+  background: rgba(51, 65, 85, 0.95);
+  border-color: rgba(99, 102, 241, 0.5);
   transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .rewind-button:active:not(:disabled) {
@@ -69,27 +74,29 @@
 }
 
 .rewind-button:disabled {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: not-allowed;
+  background: rgba(100, 116, 139, 0.3);
 }
 
 .share-button {
   font-size: 0.875rem;
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(71, 85, 105, 0.9);
+  color: #f8fafc;
+  border: 1px solid rgba(99, 102, 241, 0.3);
   padding: 6px 12px;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s;
-  font-weight: 500;
+  font-weight: 600;
   margin-left: 8px;
 }
 
 .share-button:hover {
-  background: rgba(255, 255, 255, 0.3);
-  border-color: rgba(255, 255, 255, 0.5);
+  background: rgba(51, 65, 85, 0.95);
+  border-color: rgba(99, 102, 241, 0.5);
   transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .share-button:active {
